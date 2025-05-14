@@ -13,8 +13,6 @@ class Match {
     player2Id : number;
     winnerId : number;
     childMatchId : number;
-    player1 : Participant;
-    player2 : Participant;
 
     constructor(obj : MatchObject) {
         this.id = obj.id;
@@ -29,11 +27,6 @@ class Match {
         this.winnerId = obj.winnerId;
         this.childMatchId = obj.childMatchId;
     }
-
-    pushPlayer = (t : Array<Participant>) : void => {
-        this.player1 = t.find(i => i.id == this.player1Id) as Participant;
-        this.player2 = t.find(i => i.id == this.player2Id) as Participant;
-    };
     
 }
 

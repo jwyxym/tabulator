@@ -11,7 +11,7 @@
                 cursor: pointer;
             }
         }
-        #search_button {
+        .button {
             width: 30%;
         }
     }
@@ -45,7 +45,7 @@
         width: var(--size);
         height: 80%;
         overflow-y: auto;
-        #search_button {
+        .button {
             border: 1px solid #409eff;
             display: grid;
             justify-content: center;

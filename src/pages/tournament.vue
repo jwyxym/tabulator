@@ -1,12 +1,25 @@
 <template>
     <view class = 'PageTournament'>
-        <uni-card
+        <!-- <uni-card
             v-if = 'tournament.tournament'
             :is-full = 'true'
             :title = 'tournament.tournament.name'
             :sub-title = 'tournament.tournament.description'
             :extra = 'tournament.tournament.createdAt.toLocaleDateString()'
-        >
+        > -->
+        <uni-card>
+            <uni-forms>
+                <uni-forms-item>
+                    <uni-easyinput type = 'text' placeholder = '添加选手' v-model = 'participant.name'/>
+                </uni-forms-item>
+                <view class = 'button' @click = 'participant.add()'>
+                    <uni-icons type = 'personadd'></uni-icons>
+                </view>
+                <!-- <view class = 'button' @click = 'participant.add()'>
+                    <uni-icons type = 'personadd'></uni-icons>
+                </view> -->
+            </uni-forms>
+            <br>
             <uni-card
                 :is-full = 'true'
                 title = '参与者'
@@ -32,12 +45,15 @@
                     >
                         <template v-slot:header>
                             {{ i.player1Id }}
+                            <br>
+                            {{ i.player1Score }}
                         </template>
                         <template v-slot:body>
-                            {{ i.player1Id }}
                         </template>
                         <template v-slot:footer>
                             {{ i.player2Id }}
+                            <br>
+                            {{ i.player2Score }}
                         </template>
                     </uni-list-item>
                 </uni-list>
@@ -66,6 +82,18 @@
         }
     });
 
+    let participant = reactive({
+        add : async() : Promise<void> => {
+            // @ts-ignore
+            if (await Tabulator.Participant.Create(Mycard.token, { name : participant.name, tournamentId : tournament.tournament.id})) {
+                await (new Promise(resolve => setTimeout(resolve, 500)));
+                // @ts-ignore
+                tournament.participants = await Tabulator.Participant.FindALL(Mycard.token, {tournamentId : tournament.tournament.id});
+            }
+        },
+        name : ''
+    });
+
     onMounted(() => {
         // @ts-ignore
         emitter.on(selectTournament, tournament.get);
@@ -76,3 +104,8 @@
         emitter.off(selectTournament, tournament.get);
     });
 </script>
+
+<style scoped lang = 'scss'>
+    @import '../style/style.scss';
+    @import '../style/tournament.scss';
+</style>

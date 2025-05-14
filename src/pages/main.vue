@@ -2,7 +2,7 @@
     <view id = 'page'>
         <view id = 'head'>
             <view>
-                <button id = 'search_button' class = 'click' @click = 'page.show.search()'>
+                <button class = 'button click' @click = 'page.show.search()'>
                     <uni-icons class = 'click' :type = "page.search ? 'left' : 'search'"></uni-icons>
                 </button>
             </view>
@@ -93,7 +93,7 @@
                 >
                 </uni-data-select>
                 <br>
-                <view id = 'search_button' class = 'click' @click = 'search.on()'>
+                <view class = 'button click' @click = 'search.on()'>
                     <view class = 'click'>
                         <span class = 'click'>搜索</span>
                         <uni-icons class = 'click' type = 'search'></uni-icons>
@@ -153,13 +153,13 @@
     import { selectTournament } from '../script/const.ts'
     import PageTournament from './tournament.vue';
     
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Nzc3NjY4LCJpYXQiOjE3NDUzODcwNDksImV4cCI6MTc3NjkyMzA0OX0.pyyGtE_WjU8qtz1r2NKbe3jufsYW1PCk6wnczxuMHmM'
-
     let page = reactive({
         user : false,
         search : false,
-        menu : true,
-        tournament : false,
+        // menu : true,
+        // tournament : false,
+        menu : false,
+        tournament : true,
         show : {
             user : () : void => {
                 page.user = !page.user;

@@ -1,0 +1,13 @@
+.PageTournament {
+    :deep(.uni-forms) {
+        .button {
+            border: 1px solid #409eff;
+            display: flex;
+            width: 10%;
+            justify-content: center;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+}
