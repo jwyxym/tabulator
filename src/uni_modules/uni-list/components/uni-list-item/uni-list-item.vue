@@ -343,7 +343,7 @@
 		background-color: #fff;
 		flex-direction: row;
 		/* #ifdef H5 */
-		cursor: pointer;
+		// cursor: pointer;
 		/* #endif */
 	}
 

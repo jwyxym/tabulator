@@ -49,7 +49,7 @@ class MyCard {
 
     logout() {
         window.localStorage.removeItem('mycardLogin');
-        window.location.href = window.location.href.replace(/\/\?.*/, '');
+        window.location.replace(window.location.href.replace(/\/\?.*/, ''))
     }
 }
 

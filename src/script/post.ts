@@ -18,7 +18,8 @@ import {
     ApiKeyObject,
     ApiKeyCreateObject,
     ApiKeyFindObject,
-    AllTournament
+    AllTournament,
+    AllParticipant
 } from './type.ts'
 
 class TabulatorAPI {
@@ -89,6 +90,10 @@ class TabulatorAPI {
             }
         },
         FindALL : async (token : string, obj : TournamentFindObject = {}) : Promise<AllTournament> => {
+            const filter = (obj : any) : any => {
+                const v = obj ?? '';
+                return v != '' && v != ' ' ? obj : undefined;
+            }
             let response :  {
                 data : {
                     total : number;
@@ -101,11 +106,11 @@ class TabulatorAPI {
                         recordsPerPage : 20,
                         pageCount : obj.pageCount ?? 1,
                         id : (obj.id ?? 0) > 0 ? obj.id : undefined,
-                        creator : (obj.creator ?? '') != '' ? obj.creator : undefined,
-                        name : (obj.name ?? '') != '' ? obj.name : undefined,
-                        rule : (obj.rule ?? '') != '' ? obj.rule : undefined,
-                        visibility : (obj.visibility ?? '') != '' ? obj.visibility : undefined,
-                        status : (obj.status ?? '') != '' ? obj.status : undefined,
+                        creator : filter(obj.creator),
+                        name : filter(obj.name),
+                        rule : filter(obj.rule),
+                        visibility : filter(obj.visibility),
+                        status : filter(obj.status),
                         createdAtBefore: obj.before?.toISOString() ?? undefined,
                         createdAtAfter: obj.after?.toISOString() ?? undefined
                     },
@@ -212,13 +217,17 @@ class TabulatorAPI {
         },
     }
     Participant = {
-        Create : async (token : string, Data : ParticipantCreateObject) : Promise<boolean> => {
+        Create : async (token : string, Data : ParticipantCreateObject, Array : Array<Participant>) : Promise<boolean> => {
             let response :  {
                 data : {
                     success : boolean;
                 }
             };
             try {
+                if (Data.name.length == 0)
+                    throw new Error('请填写名称');
+                if (Array.findIndex(i => Data.name == i.name) > -1)
+                    throw new Error('名称重复');
                 response = await this.url.post(`/api/participant`, Data, {
                     headers : {
                         'x-user-token' : token
@@ -271,9 +280,10 @@ class TabulatorAPI {
                 return undefined;
             }
         },
-        FindALL : async (token : string, obj : ParticipantFindObject = {}) : Promise<Array<Participant>> => {
+        FindALL : async (token : string, obj : ParticipantFindObject = {}) : Promise<AllParticipant> => {
             let response :  {
                 data : {
+                    total : number;
                     data : Array<ParticipantObject>;
                 }
             };
@@ -295,11 +305,17 @@ class TabulatorAPI {
                 response.data.data.forEach((i : ParticipantObject) => {
                     participants.push(new Participant(i));
                 })
-                return participants;
+                return {
+                    total : response.data.total,
+                    participants : participants
+                };
             }
             catch(error) {
                 console.error(error);
-                return [];
+                return {
+                    total : 0,
+                    participants : []
+                };
             }
         },
         Update : async (token : string, id : number, Data : ParticipantUpdateObject) : Promise<boolean> => {

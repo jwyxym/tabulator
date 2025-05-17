@@ -1,5 +1,9 @@
-const selectTournament = 'selectTournament';
+const selectTournament = '1';
+const tournamentInfo = '2';
+const tournamentExit = '3';
 
 export {
-    selectTournament
+    selectTournament,
+    tournamentInfo,
+    tournamentExit
 };

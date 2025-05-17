@@ -1,12 +1,39 @@
 .PageTournament {
-    :deep(.uni-forms) {
-        .button {
-            border: 1px solid #409eff;
-            display: flex;
-            width: 10%;
-            justify-content: center;
-            &:hover {
-                cursor: pointer;
+    #PageTournament {
+        :deep(.uni-forms) {
+            .button_list {
+                display: flex;
+                .button {
+                    border: 1px solid #409eff;
+                    display: flex;
+                    width: 20%;
+                    justify-content: center;
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+        :deep(.uni-list-item) {
+            #header {
+                min-width: 30%;
+                .rank {
+                    margin-top: 6rpx;
+                    color: #999;
+                    font-size: 12px;
+                    overflow: hidden;
+                }
+            }
+            #footer {
+                .button {
+                    display: flex;
+                    width: 10%;
+                    justify-content: center;
+                    :hover {
+                        color: red;
+                        cursor: pointer;
+                    }
+                }
             }
         }
     }

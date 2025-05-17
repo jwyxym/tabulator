@@ -1,9 +1,9 @@
 <template>
     <view id = 'page'>
-        <view id = 'head'>
+        <view id = 'head' class = 'click'>
             <view>
-                <button class = 'button click' @click = 'page.show.search()'>
-                    <uni-icons class = 'click' :type = "page.search ? 'left' : 'search'"></uni-icons>
+                <button class = 'button' @click = 'page.show.drawer()'>
+                    <uni-icons :type = "page.menu ? page.drawer ? 'left' : 'search' : page.drawer ? 'left' : 'info'"></uni-icons>
                 </button>
             </view>
             <view>&nbsp;</view>
@@ -17,14 +17,14 @@
                     :clickable = true
                     :avatar = 'Mycard.avatar'
                     @click = 'page.show.user()'
-                    class = 'click'
                 >
-                    <uni-icons class = 'click' :type = "page.user ? 'right' : 'left'"></uni-icons>
+                    <uni-icons :type = "page.user ? 'right' : 'left'"></uni-icons>
                 </uni-list-chat>
             </uni-list>
         </view>
         <transition name = 'move_right'>
             <uni-card
+                class = 'click'
                 id = 'user'
                 v-show = 'page.user'
                 :title = 'Mycard.username'
@@ -40,17 +40,18 @@
             ><span>获取api_key</span></view>
             <hr v-show = 'Mycard.id >= 0'>
             <view
-                class = 'user click'
+                class = 'user'
                 @click = '() => {
                     Mycard.id >= 0 ? Mycard.logout() : Mycard.login();
                 }'
-            ><span class = 'click'>{{ Mycard.id >= 0 ? '退出登陆' : '登陆' }}</span></view>
+            ><span>{{ Mycard.id >= 0 ? '退出登陆' : '登陆' }}</span></view>
             </uni-card>
         </transition>
         <transition name = 'move_left'>
             <uni-card
-                id = 'search'
-                v-show = 'page.search'
+                class = 'click'
+                id = 'drawer'
+                v-show = 'page.drawer && page.menu'
                 title = '搜索'
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
             >
@@ -75,30 +76,41 @@
                 </uni-search-bar>
                 <uni-data-select
                     placeholder = '比赛规则'
-                    v-model = 'search.rule.select'
+                    v-model = 'search.info.rule'
                     :localdata = 'search.rule.range'
                 >
                 </uni-data-select>
                 <uni-data-select
                     placeholder = '状态'
-                    v-model = 'search.status.select'
+                    v-model = 'search.info.status'
                     :localdata = 'search.status.range'
                 >
                 </uni-data-select>
                 <uni-data-select
                     placeholder = '可见性'
-                    v-model = 'search.visibility.select'
+                    v-model = 'search.info.visibility'
                     :localdata = 'search.visibility.range'
                     v-show = 'Mycard.id >= 0'
                 >
                 </uni-data-select>
                 <br>
-                <view class = 'button click' @click = 'search.on()'>
-                    <view class = 'click'>
-                        <span class = 'click'>搜索</span>
-                        <uni-icons class = 'click' type = 'search'></uni-icons>
+                <view class = 'button' @click = 'search.on()'>
+                    <view>
+                        <span>搜索</span>
+                        <uni-icons type = 'search'></uni-icons>
                     </view>
                 </view>
+            </uni-card>
+        </transition>
+        <transition name = 'move_left'>
+            <uni-card
+                class = 'click'
+                id = 'drawer'
+                v-show = 'page.drawer && page.tournament'
+                title = '比赛设置'
+                :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
+            >
+
             </uni-card>
         </transition>
         <br>
@@ -112,14 +124,14 @@
                         v-show = 'search.result.total > 0 && page.menu'
                     >
                         <uni-list-item
+                            id = 'list'
                             v-for = '(i, v) in search.result.tournaments'
                             :title = 'i.name'
-                            :note = 'i.description'
+                            :note = 'search.rule.note.get(i.rule)'
                             :rightText = '`${i.createdAt.toLocaleDateString()}\n${i.count}`'
                             :clickable = true
                             @click = 'page.show.tournament(v)'
-                        >
-                        </uni-list-item>
+                        ></uni-list-item>
                     </uni-list>
                 </transition>
                 <transition name = 'switch'>
@@ -133,9 +145,7 @@
                     </uni-pagination>
                 </transition>
                 <transition name = 'switch'>
-                    <PageTournament
-                        v-show = 'page.tournament'
-                    ></PageTournament>
+                    <PageTournament v-show = 'page.tournament'/>
                 </transition>
             </view>
         </transition>
@@ -150,22 +160,20 @@
     import ApiKey from '../script/apikey.ts';
     import Mycard from '../script/mycard.ts';
     import emitter from '../script/emitter.ts'
-    import { selectTournament } from '../script/const.ts'
+    import { selectTournament, tournamentInfo, tournamentExit } from '../script/const.ts'
     import PageTournament from './tournament.vue';
     
     let page = reactive({
         user : false,
-        search : false,
-        // menu : true,
-        // tournament : false,
-        menu : false,
-        tournament : true,
+        drawer : false,
+        menu : true,
+        tournament : false,
         show : {
             user : () : void => {
                 page.user = !page.user;
             },
-            search : () : void => {
-                page.search = !page.search;
+            drawer : () : void => {
+                page.drawer = !page.drawer;
             },
             tournament : async(v : number = 0): Promise<void> => {
                 page.menu = false;
@@ -175,16 +183,30 @@
             },
             menu : async(): Promise<void> => {
                 page.tournament = false;
+                await search.on();
                 await (new Promise(resolve => setTimeout(resolve, 500)));
                 page.menu = true;
             },
             clear : (e) : void => {
-                if (!e.target.className.includes('click')) {
-                    if (page.user)
-                        page.show.user()
-                    if (page.search)
-                        page.show.search()
+                let element = e.target;
+                let chk = false;
+                let inPage = false;
+                let uniElement = false;
+                while (element) {
+                    if (['head', 'user', 'drawer'].includes(element.id) || element.classList.contains('click'))
+                        chk = true;
+                    if (element.id == 'page')
+                        inPage = true;
+                    if (element.className.includes('uni'))
+                        uniElement = true;
+                    element = element.parentElement;
                 }
+                if (chk || (!inPage && uniElement))
+                    return undefined;
+                if (page.user)
+                    page.show.user()
+                if (page.drawer)
+                    page.show.drawer()
             }
         }
     });
@@ -194,46 +216,30 @@
         creator : '',
         date : [] as Array<string>,
         rule : {
-            select : '',
             range : [
-                { value: 0, text: '全部' },
-                { value: 1, text: '单淘' },
-                { value: 2, text: '瑞士轮' }
+                { value: ' ', text: '全部' },
+                { value: 'SingleElimination', text: '单淘' },
+                { value: 'Swiss', text: '瑞士轮' }
             ],
-            info : [
-                { value: 0, text: '' },
-                { value: 1, text: 'SingleElimination' },
-                { value: 2, text: 'Swiss' }
-            ]
+            note : new Map([
+                ['SingleElimination' , '单淘'],
+                ['Swiss' , '瑞士轮']
+            ]) as Map<string, string>
         },
         visibility : {
-            select : '',
             range: [
-                { value: 0, text: '全部' },
-                { value: 1, text: '公开' },
-                { value: 2, text: '仅登陆可见' },
-                { value: 3, text: '私密' }
-            ],
-            info : [
-                { value: 0, text: '' },
-                { value: 1, text: 'Public' },
-                { value: 2, text: 'Internal' },
-                { value: 3, text: 'Private' }
+                { value: ' ', text: '全部' },
+                { value: 'Public', text: '公开' },
+                { value: 'Internal', text: '仅登陆可见' },
+                { value: 'Private', text: '私密' }
             ]
         },
         status : {
-            select : '',
             range: [
-                { value: 0, text: '全部' },
-                { value: 1, text: '准备中' },
-                { value: 2, text: '进行中' },
-                { value: 3, text: '已结束' }
-            ],
-            info : [
-                { value: 0, text: '' },
-                { value: 1, text: 'Ready' },
-                { value: 2, text: 'Running' },
-                { value: 3, text: 'Finished' }
+                { value: ' ', text: '全部' },
+                { value: 'Ready', text: '准备中' },
+                { value: 'Running', text: '进行中' },
+                { value: 'Finished', text: '已结束' }
             ]
         },
         info : {
@@ -250,7 +256,7 @@
             tournaments : [] as Array<Tournament>
         },
         on : async () : Promise<void> => {
-            page.search = false;
+            page.drawer = false;
             if (search.result.total > 0) {
                 search.result.total = 0;
             }
@@ -316,99 +322,38 @@
         Uniapp.chkScreen(size.get);
         search.on();
         document.addEventListener("click", page.show.clear);
+        emitter.on(tournamentInfo, page.show.drawer);
+        emitter.on(tournamentExit, page.show.menu);
     });
 
     onUnmounted(() => {
         document.removeEventListener("click", page.show.clear);
+        emitter.off(tournamentInfo, page.show.drawer);
+        emitter.off(tournamentExit, page.show.menu);
     });
 
     watch(() => { return search.date; }, () => {
-        search.info.after = new Date(search.date[0]);
-        search.info.before = new Date(`${search.date[1]}T23:59:59.999`);
+        search.date.length > 0 ? () => {
+            search.info.after = new Date(search.date[0]);
+            search.info.before = new Date(`${search.date[1]}T23:59:59.999`);
+        } : () => {
+            search.info.after = undefined;
+            search.info.before = undefined;
+        }
+
     });
 
     watch(() => { return search.id; }, () => {
-        if (search.id == '')
-            search.info.id = 0;
-        else if (!isNaN(parseInt(search.id)))
-            search.info.id = parseInt(search.id);
+        search.info.id = search.id == '' ? 0 : parseInt(search.id);
     });
 
     watch(() => { return search.creator; }, () => {
-        if (search.creator == '')
-            search.info.creator = 0;
-        else if (!isNaN(parseInt(search.creator)))
-            search.info.creator = parseInt(search.creator);
-    });
-
-    watch(() => { return search.rule.select; }, () => {
-        if (!isNaN(parseInt(search.rule.select)) && search.rule.select != '')
-            search.info.rule = search.rule.info[search.rule.select].text;
-    });
-
-    watch(() => { return search.visibility.select; }, () => {
-        if (!isNaN(parseInt(search.visibility.select)) && search.visibility.select != '')
-            search.info.visibility = search.visibility.info[search.visibility.select].text;
-    });
-
-    watch(() => { return search.status.select; }, () => {
-        if (!isNaN(parseInt(search.status.select)) && search.status.select != '')
-            search.info.status = search.status.info[search.status.select].text;
+        search.info.creator = search.creator == '' ? 0 : parseInt(search.creator);
     });
 
 </script>
 <style scoped lang = 'scss'>
     @import '../style/style.scss';
     @import '../style/page.scss';
-
-    .switch {
-        &-enter-active,
-        &-leave-active {
-            transition: opacity 0.5s ease;
-        }
-
-        &-enter-from,
-        &-leave-to {
-            opacity: 0;
-        }
-
-        &-enter-to,
-        &-leave-from {
-            opacity: 1;
-        }
-    }
-
-    .move_left {
-        &-enter-active,
-        &-leave-active {
-            transition: transform 0.5s ease;
-        }
-
-        &-enter-from,
-        &-leave-to {
-            transform: translateX(-200%);
-        }
-
-        &-enter-to,
-        &-leave-from {
-            transform: translateX(0%);
-        }
-    }
-
-    .move_right {
-        &-enter-active,
-        &-leave-active {
-            transition: transform 0.5s ease;
-        }
-
-        &-enter-from,
-        &-leave-to {
-            transform: translateX(200%);
-        }
-
-        &-enter-to,
-        &-leave-from {
-            transform: translateX(0%);
-        }
-    }
+    @import '../style/transition.scss';
 </style>

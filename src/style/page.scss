@@ -18,7 +18,7 @@
     #body {
         width: var(--size);
         margin: 0 auto;
-        :deep(.uni-list-item) {
+        :deep(#list) {
             transition: all 0.3s ease;
             &:hover {
                 cursor: pointer;
@@ -39,7 +39,7 @@
             }
         }
     }
-    :deep(#search) {
+    :deep(#drawer) {
         position: absolute;
         z-index: 1;
         width: var(--size);

@@ -139,6 +139,10 @@ interface AllTournament extends All {
     tournaments : Array<Tournament>;
 }
 
+interface AllParticipant extends All {
+    participants : Array<Participant>;
+}
+
 export {
     Score,
     TournamentObject,
@@ -155,5 +159,6 @@ export {
     ApiKeyObject,
     ApiKeyCreateObject,
     ApiKeyFindObject,
-    AllTournament
+    AllTournament,
+    AllParticipant
 }
