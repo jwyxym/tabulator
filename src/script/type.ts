@@ -16,6 +16,7 @@ interface MatchFindObject {
     player2Score ?: number;
     winnerId ?: number;
     childMatchId ?: number;
+    statusIn ?: string
 }
 
 interface MatchUpdateObject {
@@ -40,13 +41,6 @@ interface MatchObject extends MatchUpdateObject {
     parentMatches ?: MatchObject;
 }
 
-interface TournamentUpdateObject {
-    name : string;
-    description : string;
-    visibility : string;
-    collaborators : Array<number>;
-}
-
 interface ruleSettings {
     rounds : number;
     winScore : number;
@@ -55,7 +49,11 @@ interface ruleSettings {
     hasThirdPlaceMatch : boolean;
 }
 
-interface TournamentCreateObject extends TournamentUpdateObject {
+interface TournamentCreateObject {
+    name : string;
+    description : string;
+    visibility : string;
+    collaborators : Array<number>;
     rule : string;
     ruleSettings : ruleSettings;
 }
@@ -152,7 +150,6 @@ export {
     Score,
     TournamentObject,
     TournamentCreateObject,
-    TournamentUpdateObject,
     TournamentFindObject,
     MatchObject,
     MatchUpdateObject,

@@ -127,7 +127,6 @@
                             </uni-list-item>
                             <uni-list-item
                                 v-for = '(i, v) in match.array'
-                                v-show = 'participant.array.findIndex(p => p.id == i.player1Id) >= 0'
                                 :clickable = true
                             >
                                 <template v-slot:header>
@@ -181,7 +180,7 @@
         tournamentReload
     } from '../script/const.ts'
     import Mycard from '../script/mycard.ts';
-    import { AllParticipant, AllMatch, TournamentUpdateObject } from '../script/type.ts'
+    import { AllParticipant, AllMatch, TournamentCreateObject } from '../script/type.ts'
 
     let tournament = reactive({
         this : undefined as undefined | Tournament,
@@ -241,7 +240,7 @@
                     if (!res.confirm) return;
                     // @ts-ignore
                     if (await Tabulator.Tournament.Delete(Mycard.token, tournament.this.id))
-                        page.reload();
+                        page.clear();
                 }
             });
         },
@@ -290,7 +289,7 @@
                 participant.total = participants.total;
             }
         },
-        update : async (Data : TournamentUpdateObject) : Promise<void> => {
+        update : async (Data : TournamentCreateObject) : Promise<void> => {
             // @ts-ignore
             if (await Tabulator.Tournament.Update(Mycard.token, tournament.this.id, Data))
                 page.reload();
@@ -317,7 +316,7 @@
             const participants : AllParticipant = await Tabulator.Participant.FindALL(Mycard.token, {tournamentId : t.id});
             participant.array = participants.participants;
             participant.total = participants.total;
-            const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : t.id});
+            const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : t.id, statusIn : 'Running,Finished'});
             match.array = matchs.matchs;
             match.total = matchs.total;
         },
@@ -336,7 +335,7 @@
             participant.array = participants.participants;
             participant.total = participants.total;
             // @ts-ignore
-            const matchs : AllMatch = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id});
+            const matchs : AllMatch = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished'});
             match.array = matchs.matchs;
             match.total = matchs.total;
             emitter.emit(tournamentReload, tournament.this)

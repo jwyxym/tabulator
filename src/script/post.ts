@@ -6,7 +6,6 @@ import ApiKey from '../script/apikey.ts';
 import {
     TournamentObject,
     TournamentCreateObject,
-    TournamentUpdateObject,
     TournamentFindObject,
     MatchObject,
     MatchUpdateObject,
@@ -48,6 +47,11 @@ class TabulatorAPI {
                 return response.data.data.id;
             }
             catch(error) {
+                uni.showModal({
+                    title : '创建失败',
+                    content : error.message,
+                    showCancel : false
+                })
                 console.error(error);
                 return -1;
             }
@@ -136,7 +140,7 @@ class TabulatorAPI {
                 };
             }
         },
-        Update : async (token : string, id : number, Data : TournamentUpdateObject) : Promise<boolean> => {
+        Update : async (token : string, id : number, Data : TournamentCreateObject) : Promise<boolean> => {
             let response :  {
                 data : {
                     success : boolean;
@@ -400,7 +404,8 @@ class TabulatorAPI {
                         player2Id : obj.player2Id,
                         player2Score : obj.player2Score,
                         winnerId : obj.winnerId,
-                        childMatchId : obj.childMatchId
+                        childMatchId : obj.childMatchId,
+                        statusIn : obj.statusIn
                     },
                     headers : {
                         'x-user-token' : token

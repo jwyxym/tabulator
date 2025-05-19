@@ -40,6 +40,12 @@
             ><span>获取api_key</span></view>
             <hr v-show = 'Mycard.id >= 0'>
             <view
+                v-show = 'Mycard.id >= 0'
+                class = 'user'
+                @click = 'page.show.create()'
+            ><span>新建比赛</span></view>
+            <hr v-show = 'Mycard.id >= 0'>
+            <view
                 class = 'user'
                 @click = '() => {
                     Mycard.id >= 0 ? Mycard.logout() : Mycard.login();
@@ -51,29 +57,35 @@
             <uni-card
                 class = 'click'
                 id = 'drawer'
-                v-show = 'page.drawer && page.menu'
+                v-show = 'page.drawer && page.menu && !page.create'
                 title = '搜索'
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
             >
                 <uni-datetime-picker type = 'daterange' v-model = 'search.date'/>
-                <uni-search-bar
+                <uni-easyinput
+                    prefixIcon = 'search'
+                    type = 'number'
                     placeholder = '组织者id'
                     cancelButton = 'none'
                     v-model = 'search.creator'
-                >
-                </uni-search-bar>
-                <uni-search-bar
+                ></uni-easyinput>
+                <view class = 'button' @click = 'search.mine()'>
+                    我组织的比赛
+                </view>
+                <uni-easyinput
+                    prefixIcon = 'search'
+                    type = 'text'
                     placeholder = '比赛名称'
                     cancelButton = 'none'
                     v-model = 'search.info.name'
-                >
-                </uni-search-bar>
-                <uni-search-bar
+                ></uni-easyinput>
+                <uni-easyinput
+                    prefixIcon = 'search'
+                    type = 'number'
                     placeholder = '比赛id'
                     cancelButton = 'none'
                     v-model = 'search.id'
-                >
-                </uni-search-bar>
+                ></uni-easyinput>
                 <uni-data-select
                     placeholder = '比赛规则'
                     v-model = 'search.info.rule'
@@ -106,7 +118,7 @@
             <uni-card
                 class = 'click'
                 id = 'drawer'
-                v-show = 'page.drawer && page.tournament'
+                v-show = 'page.drawer && page.tournament && !page.create'
                 title = '比赛设置'
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
             >
@@ -121,17 +133,18 @@
                     placeholder = '规则'
                     v-model = 'tournament.rule.select'
                     :localdata = 'tournament.rule.range'
+                    :disabled = "tournament.this?.status != 'Ready'"
                 ></uni-data-select>
                 <view v-show = "tournament.rule.select == 'Swiss'">
-                    <uni-easyinput type = 'number' placeholder = '轮数' v-model = 'tournament.rule.settings.rounds'/>
-                    <uni-easyinput type = 'number' placeholder = '胜利分' v-model = 'tournament.rule.settings.winScore'/>
-                    <uni-easyinput type = 'number' placeholder = '平局分' v-model = 'tournament.rule.settings.drawScore'/>
-                    <uni-easyinput type = 'number' placeholder = '轮空分' v-model = 'tournament.rule.settings.byeScore'/>
+                    <uni-easyinput type = 'number' placeholder = '轮数' v-model = 'tournament.rule.settings.rounds' :disabled = "tournament.this?.status != 'Ready'"/>
+                    <uni-easyinput type = 'number' placeholder = '胜利分' v-model = 'tournament.rule.settings.winScore' :disabled = "tournament.this?.status != 'Ready'"/>
+                    <uni-easyinput type = 'number' placeholder = '平局分' v-model = 'tournament.rule.settings.drawScore' :disabled = "tournament.this?.status != 'Ready'"/>
+                    <uni-easyinput type = 'number' placeholder = '轮空分' v-model = 'tournament.rule.settings.byeScore' :disabled = "tournament.this?.status != 'Ready'"/>
                 </view>
                 <view v-show = "tournament.rule.select == 'SingleElimination'">
                     <checkbox-group @change = 'tournament.hasThirdPlaceMatch.select'>
                         <label>
-                            <checkbox :checked = 'tournament.rule.settings.hasThirdPlaceMatch'/>季军赛
+                            <checkbox :checked = 'tournament.rule.settings.hasThirdPlaceMatch' :disabled = "tournament.this?.status != 'Ready'"/>季军赛
                         </label>
                     </checkbox-group>
                 </view>
@@ -139,7 +152,49 @@
                 <view class = 'button' @click = 'tournament.update()'>
                     <view>
                         <span>设置</span>
-                        <uni-icons type = 'search'></uni-icons>
+                        <uni-icons type = 'calendar'></uni-icons>
+                    </view>
+                </view>
+            </uni-card>
+        </transition>
+        <transition name = 'move_left'>
+            <uni-card
+                class = 'click'
+                id = 'drawer'
+                v-show = 'page.drawer && page.create'
+                title = '比赛创建'
+                :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
+            >
+                <uni-easyinput type = 'text' placeholder = '比赛名称' v-model = 'create.name'/>
+                <uni-easyinput type = 'text' placeholder = '比赛描述' v-model = 'create.description'/>
+                <uni-data-select
+                    placeholder = '可见性'
+                    v-model = 'create.visibility.select'
+                    :localdata = 'tournament.visibility.range'
+                ></uni-data-select>
+                <uni-data-select
+                    placeholder = '规则'
+                    v-model = 'create.rule.select'
+                    :localdata = 'tournament.rule.range'
+                ></uni-data-select>
+                <view v-show = "create.rule.select == 'Swiss'">
+                    <!-- <uni-easyinput type = 'number' placeholder = '轮数' v-model = 'create.rule.settings.rounds'/> -->
+                    <uni-easyinput type = 'number' placeholder = '胜利分' v-model = 'create.rule.settings.winScore'/>
+                    <uni-easyinput type = 'number' placeholder = '平局分' v-model = 'create.rule.settings.drawScore'/>
+                    <uni-easyinput type = 'number' placeholder = '轮空分' v-model = 'create.rule.settings.byeScore'/>
+                </view>
+                <view v-show = "create.rule.select == 'SingleElimination'">
+                    <checkbox-group @change = 'create.hasThirdPlaceMatch.select'>
+                        <label>
+                            <checkbox :checked = 'create.rule.settings.hasThirdPlaceMatch'/>季军赛
+                        </label>
+                    </checkbox-group>
+                </view>
+                <br>
+                <view class = 'button' @click = 'create.update()'>
+                    <view>
+                        <span>创建</span>
+                        <uni-icons type = 'calendar'></uni-icons>
                     </view>
                 </view>
             </uni-card>
@@ -184,7 +239,7 @@
 </template>
 <script setup lang = 'ts'>
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
-    import { TournamentFindObject, TournamentUpdateObject, ruleSettings } from '../script/type.ts';
+    import { TournamentFindObject, TournamentCreateObject, ruleSettings } from '../script/type.ts';
     import Uniapp from '../script/uniapp.ts';
     import Tabulator from '../script/post.ts';
     import Tournament from '../script/tournament.ts';
@@ -205,12 +260,15 @@
         drawer : false,
         menu : true,
         tournament : false,
+        create : false,
         show : {
             user : () : void => {
                 page.user = !page.user;
             },
             drawer : () : void => {
                 page.drawer = !page.drawer;
+                if (!page.drawer && page.create)
+                    page.create = false;
                 if (!page.drawer && page.tournament)
                     tournament.init(tournament.this as Tournament);
             },
@@ -228,6 +286,14 @@
                 await (new Promise(resolve => setTimeout(resolve, 500)));
                 page.menu = true;
             },
+            create : async(): Promise<void> => {
+                if (page.drawer) {
+                    page.show.drawer();
+                    await (new Promise(resolve => setTimeout(resolve, 500)));
+                }
+                page.create = true;
+                page.show.drawer();
+            },
             clear : (e) : void => {
                 let element = e.target;
                 let chk = false;
@@ -238,16 +304,16 @@
                         chk = true;
                     if (element.id == 'page')
                         inPage = true;
-                    if (element.className.includes('uni'))
+                    if (typeof element.className == 'string' && element.className.includes('uni'))
                         uniElement = true;
                     element = element.parentElement;
                 }
                 if (chk || (!inPage && uniElement))
                     return undefined;
                 if (page.user)
-                    page.show.user()
+                    page.show.user();
                 if (page.drawer)
-                    page.show.drawer()
+                    page.show.drawer();
             }
         }
     });
@@ -304,6 +370,9 @@
             const result = await Tabulator.Tournament.FindALL(Mycard.token, search.info);
             search.result.total = result.total;
             search.result.tournaments = result.tournaments;
+        },
+        mine : () => {
+            search.creator = Mycard.id.toString();
         }
     });
 
@@ -326,21 +395,22 @@
                 { value: 'Swiss', text: '瑞士轮' }
             ],
             settings : {
-                hasThirdPlaceMatch : true
             } as ruleSettings
         },
         hasThirdPlaceMatch : {
             select : (e) => {
                 tournament.rule.settings.hasThirdPlaceMatch = e.detail.value.length > 0
-                console.log(tournament.rule.settings.hasThirdPlaceMatch)
             }
         },
         collaborators : [] as Array<number>,
         init : (t : Tournament) : void => {
+            if (!t) return;
             tournament.this = t;
             tournament.name = t.name;
             tournament.description = t.description;
             tournament.visibility.select = t.visibility;
+            tournament.rule.select = t.rule;
+            tournament.rule.settings = Object.assign({}, t.ruleSettings);
             tournament.collaborators = t.collaborators;
         },
         clear : () : void => {
@@ -348,6 +418,8 @@
             tournament.name = '';
             tournament.description = '';
             tournament.visibility.select = '';
+            tournament.rule.select = '';
+            tournament.rule.settings = {} as ruleSettings;
             tournament.collaborators = [];
         },
         update : () : void => {
@@ -358,8 +430,57 @@
                 name: tournament.name,
                 description: tournament.description,
                 visibility: tournament.visibility.select,
-                collaborators : tournament.collaborators
-            } as TournamentUpdateObject);
+                collaborators : tournament.collaborators,
+                rule : tournament.rule.select,
+                ruleSettings : tournament.rule.settings
+            } as TournamentCreateObject);
+        }
+    });
+
+    let create = reactive({
+        name : '',
+        description : '',
+        visibility : {
+            select : ''
+        },
+        rule : {
+            select : '',
+            settings : {
+            } as ruleSettings
+        },
+        hasThirdPlaceMatch : {
+            select : (e) => {
+                create.rule.settings.hasThirdPlaceMatch = e.detail.value.length > 0
+            }
+        },
+        collaborators : [] as Array<number>,
+        clear : () : void => {
+            create.name = '';
+            create.description = '';
+            create.visibility.select = '';
+            create.rule.select = '';
+            create.rule.settings = {} as ruleSettings;
+            create.collaborators = [];
+        },
+        update : async() : Promise<void> => {
+            if (create.visibility.select == '')
+            // @ts-ignore
+                create.visibility.select = 'SingleElimination';
+            if (await Tabulator.Tournament.Create(Mycard.token, {
+                    name: create.name,
+                    description: create.description,
+                    rule: create.rule.select,
+                    ruleSettings: create.rule.settings,
+                    visibility: create.visibility.select,
+                    collaborators: create.collaborators
+                })
+            ) {
+                page.show.drawer();
+                if (page.tournament)
+                    page.show.menu();
+                create.clear();
+                await search.on();
+            }
         }
     });
 
