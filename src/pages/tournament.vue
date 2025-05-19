@@ -136,7 +136,22 @@
                                         <view id = 'left'>
                                             {{ participant.array.find(p => p.id == i.player1Id)?.name }}
                                             <br>
-                                            {{ i.player1Score }}
+                                            <span 
+                                                v-if = '
+                                                    // @ts-ignore
+                                                    participant.array.find(p => p.id == i.player1Id) && participant.array.find(p => p.id == i.player1Id).score
+                                                '>
+                                                {{
+                                                    `${
+                                                        // @ts-ignore
+                                                        participant.array.find(p => p.id == i.player1Id)?.score.win + participant.array.find(p => p.id == i.player1Id)?.score.bye
+                                                    }-${
+                                                        participant.array.find(p => p.id == i.player1Id)?.score.draw
+                                                    }-${
+                                                        participant.array.find(p => p.id == i.player1Id)?.score.lose
+                                                    }`
+                                                }}
+                                            </span>
                                         </view>
                                         <view id = 'center'>
                                             {{ `第${i.round}轮` }}
@@ -144,7 +159,21 @@
                                         <view  id = 'right'>
                                             {{ participant.array.find(p => p.id == i.player2Id)?.name }}
                                             <br>
-                                            {{ i.player2Score }}
+                                            <span v-if = '
+                                                // @ts-ignore
+                                                participant.array.find(p => p.id == i.player2Id) && participant.array.find(p => p.id == i.player2Id).score
+                                            '>
+                                                {{
+                                                    `${
+                                                        // @ts-ignore
+                                                        participant.array.find(p => p.id == i.player2Id)?.score.win + participant.array.find(p => p.id == i.player2Id)?.score.bye
+                                                    }-${
+                                                        participant.array.find(p => p.id == i.player2Id)?.score.draw
+                                                    }-${
+                                                        participant.array.find(p => p.id == i.player2Id)?.score.lose
+                                                    }`
+                                                }}
+                                            </span>
                                         </view>
                                     </view>
                                 </template>
