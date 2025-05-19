@@ -52,7 +52,7 @@ class TabulatorAPI {
                     title : '创建失败',
                     content : error.message,
                     showCancel : false
-                })
+                });
                 console.error(error);
                 return -1;
             }

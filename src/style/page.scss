@@ -49,9 +49,6 @@
             overflow-y: auto;
             overflow-x: auto;
             height: 40vh;
-            :deep(.uni-list-chat) {
-                width: 200%;
-            }
         }
         .button {
             border: 1px solid #409eff;

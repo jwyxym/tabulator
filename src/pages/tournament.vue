@@ -12,15 +12,15 @@
             >
                 <uni-forms>
                     <view class = 'button_list' >
-                        <view class = 'button click' @click = 'emitter.emit(tournamentInfo)'>
+                        <view class = 'button click' @click = 'tournament.operatorChk(() => { emitter.emit(tournamentInfo); })'>
                             <span>设置</span>
                             <uni-icons type = 'info'></uni-icons>
                         </view>
-                        <view class = 'button' @click = 'page.reload()'>
+                        <view class = 'button' @click = 'tournament.operatorChk(page.reload)'>
                             <span>刷新</span>
                             <uni-icons type = 'reload'></uni-icons>
                         </view>
-                        <view class = 'button' @click = 'page.clear()'>
+                        <view class = 'button' @click = 'tournament.operatorChk(page.clear)'>
                             <span>关闭</span>
                             <uni-icons type = 'close'></uni-icons>
                         </view>
@@ -46,7 +46,7 @@
                     <uni-card
                         v-show = '!page.loading'
                         :is-full = 'true'
-                        title = '参与者'
+                        :title = '`参与者：${participant.total}`'
                     >
                         <transition name = 'switch'>
                             <uni-list>
@@ -117,7 +117,7 @@
                     <uni-card
                         v-show = '!page.loading'
                         :is-full = 'true'
-                        title = '比赛'
+                        :title = '`比赛：${match.total}`'
                     >
                         <view id = 'round'>
                             第
@@ -135,12 +135,16 @@
                                     title = '暂无比赛'
                                 >
                                 </uni-list-item>
+                                <view
+                                    class = 'match'
+                                    v-for = '(i, v) in match.array'
+                                    :style = "{ '--top' : `${page.listHeight * v}px` }"
+                                >
+                                </view>
                                 <uni-list-item
                                     v-for = '(i, v) in match.array'
                                     :clickable = true
                                 >
-                                    <template v-slot:header>
-                                    </template>
                                     <template v-slot:body>
                                         <view id = 'body'>
                                             <view id = 'left'>
@@ -186,8 +190,6 @@
                                                 </span>
                                             </view>
                                         </view>
-                                    </template>
-                                    <template v-slot:footer>
                                     </template>
                                 </uni-list-item>
                             </uni-list>
@@ -282,6 +284,16 @@
                 }
             });
         },
+        operatorChk : (f : Function, para : Array<any> = []) : void => {
+            if (Mycard.id >= 0 && (Mycard.id == tournament.this?.creator || tournament.this?.collaborators.includes(Mycard.id)))
+                f(...para);
+            else
+                uni.showModal({
+                    title : '缺少权限',
+                    content : '请先登陆或联系比赛主办方',
+                    showCancel : false
+                });
+        }
     });
 
     let match = reactive({
@@ -337,6 +349,7 @@
 
     let page = reactive({
         height : 0,
+        listHeight : 0,
         loading : false,
         clear : async () : Promise<void>=> {
             tournament.this = undefined;
@@ -400,7 +413,14 @@
         const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished', round : match.round});
         match.array = matchs.matchs;
         match.total = matchs.total;
-    })
+    });
+
+    watch(() => { return match.array; }, () => {
+        uni.createSelectorQuery().in(this).select('#left').boundingClientRect(res => {
+            // @ts-ignore
+            page.listHeight = res.height;
+        }).exec();
+    });
 </script>
 
 <style scoped lang = 'scss'>

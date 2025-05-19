@@ -162,13 +162,34 @@
                             :avatar = 'i.avatar'
                             :title = 'i.username'
                             :note = "i.id >= 0 ? i.id.toString() : ''"
+                            @click = 'tournament.remove(v)'
                         >
-                        <view>
-                            <view class = 'button'>
-                                <uni-icons type = 'trash'></uni-icons>
+                            <view>
+                                <view class = 'button'>
+                                    <uni-icons type = 'trash'></uni-icons>
+                                </view>
                             </view>
-                        </view>
                         </uni-list-chat>
+                        <uni-list-item>
+                            <template v-slot:header>
+                                <uni-forms>
+                                    <uni-forms-item id = 'header'>
+                                        <uni-easyinput type = 'text' placeholder = '添加协作者' v-model = 'tournament.collaborator'/>
+                                    </uni-forms-item>
+                                </uni-forms>
+                            </template>
+                            <template v-slot:footer>
+                                <view  id = 'footer'>
+                                    <view
+                                        class = 'button'
+                                        :style = "{ '--color' : '#409eff' }"
+                                        @click = 'tournament.add()'
+                                    >
+                                        <uni-icons type = 'personadd'></uni-icons>
+                                    </view>
+                                </view>
+                            </template>
+                        </uni-list-item>
                     </uni-list>
                 </uni-card>
                 <br>
@@ -212,6 +233,50 @@
                         </label>
                     </checkbox-group>
                 </view>
+                <br>
+                <uni-card
+                    id = 'collaborators'
+                    title = '协作者'
+                    :is-full = 'true'
+                >
+                    <uni-list>
+                        <uni-list-chat
+                            v-for = '(i, v) in create.collaborators'
+                            :avatarCircle = 'true'
+                            :clickable = true
+                            :avatar = 'i.avatar'
+                            :title = 'i.username'
+                            :note = "i.id >= 0 ? i.id.toString() : ''"
+                            @click = 'create.remove(v)'
+                        >
+                            <view>
+                                <view class = 'button'>
+                                    <uni-icons type = 'trash'></uni-icons>
+                                </view>
+                            </view>
+                        </uni-list-chat>
+                        <uni-list-item>
+                            <template v-slot:header>
+                                <uni-forms>
+                                    <uni-forms-item id = 'header'>
+                                        <uni-easyinput type = 'text' placeholder = '添加协作者' v-model = 'create.collaborator'/>
+                                    </uni-forms-item>
+                                </uni-forms>
+                            </template>
+                            <template v-slot:footer>
+                                <view  id = 'footer'>
+                                    <view
+                                        class = 'button'
+                                        :style = "{ '--color' : '#409eff' }"
+                                        @click = 'create.add()'
+                                    >
+                                        <uni-icons type = 'personadd'></uni-icons>
+                                    </view>
+                                </view>
+                            </template>
+                        </uni-list-item>
+                    </uni-list>
+                </uni-card>
                 <br>
                 <view class = 'button' @click = 'create.update()'>
                     <view>
@@ -422,6 +487,7 @@
                 tournament.rule.settings.hasThirdPlaceMatch = e.detail.value.length > 0
             }
         },
+        collaborator : '',
         collaborators : [] as Array<UserObject>,
         init : async (t : Tournament) : Promise<void> => {
             if (!t) return;
@@ -449,7 +515,7 @@
         },
         update : () : void => {
             if (tournament.visibility.select == '')
-            // @ts-ignore
+                // @ts-ignore
                 tournament.visibility.select = tournament.this.visibility;
 
             const collaborators = tournament.collaborators.map(user => user.id);
@@ -458,9 +524,33 @@
                 description: tournament.description,
                 visibility: tournament.visibility.select,
                 collaborators : collaborators,
-                rule : tournament.rule.select,
-                ruleSettings : tournament.rule.settings
+                // PS：这里接口暂时不通
+                // rule : tournament.rule.select,
+                // ruleSettings : tournament.rule.settings
             } as TournamentCreateObject);
+        },
+        remove : (v : number) : void => {
+            tournament.collaborators.splice(v, 1);
+        },
+        add : async() : Promise<void> => {
+            try {
+                if (tournament.collaborators.findIndex(i => i.username == tournament.collaborator) >= 0)
+                    throw new Error('协作者已存在');
+                const i = await User.Find.Name(tournament.collaborator);
+                if (!i)
+                    throw new Error('未搜索到此用户');
+                if (tournament.this?.creator == i.id)
+                    throw new Error('协作者不可以是比赛创建者');
+                tournament.collaborators.push(i);
+            } catch(error) {
+                uni.showModal({
+                    title : '添加失败',
+                    content : error.message,
+                    showCancel : false
+                });
+            } finally {
+                tournament.collaborator = '';
+            }
         }
     });
 
@@ -480,7 +570,8 @@
                 create.rule.settings.hasThirdPlaceMatch = e.detail.value.length > 0
             }
         },
-        collaborators : [] as Array<number>,
+        collaborator : '',
+        collaborators : [] as Array<UserObject>,
         clear : () : void => {
             create.name = '';
             create.description = '';
@@ -493,13 +584,14 @@
             if (create.visibility.select == '')
             // @ts-ignore
                 create.visibility.select = 'SingleElimination';
+            const collaborators = create.collaborators.map(user => user.id);
             if (await Tabulator.Tournament.Create(Mycard.token, {
                     name: create.name,
                     description: create.description,
                     rule: create.rule.select,
                     ruleSettings: create.rule.settings,
                     visibility: create.visibility.select,
-                    collaborators: create.collaborators
+                    collaborators: collaborators
                 })
             ) {
                 page.show.drawer();
@@ -507,6 +599,29 @@
                     page.show.menu();
                 create.clear();
                 await search.on();
+            }
+        },
+        remove : (v : number) : void => {
+            create.collaborators.splice(v, 1);
+        },
+        add : async() : Promise<void> => {
+            try {
+                if (create.collaborators.findIndex(i => i.username == create.collaborator) >= 0)
+                    throw new Error('协作者已存在');
+                const i = await User.Find.Name(create.collaborator);
+                if (!i)
+                    throw new Error('未搜索到此用户');
+                if (Mycard.id == i.id)
+                    throw new Error('协作者不可以是比赛创建者');
+                create.collaborators.push(i);
+            } catch(error) {
+                uni.showModal({
+                    title : '添加失败',
+                    content : error.message,
+                    showCancel : false
+                });
+            } finally {
+                create.collaborator = '';
             }
         }
     });

@@ -28,6 +28,7 @@
                 }
             }
             #body {
+                position: relative;
                 width: 100%;
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
@@ -59,6 +60,13 @@
                     }
                 }
             }
+        }
+
+        .match {
+            position: absolute;
+            z-index: 1;
+            top : var(--top);
+            left : 100%;
         }
     }
 }
