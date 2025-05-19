@@ -309,7 +309,7 @@
 	// }
 
 	.uni-list-chat--hover {
-		background-color: $hover;
+		// background-color: $hover;
 	}
 
 	.uni-list--border {

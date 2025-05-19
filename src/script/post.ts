@@ -19,7 +19,8 @@ import {
     ApiKeyFindObject,
     AllTournament,
     AllParticipant,
-    AllMatch
+    AllMatch,
+    UserObject
 } from './type.ts'
 
 class TabulatorAPI {
@@ -558,6 +559,54 @@ class TabulatorAPI {
     }
 }
 
+class Users {
+    url : AxiosInstance;
+
+    constructor(url : string) {
+        this.url = axios.create({
+            baseURL : url
+        });
+    }
+
+    Find = {
+        Name : async (name : string) : Promise<UserObject | undefined> => {
+            let response : {
+                data : {
+                    user : UserObject;
+                };
+            };
+            try {
+                response = await this.url.get(`users/${encodeURIComponent(name)}.json`);
+                return response.data.user;
+            }
+            catch(error) {
+                console.error(error);
+                return undefined;
+            }
+        },
+        Id : async (id : number) : Promise<UserObject | undefined> => {
+            let response : {
+                data : {
+                    user : UserObject;
+                };
+            };
+            try {
+                response = await this.url.get(`users/_id_${id}.json`);
+                return response.data.user;
+            }
+            catch(error) {
+                console.error(error);
+                return undefined;
+            }
+        }
+    }
+    
+}
+
+const User = new Users('https://sapi.moecube.com:444/accounts')
 const Tabulator = new TabulatorAPI('https://api-tabulator-dev.moecube.com');
 
-export default Tabulator;
+export {
+    Tabulator,
+    User
+};

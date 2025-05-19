@@ -146,6 +146,12 @@ interface AllMatch extends All {
     matchs : Array<Match>;
 }
 
+interface UserObject {
+    avatar : string
+    id : 777668
+    username : string
+}
+
 export {
     Score,
     TournamentObject,
@@ -164,5 +170,6 @@ export {
     AllTournament,
     AllParticipant,
     AllMatch,
-    ruleSettings
+    ruleSettings,
+    UserObject
 }

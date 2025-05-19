@@ -208,7 +208,7 @@
 <script setup lang = 'ts'>
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
     import emitter from '../script/emitter.ts'
-    import Tabulator from '../script/post.ts';
+    import {Tabulator, User} from '../script/post.ts';
     import Tournament from '../script/tournament.ts';
     import Participant from '../script/participant.ts';
     import Match from '../script/match.ts';

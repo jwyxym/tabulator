@@ -149,6 +149,29 @@
                     </checkbox-group>
                 </view>
                 <br>
+                <uni-card
+                    id = 'collaborators'
+                    title = '协作者'
+                    :is-full = 'true'
+                >
+                    <uni-list>
+                        <uni-list-chat
+                            v-for = '(i, v) in tournament.collaborators'
+                            :avatarCircle = 'true'
+                            :clickable = true
+                            :avatar = 'i.avatar'
+                            :title = 'i.username'
+                            :note = "i.id >= 0 ? i.id.toString() : ''"
+                        >
+                        <view>
+                            <view class = 'button'>
+                                <uni-icons type = 'trash'></uni-icons>
+                            </view>
+                        </view>
+                        </uni-list-chat>
+                    </uni-list>
+                </uni-card>
+                <br>
                 <view class = 'button' @click = 'tournament.update()'>
                     <view>
                         <span>设置</span>
@@ -178,7 +201,6 @@
                     :localdata = 'tournament.rule.range'
                 ></uni-data-select>
                 <view v-show = "create.rule.select == 'Swiss'">
-                    <!-- <uni-easyinput type = 'number' placeholder = '轮数' v-model = 'create.rule.settings.rounds'/> -->
                     <uni-easyinput type = 'number' placeholder = '胜利分' v-model = 'create.rule.settings.winScore'/>
                     <uni-easyinput type = 'number' placeholder = '平局分' v-model = 'create.rule.settings.drawScore'/>
                     <uni-easyinput type = 'number' placeholder = '轮空分' v-model = 'create.rule.settings.byeScore'/>
@@ -239,9 +261,9 @@
 </template>
 <script setup lang = 'ts'>
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
-    import { TournamentFindObject, TournamentCreateObject, ruleSettings } from '../script/type.ts';
+    import { TournamentFindObject, TournamentCreateObject, ruleSettings, UserObject } from '../script/type.ts';
     import Uniapp from '../script/uniapp.ts';
-    import Tabulator from '../script/post.ts';
+    import {Tabulator, User} from '../script/post.ts';
     import Tournament from '../script/tournament.ts';
     import ApiKey from '../script/apikey.ts';
     import Mycard from '../script/mycard.ts';
@@ -400,8 +422,8 @@
                 tournament.rule.settings.hasThirdPlaceMatch = e.detail.value.length > 0
             }
         },
-        collaborators : [] as Array<number>,
-        init : (t : Tournament) : void => {
+        collaborators : [] as Array<UserObject>,
+        init : async (t : Tournament) : Promise<void> => {
             if (!t) return;
             tournament.this = t;
             tournament.name = t.name;
@@ -409,7 +431,12 @@
             tournament.visibility.select = t.visibility;
             tournament.rule.select = t.rule;
             tournament.rule.settings = Object.assign({}, t.ruleSettings);
-            tournament.collaborators = t.collaborators;
+            let collaborators : Array<UserObject> = [];
+            for (const id of t.collaborators) {
+                const i = tournament.collaborators.find(i => i.id == id) ?? await User.Find.Id(id);
+                if (i) collaborators.push(i);
+            }
+            tournament.collaborators = collaborators;
         },
         clear : () : void => {
             tournament.this = undefined;
@@ -424,11 +451,13 @@
             if (tournament.visibility.select == '')
             // @ts-ignore
                 tournament.visibility.select = tournament.this.visibility;
+
+            const collaborators = tournament.collaborators.map(user => user.id);
             emitter.emit(updateTournament, {
                 name: tournament.name,
                 description: tournament.description,
                 visibility: tournament.visibility.select,
-                collaborators : tournament.collaborators,
+                collaborators : collaborators,
                 rule : tournament.rule.select,
                 ruleSettings : tournament.rule.settings
             } as TournamentCreateObject);
@@ -483,22 +512,22 @@
     });
 
     const test = async () => {
-        let response = await Tabulator.Tournament.Create(Mycard.token, {
-            name: "test",
-            description: "暂无介绍。",
-            rule: "SingleElimination",
-            ruleSettings: {
-                rounds: 0,
-                winScore: 0,
-                drawScore: 0,
-                byeScore: 0,
-                hasThirdPlaceMatch: true
-            },
-            visibility: "Public",
-            collaborators: [
-                1
-            ]
-        });
+        // let response = await Tabulator.Tournament.Create(Mycard.token, {
+        //     name: "test",
+        //     description: "暂无介绍。",
+        //     rule: "SingleElimination",
+        //     ruleSettings: {
+        //         rounds: 0,
+        //         winScore: 0,
+        //         drawScore: 0,
+        //         byeScore: 0,
+        //         hasThirdPlaceMatch: true
+        //     },
+        //     visibility: "Public",
+        //     collaborators: [
+        //         1
+        //     ]
+        // });
         // await Tabulator.Tournament.Delete(token, 3);
         // await Tabulator.Tournament.FindALL(token, {});
         // await Tabulator.Tournament.Update(token, 3, {
