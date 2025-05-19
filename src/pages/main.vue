@@ -370,7 +370,7 @@
             search.result.tournaments = result.tournaments;
         },
         mine : () => {
-            search.creator = Mycard.id.toString();
+            search.creator = Mycard.id >= 0 ? Mycard.id.toString() : '';
         }
     });
 
@@ -542,8 +542,10 @@
         } else {
             if (window.location.pathname.length > 1)
                 window.location.replace(window.location.href.replace(window.location.pathname, ''))
-            else
+            else {
+                search.mine();
                 search.on();
+            }
         }
     });
 
