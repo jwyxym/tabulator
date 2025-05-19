@@ -119,6 +119,15 @@
                         :is-full = 'true'
                         title = '比赛'
                     >
+                        <view id = 'round'>
+                            第
+                            <uni-number-box
+                                v-model = 'match.round'
+                                :min = '1'
+                                :disabled = "tournament.this.status == 'Ready'"
+                            ></uni-number-box>
+                            轮
+                        </view>
                         <transition name = 'switch'>
                             <uni-list>
                                 <uni-list-item
@@ -279,6 +288,7 @@
         array : [] as Array<Match>,
         total : 0,
         page : 1,
+        round : 1
     });
 
     let participant = reactive({
@@ -341,7 +351,7 @@
                 const participants : AllParticipant = await Tabulator.Participant.FindALL(Mycard.token, {tournamentId : t.id});
                 participant.array = participants.participants;
                 participant.total = participants.total;
-                const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : t.id, statusIn : 'Running,Finished'});
+                const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : t.id, statusIn : 'Running,Finished', round : match.round});
                 match.array = matchs.matchs;
                 match.total = matchs.total;
             } else {
@@ -363,7 +373,7 @@
             participant.array = participants.participants;
             participant.total = participants.total;
             // @ts-ignore
-            const matchs : AllMatch = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished'});
+            const matchs : AllMatch = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished', round : match.round});
             match.array = matchs.matchs;
             match.total = matchs.total;
             emitter.emit(tournamentReload, tournament.this)
@@ -384,6 +394,13 @@
         // @ts-ignore
         emitter.off(updateTournament, participant.update);
     });
+
+    watch(() => { return match.round; }, async () : Promise<void> => {
+        // @ts-ignore
+        const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished', round : match.round});
+        match.array = matchs.matchs;
+        match.total = matchs.total;
+    })
 </script>
 
 <style scoped lang = 'scss'>
