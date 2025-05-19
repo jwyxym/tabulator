@@ -329,12 +329,9 @@
         height : 0,
         loading : false,
         clear : async () : Promise<void>=> {
-            const url = window.location.href.match(/(\/tournament\/[^\/]+)(?=\/\?)/);
-            if (url) {
-                tournament.this = undefined;
-                await (new Promise(resolve => setTimeout(resolve, 450)));
-                window.location.replace(window.location.href.replace(url[1], ''));
-            }
+            tournament.this = undefined;
+            await (new Promise(resolve => setTimeout(resolve, 450)));
+            window.location.replace(window.location.href.replace(window.location.pathname, ''))
         },
         get : async (id : number) : Promise<void> => {
             const t = await Tabulator.Tournament.Find(Mycard.token, id);
@@ -377,7 +374,7 @@
     });
 
     onBeforeMount(() => {
-        const url = window.location.href.match(/tournament\/(\d+)[^\/]*\/\?/);
+        const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
         url && !isNaN(parseInt(url[1])) ? page.get(parseInt(url[1])) : page.clear();
         // @ts-ignore
         emitter.on(updateTournament, participant.update);

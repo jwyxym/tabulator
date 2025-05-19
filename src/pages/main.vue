@@ -275,7 +275,7 @@
                 await (new Promise(resolve => setTimeout(resolve, 500)));
                 page.tournament = true;
                 const url = window.location.href.split('/?');
-                window.location.replace(`${url[0]}/tournament/${search.result.tournaments[v].id}/?${url[1] ?? ''}`)
+                window.location.replace(`${url[0].replace(/\/?$/, '')}/tournament/${search.result.tournaments[v].id}${url[1] ? `/?${url[1]}` : ''}`);
             },
             menu : async(): Promise<void> => {
                 page.tournament = false;
@@ -535,12 +535,15 @@
         // @ts-ignore
         emitter.on(tournamentReload, tournament.init);
 
-        const url = window.location.href.match(/tournament\/(\d+)[^\/]*\/\?/);
+        const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
         if (url && !isNaN(parseInt(url[1]))) {
             page.menu = false;
             page.tournament = true;
         } else {
-            search.on();
+            if (window.location.pathname.length > 1)
+                window.location.replace(window.location.href.replace(window.location.pathname, ''))
+            else
+                search.on();
         }
     });
 
