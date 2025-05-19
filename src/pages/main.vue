@@ -231,7 +231,7 @@
                     </uni-pagination>
                 </transition>
                 <transition name = 'switch'>
-                    <PageTournament v-show = 'page.tournament'/>
+                    <PageTournament v-if = 'page.tournament'/>
                 </transition>
             </view>
         </transition>
@@ -247,10 +247,8 @@
     import Mycard from '../script/mycard.ts';
     import emitter from '../script/emitter.ts'
     import {
-        selectTournament,
         updateTournament ,
         tournamentInfo,
-        tournamentExit,
         tournamentReload
     } from '../script/const.ts'
     import PageTournament from './tournament.vue';
@@ -276,8 +274,8 @@
                 page.menu = false;
                 await (new Promise(resolve => setTimeout(resolve, 500)));
                 page.tournament = true;
-                emitter.emit(selectTournament, search.result.tournaments[v]);
-                tournament.init(search.result.tournaments[v]);
+                const url = window.location.href.split('/?');
+                window.location.replace(`${url[0]}/tournament/${search.result.tournaments[v].id}/?${url[1] ?? ''}`)
             },
             menu : async(): Promise<void> => {
                 page.tournament = false;
@@ -530,20 +528,25 @@
         }
     });
 
-    onBeforeMount(() => {
+    onBeforeMount(() : void => {
         Uniapp.chkScreen(size.get);
-        search.on();
         document.addEventListener("click", page.show.clear);
         emitter.on(tournamentInfo, page.show.drawer);
-        emitter.on(tournamentExit, page.show.menu);
         // @ts-ignore
         emitter.on(tournamentReload, tournament.init);
+
+        const url = window.location.href.match(/tournament\/(\d+)[^\/]*\/\?/);
+        if (url && !isNaN(parseInt(url[1]))) {
+            page.menu = false;
+            page.tournament = true;
+        } else {
+            search.on();
+        }
     });
 
     onUnmounted(() => {
         document.removeEventListener("click", page.show.clear);
         emitter.off(tournamentInfo, page.show.drawer);
-        emitter.off(tournamentExit, page.show.menu);
         // @ts-ignore
         emitter.off(tournamentReload, tournament.init);
     });

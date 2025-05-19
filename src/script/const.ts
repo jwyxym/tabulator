@@ -6,9 +6,7 @@ const tournamentExit = 'tournamentExit';
 const tournamentReload = 'tournamentReload'
 
 export {
-    selectTournament,
     updateTournament ,
     tournamentInfo,
-    tournamentExit,
     tournamentReload
 };
