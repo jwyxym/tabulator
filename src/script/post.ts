@@ -19,7 +19,8 @@ import {
     ApiKeyCreateObject,
     ApiKeyFindObject,
     AllTournament,
-    AllParticipant
+    AllParticipant,
+    AllMatch
 } from './type.ts'
 
 class TabulatorAPI {
@@ -217,7 +218,7 @@ class TabulatorAPI {
         },
     }
     Participant = {
-        Create : async (token : string, Data : ParticipantCreateObject, Array : Array<Participant>) : Promise<boolean> => {
+        Create : async (token : string, Data : ParticipantCreateObject, Array : Array<Participant> = []) : Promise<boolean> => {
             let response :  {
                 data : {
                     success : boolean;
@@ -377,9 +378,10 @@ class TabulatorAPI {
                 return undefined;
             }
         },
-        FindALL : async (token : string, obj : MatchFindObject = {}) : Promise<Array<Match>> => {
+        FindALL : async (token : string, obj : MatchFindObject = {}) : Promise<AllMatch> => {
             let response :  {
                 data : {
+                    total : number;
                     data : Array<MatchObject>;
                 }
             };
@@ -408,11 +410,17 @@ class TabulatorAPI {
                 response.data.data.forEach((i : MatchObject) => {
                     matchs.push(new Match(i));
                 })
-                return matchs;
+                return {
+                    total : response.data.total,
+                    matchs : matchs
+                };
             }
             catch(error) {
                 console.error(error);
-                return [];
+                return {
+                    total : 0,
+                    matchs : []
+                };
             }
         },
         Update : async (token : string, id : number, Data : MatchUpdateObject) : Promise<boolean> => {

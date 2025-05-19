@@ -1,9 +1,14 @@
-const selectTournament = '1';
-const tournamentInfo = '2';
-const tournamentExit = '3';
+const selectTournament = 'selectTournament';
+const updateTournament = 'updateTournament';
+
+const tournamentInfo = 'tournamentInfo';
+const tournamentExit = 'tournamentExit';
+const tournamentReload = 'tournamentReload'
 
 export {
     selectTournament,
+    updateTournament ,
     tournamentInfo,
-    tournamentExit
+    tournamentExit,
+    tournamentReload
 };

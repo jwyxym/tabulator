@@ -1,19 +1,19 @@
 .PageTournament {
     #PageTournament {
-        :deep(.uni-forms) {
-            .button_list {
+        .button_list {
+            display: flex;
+            .button {
+                border: 1px solid #409eff;
                 display: flex;
-                .button {
-                    border: 1px solid #409eff;
-                    display: flex;
-                    width: 20%;
-                    justify-content: center;
-                    &:hover {
-                        cursor: pointer;
-                    }
+                width: 20%;
+                justify-content: center;
+                &:hover {
+                    cursor: pointer;
+                    background-color: #e6e6e6;
                 }
             }
         }
+
         :deep(.uni-list-item) {
             #header {
                 min-width: 30%;
@@ -24,13 +24,34 @@
                     overflow: hidden;
                 }
             }
+            #body {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: 1fr;
+                justify-content: center;
+                transition: all 0.3s ease;
+                #left {
+                    justify-self: left;
+                }
+                #center {
+                    justify-self: center;
+                }
+                #right {
+                    justify-self: right;
+                }
+                &:hover {
+                    cursor: pointer;
+                    scale: (1.05);
+                }
+            }
             #footer {
                 .button {
+                    border: 0.5px solid var(--color);
                     display: flex;
-                    width: 10%;
                     justify-content: center;
                     :hover {
-                        color: red;
+                        background-color: #e6e6e6;
                         cursor: pointer;
                     }
                 }

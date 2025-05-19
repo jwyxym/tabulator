@@ -47,15 +47,17 @@ interface TournamentUpdateObject {
     collaborators : Array<number>;
 }
 
+interface ruleSettings {
+    rounds : number;
+    winScore : number;
+    drawScore : number;
+    byeScore : number;
+    hasThirdPlaceMatch : boolean;
+}
+
 interface TournamentCreateObject extends TournamentUpdateObject {
     rule : string;
-    ruleSettings : {
-        rounds : number;
-        winScore : number;
-        drawScore : number;
-        byeScore : number;
-        hasThirdPlaceMatch : boolean;
-    };
+    ruleSettings : ruleSettings;
 }
 
 interface TournamentObject extends TournamentCreateObject {
@@ -142,6 +144,9 @@ interface AllTournament extends All {
 interface AllParticipant extends All {
     participants : Array<Participant>;
 }
+interface AllMatch extends All {
+    matchs : Array<Match>;
+}
 
 export {
     Score,
@@ -160,5 +165,7 @@ export {
     ApiKeyCreateObject,
     ApiKeyFindObject,
     AllTournament,
-    AllParticipant
+    AllParticipant,
+    AllMatch,
+    ruleSettings
 }

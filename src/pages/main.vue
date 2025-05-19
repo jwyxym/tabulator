@@ -110,7 +110,38 @@
                 title = '比赛设置'
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
             >
-
+                <uni-easyinput type = 'text' placeholder = '比赛名称' v-model = 'tournament.name'/>
+                <uni-easyinput type = 'text' placeholder = '比赛描述' v-model = 'tournament.description'/>
+                <uni-data-select
+                    placeholder = '可见性'
+                    v-model = 'tournament.visibility.select'
+                    :localdata = 'tournament.visibility.range'
+                ></uni-data-select>
+                <uni-data-select
+                    placeholder = '规则'
+                    v-model = 'tournament.rule.select'
+                    :localdata = 'tournament.rule.range'
+                ></uni-data-select>
+                <view v-show = "tournament.rule.select == 'Swiss'">
+                    <uni-easyinput type = 'number' placeholder = '轮数' v-model = 'tournament.rule.settings.rounds'/>
+                    <uni-easyinput type = 'number' placeholder = '胜利分' v-model = 'tournament.rule.settings.winScore'/>
+                    <uni-easyinput type = 'number' placeholder = '平局分' v-model = 'tournament.rule.settings.drawScore'/>
+                    <uni-easyinput type = 'number' placeholder = '轮空分' v-model = 'tournament.rule.settings.byeScore'/>
+                </view>
+                <view v-show = "tournament.rule.select == 'SingleElimination'">
+                    <checkbox-group @change = 'tournament.hasThirdPlaceMatch.select'>
+                        <label>
+                            <checkbox :checked = 'tournament.rule.settings.hasThirdPlaceMatch'/>季军赛
+                        </label>
+                    </checkbox-group>
+                </view>
+                <br>
+                <view class = 'button' @click = 'tournament.update()'>
+                    <view>
+                        <span>设置</span>
+                        <uni-icons type = 'search'></uni-icons>
+                    </view>
+                </view>
             </uni-card>
         </transition>
         <br>
@@ -153,14 +184,20 @@
 </template>
 <script setup lang = 'ts'>
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
-    import { TournamentFindObject } from '../script/type.ts';
+    import { TournamentFindObject, TournamentUpdateObject, ruleSettings } from '../script/type.ts';
     import Uniapp from '../script/uniapp.ts';
     import Tabulator from '../script/post.ts';
     import Tournament from '../script/tournament.ts';
     import ApiKey from '../script/apikey.ts';
     import Mycard from '../script/mycard.ts';
     import emitter from '../script/emitter.ts'
-    import { selectTournament, tournamentInfo, tournamentExit } from '../script/const.ts'
+    import {
+        selectTournament,
+        updateTournament ,
+        tournamentInfo,
+        tournamentExit,
+        tournamentReload
+    } from '../script/const.ts'
     import PageTournament from './tournament.vue';
     
     let page = reactive({
@@ -174,15 +211,19 @@
             },
             drawer : () : void => {
                 page.drawer = !page.drawer;
+                if (!page.drawer && page.tournament)
+                    tournament.init(tournament.this as Tournament);
             },
             tournament : async(v : number = 0): Promise<void> => {
                 page.menu = false;
                 await (new Promise(resolve => setTimeout(resolve, 500)));
                 page.tournament = true;
                 emitter.emit(selectTournament, search.result.tournaments[v]);
+                tournament.init(search.result.tournaments[v]);
             },
             menu : async(): Promise<void> => {
                 page.tournament = false;
+                tournament.clear();
                 await search.on();
                 await (new Promise(resolve => setTimeout(resolve, 500)));
                 page.menu = true;
@@ -266,25 +307,79 @@
         }
     });
 
+    let tournament = reactive({
+        this : undefined as undefined | Tournament,
+        name : '',
+        description : '',
+        visibility : {
+            select : '',
+            range : [
+                { value: 'Public', text: '公开' },
+                { value: 'Internal', text: '仅登陆可见' },
+                { value: 'Private', text: '私密' }
+            ]
+        },
+        rule : {
+            select : '',
+            range : [
+                { value: 'SingleElimination', text: '单淘' },
+                { value: 'Swiss', text: '瑞士轮' }
+            ],
+            settings : {
+                hasThirdPlaceMatch : true
+            } as ruleSettings
+        },
+        hasThirdPlaceMatch : {
+            select : (e) => {
+                tournament.rule.settings.hasThirdPlaceMatch = e.detail.value.length > 0
+                console.log(tournament.rule.settings.hasThirdPlaceMatch)
+            }
+        },
+        collaborators : [] as Array<number>,
+        init : (t : Tournament) : void => {
+            tournament.this = t;
+            tournament.name = t.name;
+            tournament.description = t.description;
+            tournament.visibility.select = t.visibility;
+            tournament.collaborators = t.collaborators;
+        },
+        clear : () : void => {
+            tournament.this = undefined;
+            tournament.name = '';
+            tournament.description = '';
+            tournament.visibility.select = '';
+            tournament.collaborators = [];
+        },
+        update : () : void => {
+            if (tournament.visibility.select == '')
+            // @ts-ignore
+                tournament.visibility.select = tournament.this.visibility;
+            emitter.emit(updateTournament, {
+                name: tournament.name,
+                description: tournament.description,
+                visibility: tournament.visibility.select,
+                collaborators : tournament.collaborators
+            } as TournamentUpdateObject);
+        }
+    });
+
     const test = async () => {
-        page.user = !page.user;
-        // Mycard.login()
-        // let response = await Tabulator.Tournament.Create(token, {
-        //     name: "string",
-        //     description: "暂无介绍。",
-        //     rule: "SingleElimination",
-        //     ruleSettings: {
-        //         rounds: 0,
-        //         winScore: 0,
-        //         drawScore: 0,
-        //         byeScore: 0,
-        //         hasThirdPlaceMatch: true
-        //     },
-        //     visibility: "Public",
-        //     collaborators: [
-        //         1
-        //     ]
-        // });
+        let response = await Tabulator.Tournament.Create(Mycard.token, {
+            name: "test",
+            description: "暂无介绍。",
+            rule: "SingleElimination",
+            ruleSettings: {
+                rounds: 0,
+                winScore: 0,
+                drawScore: 0,
+                byeScore: 0,
+                hasThirdPlaceMatch: true
+            },
+            visibility: "Public",
+            collaborators: [
+                1
+            ]
+        });
         // await Tabulator.Tournament.Delete(token, 3);
         // await Tabulator.Tournament.FindALL(token, {});
         // await Tabulator.Tournament.Update(token, 3, {
@@ -296,7 +391,7 @@
         //     ]
         // });
         
-        // console.log(await Tabulator.Participant.Create(token, { name : 'jwyxym', tournamentId : 5}))
+        // console.log(await Tabulator.Tournament.Create(Mycard.token, { name : 'test'}))
         // console.log(await Tabulator.Tournament.FindALL(token, {}))
         // console.log(await Tabulator.Match.FindALL(token, { id : 5 }))
         // console.log(await Tabulator.Participant.FindALL(token))
@@ -315,21 +410,21 @@
     });
 
     onBeforeMount(() => {
-        /*
-        if (Mycard.id < 0)
-            Mycard.login();
-        */
         Uniapp.chkScreen(size.get);
         search.on();
         document.addEventListener("click", page.show.clear);
         emitter.on(tournamentInfo, page.show.drawer);
         emitter.on(tournamentExit, page.show.menu);
+        // @ts-ignore
+        emitter.on(tournamentReload, tournament.init);
     });
 
     onUnmounted(() => {
         document.removeEventListener("click", page.show.clear);
         emitter.off(tournamentInfo, page.show.drawer);
         emitter.off(tournamentExit, page.show.menu);
+        // @ts-ignore
+        emitter.off(tournamentReload, tournament.init);
     });
 
     watch(() => { return search.date; }, () => {
