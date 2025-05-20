@@ -56,9 +56,9 @@
                                 >
                                 </uni-list-item>
                                 <uni-list-item
-                                    v-for = '(i, v) in participant.array'
-                                    :title = "`胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}`"
-                                    :note = '`小分：${i.score.score}`'
+                                    v-for = '(i, v) in participant.array.slice((participant.page - 1) * 20, participant.page * 20)'
+                                    :title = "i.score ? `胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
+                                    :note = "i.score ? `小分：${i.score.score}` : ''"
                                     :clickable = true
                                 >
                                     <template v-slot:header>
@@ -120,14 +120,17 @@
                         :title = '`比赛：${match.total}`'
                     >
                         <view id = 'round'>
-                            第
-                            <uni-number-box
-                                v-model = 'match.round'
-                                :min = '1'
-                                :max = 'match.maxRound'
-                                :disabled = "tournament.this.status == 'Ready'"
-                            ></uni-number-box>
-                            轮
+                            <div>
+                                第
+                                <uni-number-box
+                                    v-model = 'match.round'
+                                    :min = '1'
+                                    :max = 'match.maxRound'
+                                    :disabled = "tournament.this.status == 'Ready'"
+                                ></uni-number-box>
+                                轮
+                            </div>
+                            <view class = 'button' @click = '() => { match.chk = true; match.page = 1; match.search(true); }'>全部轮次</view>
                         </view>
                         <transition name = 'switch'>
                             <uni-list>
@@ -231,6 +234,7 @@
                             v-model = 'match.page'
                             pageSize = 20
                             :total = 'match.total'
+                            @change = 'match.search()'
                         >
                         </uni-pagination>
                     </uni-card>
@@ -334,6 +338,7 @@
         page : 1,
         round : 1,
         maxRound : 2,
+        chk : false,
         status : {
             color : new Map([
                 ['Running', 'rgb(84, 200, 17)'],
@@ -374,6 +379,12 @@
                 }
             },
             chk : [] as Array<Array<number>>
+        },
+        search : async (chk : boolean = match.chk) : Promise<void> => {
+            // @ts-ignore
+            const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished', pageCount : match.page, round : chk ? undefined : match.round});
+            match.array = matchs.matchs;
+            match.total = matchs.total;
         }
     });
 
@@ -386,7 +397,7 @@
             // @ts-ignore
             if (await Tabulator.Participant.Create(Mycard.token, { name : participant.name, tournamentId : tournament.this.id}, participant.array)) {
                 participant.name = '';
-                page.reload();
+                await participant.search();
             }
         },
         del : async(v : number) : Promise<void> => {
@@ -410,6 +421,22 @@
             // @ts-ignore
             if (await Tabulator.Tournament.Update(Mycard.token, tournament.this.id, Data))
                 page.reload();
+        },
+        search : async () : Promise<boolean> => {
+            const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
+            // @ts-ignore
+            const id = url[1];
+            // @ts-ignore
+            const t : TournamentAParticipant = await Tabulator.Tournament.Find(Mycard.token, id);
+            if (t.tournament) {
+                tournament.this = t.tournament;
+                emitter.emit(tournamentReload, tournament.this)
+                const participants = t.participant;
+                participant.array = participants.participants;
+                participant.total = participants.total;
+                return true;
+            }
+            return false;
         }
     });
 
@@ -421,21 +448,11 @@
             await (new Promise(resolve => setTimeout(resolve, 450)));
             window.location.replace(window.location.href.replace(window.location.pathname, ''))
         },
-        get : async (id : number) : Promise<void> => {
-            const t : TournamentAParticipant = await Tabulator.Tournament.Find(Mycard.token, id);
-            if (t) {
-                tournament.this = t.tournament;
-                emitter.emit(tournamentReload, tournament.this)
-                const participants = t.participant;
-                participant.array = participants.participants;
-                participant.total = participants.total;
-                // @ts-ignore
-                const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished', round : match.round});
-                match.array = matchs.matchs;
-                match.total = matchs.total;
-            } else {
+        get : async () : Promise<void> => {
+            if (await participant.search()) 
+                await match.search();
+             else 
                 page.clear();
-            }
         },
         reload : async () : Promise<void> => {
             const query = uni.createSelectorQuery().in(this);
@@ -445,20 +462,18 @@
             }).exec();
             page.loading = true;
             participant.name = '';
-            // @ts-ignore
-            const t : TournamentAParticipant = await Tabulator.Tournament.Find(Mycard.token, tournament.this.id);
-            tournament.this = t.tournament;
-            const participants : AllParticipant = t.participant;
-            participant.array = participants.participants;
-            participant.total = participants.total;
-            // @ts-ignore
-            const matchs : AllMatch = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished', round : match.round});
-            match.array = matchs.matchs;
-            match.total = matchs.total;
-            emitter.emit(tournamentReload, tournament.this)
-            await (new Promise(resolve => setTimeout(resolve, 500)));
-            page.loading = false;
-            page.height = 0;
+            if (await participant.search()) {
+                await match.search();
+                await (new Promise(resolve => setTimeout(resolve, 500)));
+                page.loading = false;
+                page.height = 0;
+            } else
+                uni.showModal({
+                    title : '刷新失败',
+                    content : '请重试或检查网络设置',
+                    showCancel : false
+                });
+
         },
         clickClear : (e) : void => {
             let element = e.target;
@@ -474,7 +489,7 @@
 
     onBeforeMount(() => {
         const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
-        url && !isNaN(parseInt(url[1])) ? page.get(parseInt(url[1])) : page.clear();
+        url && !isNaN(parseInt(url[1])) ? page.get() : page.clear();
         document.addEventListener("click", page.clickClear);
         // @ts-ignore
         emitter.on(updateTournament, participant.update);
@@ -487,10 +502,9 @@
     });
 
     watch(() => { return match.round; }, async () : Promise<void> => {
-        // @ts-ignore
-        const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished', round : match.round});
-        match.array = matchs.matchs;
-        match.total = matchs.total;
+        match.page = 1;
+        match.chk = false;
+        await match.search();
     });
 
     watch(() => { return match.array; }, () => {

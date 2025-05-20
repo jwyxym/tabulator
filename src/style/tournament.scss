@@ -2,18 +2,24 @@
     #PageTournament {
         #round {
             display: flex;
+            column-gap: 10%;
+            div {
+                display: flex;
+            }
         }
+
         .button_list {
             display: flex;
-            .button {
-                border: 1px solid #409eff;
-                display: flex;
-                width: 20%;
-                justify-content: center;
-                &:hover {
-                    cursor: pointer;
-                    background-color: #e6e6e6;
-                }
+        }
+
+        .button {
+            border: 1px solid #409eff;
+            display: flex;
+            width: 20%;
+            justify-content: center;
+            &:hover {
+                cursor: pointer;
+                background-color: #e6e6e6;
             }
         }
 
@@ -55,6 +61,7 @@
             #footer {
                 .button {
                     border: 0.5px solid var(--color);
+                    width: auto;
                     display: flex;
                     justify-content: center;
                     :hover {
@@ -76,16 +83,6 @@
             display: grid;
             justify-content: center;
             justify-items: center;
-            .button {
-                border: 1px solid #409eff;
-                display: flex;
-                justify-content: center;
-                width: 80%;
-                &:hover {
-                    background-color: #e6e6e6;
-                    cursor: pointer;
-                }
-            }
             #score {
                 display: flex;
                 justify-content: center;
