@@ -447,12 +447,12 @@
             total : 0,
             tournaments : [] as Array<Tournament>
         },
-        on : async () : Promise<void> => {
+        on : async (Data : TournamentFindObject = search.info) : Promise<void> => {
             page.drawer = false;
             if (search.result.total > 0) {
                 search.result.total = 0;
             }
-            const result = await Tabulator.Tournament.FindALL(Mycard.token, search.info);
+            const result = await Tabulator.Tournament.FindALL(Mycard.token, Data);
             search.result.total = result.total;
             search.result.tournaments = result.tournaments;
         },
@@ -598,7 +598,15 @@
                 if (page.tournament)
                     page.show.menu();
                 create.clear();
-                await search.on();
+                await search.on({
+                    pageCount : 1,
+                    id : 0,
+                    creator : Mycard.id >= 0 ? Mycard.id : 0,
+                    name : '',
+                    rule : '',
+                    visibility : '',
+                    status : ''
+                } as TournamentFindObject);
             }
         },
         remove : (v : number) : void => {

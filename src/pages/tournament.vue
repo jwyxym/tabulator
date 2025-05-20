@@ -57,15 +57,15 @@
                                 </uni-list-item>
                                 <uni-list-item
                                     v-for = '(i, v) in participant.array'
-                                    :note = "i.score ? i.score.rank : ''"
-                                    :title = "i.score ? `${i.score.score}\n${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
+                                    :title = "`胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}`"
+                                    :note = '`小分：${i.score.score}`'
                                     :clickable = true
                                 >
                                     <template v-slot:header>
                                         <view id = 'header'>
                                             <span>{{ i.name }}</span>
                                             <br>
-                                            <span class = 'rank'>{{ i.score ? i.score.rank : '' }}</span>
+                                            <span class = 'small'>{{ i.score ? i.score.rank : '' }}</span>
                                         </view>
                                     </template>
                                     <template v-slot:footer>
@@ -78,7 +78,7 @@
                                             >
                                                 <uni-icons type = 'trash' color = 'red'></uni-icons>
                                             </view>
-                                            <span v-show = 'i.quit'>已退赛</span>
+                                            <span v-show = 'i.quit' class = 'small'>已退赛</span>
                                         </view>
                                     </template>
                                 </uni-list-item>
@@ -124,6 +124,7 @@
                             <uni-number-box
                                 v-model = 'match.round'
                                 :min = '1'
+                                :max = 'match.maxRound'
                                 :disabled = "tournament.this.status == 'Ready'"
                             ></uni-number-box>
                             轮
@@ -138,12 +139,35 @@
                                 <view
                                     class = 'match'
                                     v-for = '(i, v) in match.array'
-                                    :style = "{ '--top' : `${page.listHeight * v}px` }"
+                                    :style = "{ '--top' : `${44 * (v - 1.5)}px` }"
+                                    v-show = "match.submit.page === i && (i.status == 'Running' || i.status == 'Finished')"
                                 >
+                                    <view id = 'score'>
+                                        <uni-easyinput
+                                            :clearable = 'false'
+                                            type = 'number'
+                                            :placeholder = 'participant.array.find(p => p.id == i.player1Id)?.name'
+                                            v-model = 'match.submit.chk[v][0]'
+                                            :disabled = "i.status != 'Running'"
+                                        ></uni-easyinput>
+                                        <view>
+                                            <span>:</span>
+                                        </view>
+                                        <uni-easyinput
+                                            :clearable = 'false'
+                                            type = 'number'
+                                            :placeholder = 'participant.array.find(p => p.id == i.player2Id)?.name'
+                                            v-model = 'match.submit.chk[v][1]'
+                                            :disabled = "i.status != 'Running'"
+                                        ></uni-easyinput>
+                                    </view>
+                                    <view class = 'button' @click = 'match.submit.on(v)'>{{ i.status == 'Running' ? '提交比分' : i.status == 'Finished' ? '重赛' : '' }}</view>
                                 </view>
                                 <uni-list-item
                                     v-for = '(i, v) in match.array'
                                     :clickable = true
+                                    @click = 'match.submit.show(v)'
+                                    id = 'matchList'
                                 >
                                     <template v-slot:body>
                                         <view id = 'body'>
@@ -169,6 +193,9 @@
                                             </view>
                                             <view id = 'center'>
                                                 {{ `第${i.round}轮` }}
+                                                <br v-show = 'i.round == match.maxRound'>
+                                                <span class = 'small' v-show = 'i.isThirdPlaceMatch'>季军赛</span>
+                                                <span class = 'small' v-show = '!i.isThirdPlaceMatch && i.round == match.maxRound'>决赛</span>
                                             </view>
                                             <view  id = 'right'>
                                                 {{ participant.array.find(p => p.id == i.player2Id)?.name }}
@@ -189,6 +216,11 @@
                                                     }}
                                                 </span>
                                             </view>
+                                        </view>
+                                    </template>
+                                    <template v-slot:footer>
+                                        <view id = 'footer'>
+                                            <uni-icons :color = 'match.status.color.get(i.status)' type = 'circle-filled'></uni-icons>
                                         </view>
                                     </template>
                                 </uni-list-item>
@@ -220,7 +252,7 @@
         tournamentReload
     } from '../script/const.ts'
     import Mycard from '../script/mycard.ts';
-    import { AllParticipant, AllMatch, TournamentCreateObject } from '../script/type.ts'
+    import { AllParticipant, AllMatch, TournamentCreateObject, MatchUpdateObject, TournamentAParticipant } from '../script/type.ts'
 
     let tournament = reactive({
         this : undefined as undefined | Tournament,
@@ -300,7 +332,49 @@
         array : [] as Array<Match>,
         total : 0,
         page : 1,
-        round : 1
+        round : 1,
+        maxRound : 2,
+        status : {
+            color : new Map([
+                ['Running', 'rgb(84, 200, 17)'],
+                ['Finished', 'darkgray'],
+                ['Abandoned', 'red']
+            ]) as Map<string, string>
+        },
+        submit : {
+            page : undefined as Match | undefined,
+            show : (v : number) : void => {
+                match.submit.page = match.submit.page == match.array[v] ? undefined : match.array[v];
+                if (!match.submit.page)
+                    match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
+            },
+            on : async (v : number) : Promise<void> => {
+                switch (match.array[v].status) {
+                    case 'Running':
+                        const player1 : number = match.submit.chk[v][0] ?? 0;
+                        const player2 : number = match.submit.chk[v][1] ?? 0;
+                        const id : null | number = player1 > player2 ? match.array[v].player1Id : player1 == player2 ? null : match.array[v].player2Id
+                        // @ts-ignore
+                        if (await Tabulator.Match.Update(Mycard.token, match.array[v].id, {
+                            player1Score : player1,
+                            player2Score : player2,
+                            winnerId : id
+                        } as MatchUpdateObject))
+                            await page.reload();
+                        break;
+                    case 'Finished':
+                        // @ts-ignore
+                        if (await Tabulator.Match.Update(Mycard.token, match.array[v].id, {
+                            player1Score : 0,
+                            player2Score : 0,
+                            winnerId : undefined
+                        } as MatchUpdateObject))
+                            await page.reload();
+                        break;
+                }
+            },
+            chk : [] as Array<Array<number>>
+        }
     });
 
     let participant = reactive({
@@ -309,15 +383,10 @@
         total : 0,
         page : 1,
         add : async() : Promise<void> => {
-            const name = participant.name;
             // @ts-ignore
             if (await Tabulator.Participant.Create(Mycard.token, { name : participant.name, tournamentId : tournament.this.id}, participant.array)) {
                 participant.name = '';
-                await (new Promise(resolve => setTimeout(resolve, 200)));
-                // @ts-ignore
-                const participants : AllParticipant = await Tabulator.Participant.FindALL(Mycard.token, {tournamentId : tournament.this.id});
-                participant.array = participants.participants;
-                participant.total = participants.total;
+                page.reload();
             }
         },
         del : async(v : number) : Promise<void> => {
@@ -334,10 +403,7 @@
             // @ts-ignore
             if (tournament.this.status == 'Ready' ? await del() : await update()) {
                 await (new Promise(resolve => setTimeout(resolve, 200)));
-                // @ts-ignore
-                const participants : AllParticipant = await Tabulator.Participant.FindALL(Mycard.token, {tournamentId : tournament.this.id});
-                participant.array = participants.participants;
-                participant.total = participants.total;
+                page.reload();
             }
         },
         update : async (Data : TournamentCreateObject) : Promise<void> => {
@@ -349,7 +415,6 @@
 
     let page = reactive({
         height : 0,
-        listHeight : 0,
         loading : false,
         clear : async () : Promise<void>=> {
             tournament.this = undefined;
@@ -357,14 +422,15 @@
             window.location.replace(window.location.href.replace(window.location.pathname, ''))
         },
         get : async (id : number) : Promise<void> => {
-            const t = await Tabulator.Tournament.Find(Mycard.token, id);
+            const t : TournamentAParticipant = await Tabulator.Tournament.Find(Mycard.token, id);
             if (t) {
-                tournament.this = t;
-                emitter.emit(tournamentReload, t)
-                const participants : AllParticipant = await Tabulator.Participant.FindALL(Mycard.token, {tournamentId : t.id});
+                tournament.this = t.tournament;
+                emitter.emit(tournamentReload, tournament.this)
+                const participants = t.participant;
                 participant.array = participants.participants;
                 participant.total = participants.total;
-                const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : t.id, statusIn : 'Running,Finished', round : match.round});
+                // @ts-ignore
+                const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished', round : match.round});
                 match.array = matchs.matchs;
                 match.total = matchs.total;
             } else {
@@ -380,9 +446,9 @@
             page.loading = true;
             participant.name = '';
             // @ts-ignore
-            tournament.this = await Tabulator.Tournament.Find(Mycard.token, tournament.this.id);
-            // @ts-ignore
-            const participants : AllParticipant = await Tabulator.Participant.FindALL(Mycard.token, {tournamentId : tournament.this.id});
+            const t : TournamentAParticipant = await Tabulator.Tournament.Find(Mycard.token, tournament.this.id);
+            tournament.this = t.tournament;
+            const participants : AllParticipant = t.participant;
             participant.array = participants.participants;
             participant.total = participants.total;
             // @ts-ignore
@@ -394,16 +460,28 @@
             page.loading = false;
             page.height = 0;
         },
+        clickClear : (e) : void => {
+            let element = e.target;
+            while (element) {
+                if (['body'].includes(element.id) || element.classList.contains('match'))
+                    return undefined;
+                element = element.parentElement;
+            }
+            match.submit.page = undefined;
+            match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
+        }
     });
 
     onBeforeMount(() => {
         const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
         url && !isNaN(parseInt(url[1])) ? page.get(parseInt(url[1])) : page.clear();
+        document.addEventListener("click", page.clickClear);
         // @ts-ignore
         emitter.on(updateTournament, participant.update);
     });
 
     onUnmounted(() => {
+        document.removeEventListener("click", page.clickClear);
         // @ts-ignore
         emitter.off(updateTournament, participant.update);
     });
@@ -416,11 +494,9 @@
     });
 
     watch(() => { return match.array; }, () => {
-        uni.createSelectorQuery().in(this).select('#left').boundingClientRect(res => {
-            // @ts-ignore
-            page.listHeight = res.height;
-        }).exec();
-    });
+        match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
+        match.maxRound = match.array.find(i => i.isThirdPlaceMatch)?.round ?? match.round + 1;
+    }, {deep : true});
 </script>
 
 <style scoped lang = 'scss'>

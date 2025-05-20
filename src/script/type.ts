@@ -22,7 +22,7 @@ interface MatchFindObject {
 interface MatchUpdateObject {
     player1Score : number;
     player2Score : number;
-    winnerId : number;
+    winnerId : number | null | undefined;
 }
 
 interface MatchObject extends MatchUpdateObject {
@@ -142,8 +142,14 @@ interface AllTournament extends All {
 interface AllParticipant extends All {
     participants : Array<Participant>;
 }
+
 interface AllMatch extends All {
     matchs : Array<Match>;
+}
+
+interface TournamentAParticipant {
+    tournament : Tournament | undefined;
+    participant : AllParticipant
 }
 
 interface UserObject {
@@ -171,5 +177,6 @@ export {
     AllParticipant,
     AllMatch,
     ruleSettings,
-    UserObject
+    UserObject,
+    TournamentAParticipant
 }

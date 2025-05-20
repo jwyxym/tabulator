@@ -11,7 +11,7 @@ class Match {
     player2Score : number;
     player1Id : number;
     player2Id : number;
-    winnerId : number;
+    winnerId : number | null;
     childMatchId : number;
 
     constructor(obj : MatchObject) {
@@ -24,7 +24,7 @@ class Match {
         this.player2Id = obj.player2Id;
         this.player1Score = obj.player1Score;
         this.player2Score = obj.player2Score;
-        this.winnerId = obj.winnerId;
+        this.winnerId = obj.winnerId as number | null;
         this.childMatchId = obj.childMatchId;
     }
     

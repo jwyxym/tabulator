@@ -20,7 +20,8 @@ import {
     AllTournament,
     AllParticipant,
     AllMatch,
-    UserObject
+    UserObject,
+    TournamentAParticipant
 } from './type.ts'
 
 class TabulatorAPI {
@@ -76,7 +77,7 @@ class TabulatorAPI {
                 return false;
             }
         },
-        Find : async (token : string, id : number) : Promise<Tournament | undefined> => {
+        Find : async (token : string, id : number) : Promise<TournamentAParticipant> => {
             let response : {
                 data : {
                     data : TournamentObject;
@@ -88,11 +89,27 @@ class TabulatorAPI {
                         'x-user-token' : token
                     }
                 });
-                return new Tournament(response.data.data);
+                let participants : Array<Participant> = [];
+                response.data.data.participants.forEach((i : ParticipantObject) => {
+                    participants.push(new Participant(i));
+                });
+                return {
+                    tournament : new Tournament(response.data.data),
+                    participant : {
+                        participants : participants,
+                        total : participants.length
+                    }
+                };
             }
             catch(error) {
                 console.error(error);
-                return undefined;
+                return {
+                    tournament : undefined,
+                    participant : {
+                        participants : [],
+                        total : 0
+                    }
+                };
             }
         },
         FindALL : async (token : string, obj : TournamentFindObject = {}) : Promise<AllTournament> => {
@@ -153,7 +170,6 @@ class TabulatorAPI {
                         'x-user-token' : token
                     }
                 });
-                console.log(response)
                 return response.data.success;
             }
             catch(error) {
@@ -173,7 +189,6 @@ class TabulatorAPI {
                         'x-user-token' : token
                     }
                 });
-                console.log(response)
                 return response.data.success;
             }
             catch(error) {
@@ -193,7 +208,6 @@ class TabulatorAPI {
                         'x-user-token' : token
                     }
                 });
-                console.log(response)
                 return response.data.success;
             }
             catch(error) {
@@ -213,7 +227,6 @@ class TabulatorAPI {
                         'x-user-token' : token
                     }
                 });
-                console.log(response)
                 return response.data.success;
             }
             catch(error) {
