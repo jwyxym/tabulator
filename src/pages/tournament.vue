@@ -500,7 +500,6 @@
 </script>
 
 <style scoped lang = 'scss'>
-    @import '../style/style.scss';
     @import '../style/tournament.scss';
     @import '../style/transition.scss';
 </style>

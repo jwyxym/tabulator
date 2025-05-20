@@ -67,4 +67,18 @@
             cursor: pointer;
         }
     }
+
+    button {
+        background-color: white;
+        color : #606266;
+        border-radius: 4px;
+        white-space: nowrap;
+        border: 0.02px solid #606266;
+        transition: all 0.3s ease;
+        &:hover {
+            color: #ecf5ff;
+            background-color: #ecf5ff;
+            border: 0.02px solid #409eff;
+        }
+    }
 }

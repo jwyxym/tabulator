@@ -1,12 +1,12 @@
-const selectTournament = 'selectTournament';
 const updateTournament = 'updateTournament';
 
 const tournamentInfo = 'tournamentInfo';
-const tournamentExit = 'tournamentExit';
-const tournamentReload = 'tournamentReload'
+const tournamentReload = 'tournamentReload';
 
+const createOff = 'createOff';
 export {
     updateTournament ,
     tournamentInfo,
-    tournamentReload
+    tournamentReload,
+    createOff
 };
