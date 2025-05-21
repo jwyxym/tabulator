@@ -30,9 +30,9 @@ class  Participant {
 
     getDeck = () : Deck => {
         return {
-            main : this.deck?.main ?? [],
-            extra : this.deck?.extra ?? [],
-            side : this.deck?.side ?? [],
+            main : this.deck?.main.slice() ?? [],
+            extra : this.deck?.extra.slice() ?? [],
+            side : this.deck?.side.slice() ?? [],
         };
     }
 }

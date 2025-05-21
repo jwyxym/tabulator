@@ -68,6 +68,7 @@
                                     :title = "i.score ? `胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
                                     :note = "i.score ? `小分：${i.score.score}` : ''"
                                     :clickable = true
+                                    @click = 'participant.pics.on(i)'
                                 >
                                     <template v-slot:header>
                                         <view id = 'header'>
@@ -348,10 +349,10 @@
                     showCancel : false
                 });
         },
-        upload : async (i : Participant) : Promise<void> => {
+        upload : async () : Promise<void> => {
             const f = async (res : UniApp.ChooseFileSuccessCallbackResult) : Promise<void> => {
                 // @ts-ignore
-                if (await Tabulator.Participant.UpdateYdk(Mycard.token, tournament.this.id, res.tempFiles[0], i.name))
+                if (await Tabulator.Tournament.UpdateYdk(Mycard.token, tournament.this.id, res))
                     await participant.search();
             };
             await UniApp.selectFile(['.ydk', '.txt'], f);
@@ -474,6 +475,13 @@
                 }
             };
             await UniApp.selectFile(['.ydk', '.txt'], f, 1);
+        },
+        pics : {
+            on : (i : Participant) => {
+                emitter.emit(Const.picsOpen, new Map([
+                    ['main', i.getDeck().main], ['side', i.getDeck().side], ['Participant', [i.id]]
+                ]))
+            }
         }
     });
 

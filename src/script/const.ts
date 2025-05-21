@@ -4,6 +4,7 @@ class ConstData {
     tournamentInfo = 'tournamentInfo';
     tournamentReload = 'tournamentReload';
     createOff = 'createOff';
+    picsOpen = 'picsOpen';
 }
 
 const Const = new ConstData();

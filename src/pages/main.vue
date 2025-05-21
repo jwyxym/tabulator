@@ -22,6 +22,7 @@
                 </uni-list-chat>
             </uni-list>
         </view>
+        <Pics></Pics>
         <transition name = 'move_right'>
             <uni-card
                 class = 'click'
@@ -264,6 +265,7 @@
     import Const from '../script/const.ts'
     import PageTournament from './tournament.vue';
     import Create from './drawer.vue';
+    import Pics from './pics.vue';
     
     let page = reactive({
         user : false,

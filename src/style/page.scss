@@ -81,4 +81,21 @@
             border: 0.02px solid #409eff;
         }
     }
+
+    .Pics {
+        position: absolute;
+        z-index: 1;
+        right: 2%;
+        width: 50%;
+        :deep(.uni-card) {
+            // display: flex;
+            .deck_cards {
+                width: 10%;
+                height: 11.52vh;
+                aspect-ratio: 1 / 1.43;
+                display: inline-block;
+                vertical-align: top;
+            }
+        }
+    }
 }
