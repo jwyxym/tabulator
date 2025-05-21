@@ -23,6 +23,7 @@ import {
     UserObject,
     TournamentAParticipant
 } from './type.ts'
+import UniApp from './uniapp.ts';
 
 class TabulatorAPI {
     url : AxiosInstance;
@@ -129,7 +130,7 @@ class TabulatorAPI {
                         recordsPerPage : 20,
                         pageCount : obj.pageCount ?? 1,
                         id : (obj.id ?? 0) > 0 ? obj.id : undefined,
-                        creator : filter(obj.creator),
+                        managing : filter(obj.creator),
                         name : filter(obj.name),
                         rule : filter(obj.rule),
                         visibility : filter(obj.visibility),
@@ -234,6 +235,28 @@ class TabulatorAPI {
                 return false;
             }
         },
+        UpdateYdk : async (token : string, id : number, res : UniApp.ChooseFileSuccessCallbackResult) : Promise<Boolean> => {
+            let response : {
+                data : string
+            };
+            try {
+                // @ts-ignore
+                const files : Array<UniApp.UploadFileOptionFiles> = res.tempFiles.map(file => ({
+                    name: 'files',
+                    uri: file.path,
+                    type: file.type
+                }));
+                response = await UniApp.uploadFile(
+                    `${this.url.defaults.baseURL}/api/tournament/${id}/upload-ydk`, files, { 'x-user-token' : token }
+                )
+                const data = JSON.parse(response.data)
+                return data.success;
+            }
+            catch(error) {
+                console.error(error);
+                return false;
+            }
+        }
     }
     Participant = {
         Create : async (token : string, Data : ParticipantCreateObject, Array : Array<Participant> = []) : Promise<boolean> => {
@@ -612,8 +635,7 @@ class Users {
                 return undefined;
             }
         }
-    }
-    
+    } 
 }
 
 const User = new Users('https://sapi.moecube.com:444/accounts')

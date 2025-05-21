@@ -1,12 +1,11 @@
-const updateTournament = 'updateTournament';
+class ConstData {
+    maxSize = 1024 * 10;
+    updateTournament = 'updateTournament';
+    tournamentInfo = 'tournamentInfo';
+    tournamentReload = 'tournamentReload';
+    createOff = 'createOff';
+}
 
-const tournamentInfo = 'tournamentInfo';
-const tournamentReload = 'tournamentReload';
+const Const = new ConstData();
 
-const createOff = 'createOff';
-export {
-    updateTournament ,
-    tournamentInfo,
-    tournamentReload,
-    createOff
-};
+export default Const;

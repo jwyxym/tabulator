@@ -83,12 +83,7 @@
     import {Tabulator, User} from '../script/post.ts';
     import Mycard from '../script/mycard.ts';
     import emitter from '../script/emitter.ts'
-    import {
-        updateTournament ,
-        tournamentInfo,
-        tournamentReload,
-        createOff
-    } from '../script/const.ts'
+    import Const from '../script/const.ts'
 
     let create = reactive({
         name : '',
@@ -139,7 +134,7 @@
                     collaborators: collaborators
                 })
             ) {
-                emitter.emit(createOff);
+                emitter.emit(Const.createOff);
                 create.clear();
             }
         },

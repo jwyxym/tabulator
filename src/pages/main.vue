@@ -240,6 +240,7 @@
                         pageSize = 20
                         :total = 'search.result.total'
                         v-show = 'page.menu'
+                        @change = 'search.on()'
                     >
                     </uni-pagination>
                 </transition>
@@ -259,12 +260,7 @@
     import ApiKey from '../script/apikey.ts';
     import Mycard from '../script/mycard.ts';
     import emitter from '../script/emitter.ts'
-    import {
-        updateTournament ,
-        tournamentInfo,
-        tournamentReload,
-        createOff
-    } from '../script/const.ts'
+    import Const from '../script/const.ts'
     import PageTournament from './tournament.vue';
     import Create from './drawer.vue';
     
@@ -448,7 +444,7 @@
                 tournament.visibility.select = tournament.this.visibility;
 
             const collaborators = tournament.collaborators.map(user => user.id);
-            emitter.emit(updateTournament, {
+            emitter.emit(Const.updateTournament, {
                 name: tournament.name,
                 description: tournament.description,
                 visibility: tournament.visibility.select,
@@ -488,15 +484,8 @@
             page.show.drawer();
             if (page.tournament)
                 page.show.menu();
-            await search.on({
-                pageCount : 1,
-                id : 0,
-                creator : Mycard.id >= 0 ? Mycard.id : 0,
-                name : '',
-                rule : '',
-                visibility : '',
-                status : ''
-            } as TournamentFindObject);
+            search.mine();
+            await search.on();
         }
     };
 
@@ -513,10 +502,10 @@
     onBeforeMount(() : void => {
         Uniapp.chkScreen(size.get);
         document.addEventListener("click", page.show.clear);
-        emitter.on(tournamentInfo, page.show.drawer);
+        emitter.on(Const.tournamentInfo, page.show.drawer);
         // @ts-ignore
         emitter.on(tournamentReload, tournament.init);
-        emitter.on(createOff, creator.off);
+        emitter.on(Const.createOff, creator.off);
 
         const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
         if (url && !isNaN(parseInt(url[1]))) {
@@ -534,10 +523,10 @@
 
     onUnmounted(() => {
         document.removeEventListener("click", page.show.clear);
-        emitter.off(tournamentInfo, page.show.drawer);
+        emitter.off(Const.tournamentInfo, page.show.drawer);
         // @ts-ignore
         emitter.off(tournamentReload, tournament.init);
-        emitter.off(createOff, creator.off);
+        emitter.off(Const.createOff, creator.off);
     });
 
     watch(() => { return search.date; }, () => {

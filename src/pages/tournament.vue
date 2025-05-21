@@ -12,30 +12,38 @@
             >
                 <uni-forms>
                     <view class = 'button_list' >
-                        <view class = 'button click' @click = 'tournament.operatorChk(() => { emitter.emit(tournamentInfo); })'>
+                        <view class = 'button click' @click = 'tournament.operatorChk(() => { emitter.emit(Const.tournamentInfo); })'>
                             <span>设置</span>
                             <uni-icons type = 'info'></uni-icons>
                         </view>
-                        <view class = 'button' @click = 'tournament.operatorChk(page.reload)'>
+                        <view class = 'button' @click = 'page.reload()'>
                             <span>刷新</span>
                             <uni-icons type = 'reload'></uni-icons>
                         </view>
-                        <view class = 'button' @click = 'tournament.operatorChk(page.clear)'>
+                        <view class = 'button' @click = 'page.copyUrl()'>
+                            <span>分享</span>
+                            <uni-icons type = 'redo'></uni-icons>
+                        </view>
+                        <view class = 'button' @click = 'page.clear()'>
                             <span>关闭</span>
                             <uni-icons type = 'close'></uni-icons>
                         </view>
                     </view>
                     <br>
                     <view class = 'button_list' >
-                        <view class = 'button click' @click = 'tournament.on()'>
+                        <view class = 'button click' @click = 'tournament.operatorChk(tournament.on)'>
                             <span>{{ tournament.status.text.get(tournament.this.status) }}</span>
                             <uni-icons type = 'circle-filled' :color = 'tournament.status.color.get(tournament.this.status)'></uni-icons>
                         </view>
-                        <view class = 'button click' @click = 'tournament.reset()'>
+                        <view class = 'button click' @click = 'tournament.operatorChk(tournament.reset)'>
                             <span>重置</span>
                             <uni-icons type = 'loop'></uni-icons>
                         </view>
-                        <view class = 'button click' @click = 'tournament.del()'>
+                        <view class = 'button click'  @click = 'tournament.operatorChk(tournament.upload)'>
+                            <span>上传</span>
+                            <uni-icons type = 'cloud-upload'></uni-icons>
+                        </view>
+                        <view class = 'button click' @click = 'tournament.operatorChk(tournament.del)'>
                             <span>删除</span>
                             <uni-icons type = 'trash' color = 'red'></uni-icons>
                         </view>
@@ -72,8 +80,16 @@
                                         <view  id = 'footer'>
                                             <view
                                                 class = 'button'
+                                                :style = "{ '--color' : 'gray' }"
+                                                v-show = '!i.quit'
+                                                @click = 'tournament.operatorChk(participant.upload, [i])'
+                                            >
+                                                <uni-icons type = 'upload'></uni-icons>
+                                            </view>
+                                            <view
+                                                class = 'button'
                                                 :style = "{ '--color' : 'red' }"
-                                                @click = 'participant.del(v)'
+                                                @click = 'tournament.operatorChk(participant.del, [v])'
                                                 v-show = '!i.quit'
                                             >
                                                 <uni-icons type = 'trash' color = 'red'></uni-icons>
@@ -95,7 +111,7 @@
                                             <view
                                                 class = 'button'
                                                 :style = "{ '--color' : '#409eff' }"
-                                                @click = 'participant.add()'
+                                                @click = 'tournament.operatorChk(participant.add)'
                                             >
                                                 <uni-icons type = 'personadd'></uni-icons>
                                             </view>
@@ -139,94 +155,93 @@
                                     title = '暂无比赛'
                                 >
                                 </uni-list-item>
-                                <view
-                                    class = 'match'
-                                    v-for = '(i, v) in match.array'
-                                    :style = "{ '--top' : `${44 * (v - 1.5)}px` }"
-                                    v-show = "match.submit.page === i && (i.status == 'Running' || i.status == 'Finished')"
-                                >
-                                    <view id = 'score'>
-                                        <uni-easyinput
-                                            :clearable = 'false'
-                                            type = 'number'
-                                            :placeholder = 'participant.array.find(p => p.id == i.player1Id)?.name'
-                                            v-model = 'match.submit.chk[v][0]'
-                                            :disabled = "i.status != 'Running'"
-                                        ></uni-easyinput>
-                                        <view>
-                                            <span>:</span>
+                                <view v-for = '(i, v) in match.array'>
+                                    <view
+                                        class = 'match'
+                                        v-show = "match.submit.page === i && (i.status == 'Running' || i.status == 'Finished')"
+                                    >
+                                        <view id = 'score'>
+                                            <uni-easyinput
+                                                :clearable = 'false'
+                                                type = 'number'
+                                                :placeholder = 'participant.array.find(p => p.id == i.player1Id)?.name'
+                                                v-model = 'match.submit.chk[v][0]'
+                                                :disabled = "i.status != 'Running'"
+                                            ></uni-easyinput>
+                                            <view>
+                                                <span>:</span>
+                                            </view>
+                                            <uni-easyinput
+                                                :clearable = 'false'
+                                                type = 'number'
+                                                :placeholder = 'participant.array.find(p => p.id == i.player2Id)?.name'
+                                                v-model = 'match.submit.chk[v][1]'
+                                                :disabled = "i.status != 'Running'"
+                                            ></uni-easyinput>
                                         </view>
-                                        <uni-easyinput
-                                            :clearable = 'false'
-                                            type = 'number'
-                                            :placeholder = 'participant.array.find(p => p.id == i.player2Id)?.name'
-                                            v-model = 'match.submit.chk[v][1]'
-                                            :disabled = "i.status != 'Running'"
-                                        ></uni-easyinput>
+                                        <view class = 'button' @click = 'match.submit.on(v)'>{{ i.status == 'Running' ? '提交比分' : i.status == 'Finished' ? '重赛' : '' }}</view>
                                     </view>
-                                    <view class = 'button' @click = 'match.submit.on(v)'>{{ i.status == 'Running' ? '提交比分' : i.status == 'Finished' ? '重赛' : '' }}</view>
-                                </view>
-                                <uni-list-item
-                                    v-for = '(i, v) in match.array'
-                                    :clickable = true
-                                    @click = 'match.submit.show(v)'
-                                    id = 'matchList'
-                                >
-                                    <template v-slot:body>
-                                        <view id = 'body'>
-                                            <view id = 'left'>
-                                                {{ participant.array.find(p => p.id == i.player1Id)?.name }}
-                                                <br>
-                                                <span 
-                                                    v-if = '
+                                    <uni-list-item
+                                        :clickable = true
+                                        @click = 'match.submit.show(v)'
+                                        id = 'matchList'
+                                    >
+                                        <template v-slot:body>
+                                            <view id = 'body'>
+                                                <view id = 'left'>
+                                                    {{ participant.array.find(p => p.id == i.player1Id)?.name }}
+                                                    <br>
+                                                    <span 
+                                                        v-if = '
+                                                            // @ts-ignore
+                                                            participant.array.find(p => p.id == i.player1Id) && participant.array.find(p => p.id == i.player1Id).score
+                                                        '>
+                                                        {{
+                                                            `${
+                                                                // @ts-ignore
+                                                                participant.array.find(p => p.id == i.player1Id)?.score.win + participant.array.find(p => p.id == i.player1Id)?.score.bye
+                                                            }-${
+                                                                participant.array.find(p => p.id == i.player1Id)?.score.draw
+                                                            }-${
+                                                                participant.array.find(p => p.id == i.player1Id)?.score.lose
+                                                            }`
+                                                        }}
+                                                    </span>
+                                                </view>
+                                                <view id = 'center'>
+                                                    {{ `第${i.round}轮` }}
+                                                    <br v-show = 'i.round == match.maxRound'>
+                                                    <span class = 'small' v-show = 'i.isThirdPlaceMatch'>季军赛</span>
+                                                    <span class = 'small' v-show = '!i.isThirdPlaceMatch && i.round == match.maxRound'>决赛</span>
+                                                </view>
+                                                <view  id = 'right'>
+                                                    {{ participant.array.find(p => p.id == i.player2Id)?.name }}
+                                                    <br>
+                                                    <span v-if = '
                                                         // @ts-ignore
-                                                        participant.array.find(p => p.id == i.player1Id) && participant.array.find(p => p.id == i.player1Id).score
+                                                        participant.array.find(p => p.id == i.player2Id) && participant.array.find(p => p.id == i.player2Id).score
                                                     '>
-                                                    {{
-                                                        `${
-                                                            // @ts-ignore
-                                                            participant.array.find(p => p.id == i.player1Id)?.score.win + participant.array.find(p => p.id == i.player1Id)?.score.bye
-                                                        }-${
-                                                            participant.array.find(p => p.id == i.player1Id)?.score.draw
-                                                        }-${
-                                                            participant.array.find(p => p.id == i.player1Id)?.score.lose
-                                                        }`
-                                                    }}
-                                                </span>
+                                                        {{
+                                                            `${
+                                                                // @ts-ignore
+                                                                participant.array.find(p => p.id == i.player2Id)?.score.win + participant.array.find(p => p.id == i.player2Id)?.score.bye
+                                                            }-${
+                                                                participant.array.find(p => p.id == i.player2Id)?.score.draw
+                                                            }-${
+                                                                participant.array.find(p => p.id == i.player2Id)?.score.lose
+                                                            }`
+                                                        }}
+                                                    </span>
+                                                </view>
                                             </view>
-                                            <view id = 'center'>
-                                                {{ `第${i.round}轮` }}
-                                                <br v-show = 'i.round == match.maxRound'>
-                                                <span class = 'small' v-show = 'i.isThirdPlaceMatch'>季军赛</span>
-                                                <span class = 'small' v-show = '!i.isThirdPlaceMatch && i.round == match.maxRound'>决赛</span>
+                                        </template>
+                                        <template v-slot:footer>
+                                            <view id = 'footer'>
+                                                <uni-icons :color = 'match.status.color.get(i.status)' type = 'circle-filled'></uni-icons>
                                             </view>
-                                            <view  id = 'right'>
-                                                {{ participant.array.find(p => p.id == i.player2Id)?.name }}
-                                                <br>
-                                                <span v-if = '
-                                                    // @ts-ignore
-                                                    participant.array.find(p => p.id == i.player2Id) && participant.array.find(p => p.id == i.player2Id).score
-                                                '>
-                                                    {{
-                                                        `${
-                                                            // @ts-ignore
-                                                            participant.array.find(p => p.id == i.player2Id)?.score.win + participant.array.find(p => p.id == i.player2Id)?.score.bye
-                                                        }-${
-                                                            participant.array.find(p => p.id == i.player2Id)?.score.draw
-                                                        }-${
-                                                            participant.array.find(p => p.id == i.player2Id)?.score.lose
-                                                        }`
-                                                    }}
-                                                </span>
-                                            </view>
-                                        </view>
-                                    </template>
-                                    <template v-slot:footer>
-                                        <view id = 'footer'>
-                                            <uni-icons :color = 'match.status.color.get(i.status)' type = 'circle-filled'></uni-icons>
-                                        </view>
-                                    </template>
-                                </uni-list-item>
+                                        </template>
+                                    </uni-list-item>
+                                </view>
                             </uni-list>
                         </transition>
                         <uni-pagination
@@ -244,19 +259,17 @@
     </view>
 </template>
 <script setup lang = 'ts'>
-    import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
+    import {ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
+    import YGOProDeck from 'ygopro-deck-encode';
     import emitter from '../script/emitter.ts'
+    import UniApp from '../script/uniapp.ts';
     import {Tabulator, User} from '../script/post.ts';
     import Tournament from '../script/tournament.ts';
     import Participant from '../script/participant.ts';
     import Match from '../script/match.ts';
-    import {
-        updateTournament ,
-        tournamentInfo,
-        tournamentReload
-    } from '../script/const.ts'
+    import Const from '../script/const.ts'
     import Mycard from '../script/mycard.ts';
-    import { AllParticipant, AllMatch, TournamentCreateObject, MatchUpdateObject, TournamentAParticipant } from '../script/type.ts'
+    import {TournamentCreateObject, MatchUpdateObject, TournamentAParticipant, ParticipantUpdateObject} from '../script/type.ts'
 
     let tournament = reactive({
         this : undefined as undefined | Tournament,
@@ -304,8 +317,13 @@
                 success : async (res : UniApp.ShowModalRes) : Promise<void> => {
                     if (!res.confirm) return;
                     // @ts-ignore
-                    if (await Tabulator.Tournament.Reset(Mycard.token, tournament.this.id))
+                    if (await Tabulator.Tournament.Reset(Mycard.token, tournament.this.id)) {
+                        for (const i of participant.array) {
+                            if (i.quit)
+                                await Tabulator.Participant.Delete(Mycard.token, i.id)
+                        }
                         page.reload();
+                    }
                 }
             });
         },
@@ -329,6 +347,14 @@
                     content : '请先登陆或联系比赛主办方',
                     showCancel : false
                 });
+        },
+        upload : async (i : Participant) : Promise<void> => {
+            const f = async (res : UniApp.ChooseFileSuccessCallbackResult) : Promise<void> => {
+                // @ts-ignore
+                if (await Tabulator.Participant.UpdateYdk(Mycard.token, tournament.this.id, res.tempFiles[0], i.name))
+                    await participant.search();
+            };
+            await UniApp.selectFile(['.ydk', '.txt'], f);
         }
     });
 
@@ -412,10 +438,8 @@
                 });
             }
             // @ts-ignore
-            if (tournament.this.status == 'Ready' ? await del() : await update()) {
-                await (new Promise(resolve => setTimeout(resolve, 200)));
-                page.reload();
-            }
+            if (tournament.this.status == 'Ready' ? await del() : await update())
+                await participant.search();
         },
         update : async (Data : TournamentCreateObject) : Promise<void> => {
             // @ts-ignore
@@ -430,13 +454,26 @@
             const t : TournamentAParticipant = await Tabulator.Tournament.Find(Mycard.token, id);
             if (t.tournament) {
                 tournament.this = t.tournament;
-                emitter.emit(tournamentReload, tournament.this)
+                emitter.emit(Const.tournamentReload, tournament.this)
                 const participants = t.participant;
                 participant.array = participants.participants;
                 participant.total = participants.total;
                 return true;
             }
             return false;
+        },
+        upload : async (i : Participant) : Promise<void> => {
+            const f = async (res : UniApp.ChooseFileSuccessCallbackResult) : Promise<void> => {
+                if (res.tempFiles[0].size < Const.maxSize) {
+                    i.updateDeck(await UniApp.readFile(res.tempFiles[0]));
+                    if (await Tabulator.Participant.Update(Mycard.token, i.id, {
+                        name : i.name,
+                        deckbuf : i.deckbuf
+                    } as ParticipantUpdateObject))
+                        await participant.search();
+                }
+            };
+            await UniApp.selectFile(['.ydk', '.txt'], f, 1);
         }
     });
 
@@ -484,6 +521,16 @@
             }
             match.submit.page = undefined;
             match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
+        },
+        copyUrl : () => {
+            uni.setClipboardData({
+                data : `${window.location.href.split('/?')[0]}`,
+                success : () => {
+                    uni.showToast({
+                        title : '复制成功'
+                    })
+                }
+            })
         }
     });
 
@@ -507,7 +554,7 @@
         await match.search();
     });
 
-    watch(() => { return match.array; }, () => {
+    watch(() => { return match.array; }, async () : Promise<void> => {
         match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
         match.maxRound = match.array.find(i => i.isThirdPlaceMatch)?.round ?? match.round + 1;
     }, {deep : true});

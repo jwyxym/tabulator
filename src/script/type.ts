@@ -158,6 +158,12 @@ interface UserObject {
     username : string
 }
 
+interface Deck {
+        main : Array<number>;
+        extra : Array<number>;
+        side : Array<number>;
+    }
+
 export {
     Score,
     TournamentObject,
@@ -178,5 +184,6 @@ export {
     AllMatch,
     ruleSettings,
     UserObject,
-    TournamentAParticipant
+    TournamentAParticipant,
+    Deck
 }
