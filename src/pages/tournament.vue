@@ -539,13 +539,13 @@
         url && !isNaN(parseInt(url[1])) ? page.get() : page.clear();
         document.addEventListener("click", page.clickClear);
         // @ts-ignore
-        emitter.on(updateTournament, participant.update);
+        emitter.on(Const.updateTournament, participant.update);
     });
 
     onUnmounted(() => {
         document.removeEventListener("click", page.clickClear);
         // @ts-ignore
-        emitter.off(updateTournament, participant.update);
+        emitter.off(Const.updateTournament, participant.update);
     });
 
     watch(() => { return match.round; }, async () : Promise<void> => {
