@@ -122,29 +122,30 @@
                 title = '比赛设置'
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
             >
-                <uni-easyinput type = 'text' placeholder = '比赛名称' v-model = 'tournament.name'/>
-                <uni-easyinput type = 'text' placeholder = '比赛描述' v-model = 'tournament.description'/>
+                <uni-easyinput type = 'text' placeholder = '比赛名称' v-model = 'tournament.name' :disabled = 'tournament.operatorChk()'/>
+                <uni-easyinput type = 'text' placeholder = '比赛描述' v-model = 'tournament.description' :disabled = 'tournament.operatorChk()'/>
                 <uni-data-select
                     placeholder = '可见性'
                     v-model = 'tournament.visibility.select'
                     :localdata = 'tournament.visibility.range'
+                    :disabled = 'tournament.operatorChk()'
                 ></uni-data-select>
                 <uni-data-select
                     placeholder = '规则'
                     v-model = 'tournament.rule.select'
                     :localdata = 'tournament.rule.range'
-                    :disabled = "tournament.this?.status != 'Ready'"
+                    :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"
                 ></uni-data-select>
                 <view v-show = "tournament.rule.select == 'Swiss'">
-                    <uni-easyinput type = 'number' placeholder = '轮数' v-model = 'tournament.rule.settings.rounds' :disabled = "tournament.this?.status != 'Ready'"/>
-                    <uni-easyinput type = 'number' placeholder = '胜利分' v-model = 'tournament.rule.settings.winScore' :disabled = "tournament.this?.status != 'Ready'"/>
-                    <uni-easyinput type = 'number' placeholder = '平局分' v-model = 'tournament.rule.settings.drawScore' :disabled = "tournament.this?.status != 'Ready'"/>
-                    <uni-easyinput type = 'number' placeholder = '轮空分' v-model = 'tournament.rule.settings.byeScore' :disabled = "tournament.this?.status != 'Ready'"/>
+                    <uni-easyinput type = 'number' placeholder = '轮数' v-model = 'tournament.rule.settings.rounds' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>
+                    <uni-easyinput type = 'number' placeholder = '胜利分' v-model = 'tournament.rule.settings.winScore' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>
+                    <uni-easyinput type = 'number' placeholder = '平局分' v-model = 'tournament.rule.settings.drawScore' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>
+                    <uni-easyinput type = 'number' placeholder = '轮空分' v-model = 'tournament.rule.settings.byeScore' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>
                 </view>
                 <view v-show = "tournament.rule.select == 'SingleElimination'">
                     <checkbox-group @change = 'tournament.hasThirdPlaceMatch.select'>
                         <label>
-                            <checkbox :checked = 'tournament.rule.settings.hasThirdPlaceMatch' :disabled = "tournament.this?.status != 'Ready'"/>季军赛
+                            <checkbox :checked = 'tournament.rule.settings.hasThirdPlaceMatch' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>季军赛
                         </label>
                     </checkbox-group>
                 </view>
@@ -174,7 +175,7 @@
                             <template v-slot:header>
                                 <uni-forms>
                                     <uni-forms-item id = 'header'>
-                                        <uni-easyinput type = 'text' placeholder = '添加协作者' v-model = 'tournament.collaborator'/>
+                                        <uni-easyinput type = 'text' placeholder = '添加协作者' v-model = 'tournament.collaborator' :disabled = 'tournament.operatorChk()'/>
                                     </uni-forms-item>
                                 </uni-forms>
                             </template>
@@ -476,6 +477,11 @@
             } finally {
                 tournament.collaborator = '';
             }
+        },
+        operatorChk : () : boolean => {
+            if (!tournament.this)
+                return true
+            return !(Mycard.id >= 0 && (Mycard.id == tournament.this?.creator || tournament.this?.collaborators.includes(Mycard.id)))
         }
     });
 
@@ -504,7 +510,7 @@
         document.addEventListener("click", page.show.clear);
         emitter.on(Const.tournamentInfo, page.show.drawer);
         // @ts-ignore
-        emitter.on(tournamentReload, tournament.init);
+        emitter.on(Const.tournamentReload, tournament.init);
         emitter.on(Const.createOff, creator.off);
 
         const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
@@ -525,7 +531,7 @@
         document.removeEventListener("click", page.show.clear);
         emitter.off(Const.tournamentInfo, page.show.drawer);
         // @ts-ignore
-        emitter.off(tournamentReload, tournament.init);
+        emitter.off(Const.tournamentReload, tournament.init);
         emitter.off(Const.createOff, creator.off);
     });
 

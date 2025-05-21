@@ -12,7 +12,7 @@
             >
                 <uni-forms>
                     <view class = 'button_list' >
-                        <view class = 'button click' @click = 'tournament.operatorChk(() => { emitter.emit(Const.tournamentInfo); })'>
+                        <view class = 'button click' @click = '() => { emitter.emit(Const.tournamentInfo); }'>
                             <span>设置</span>
                             <uni-icons type = 'info'></uni-icons>
                         </view>
