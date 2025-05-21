@@ -478,9 +478,11 @@
         },
         pics : {
             on : (i : Participant) => {
-                emitter.emit(Const.picsOpen, new Map([
-                    ['main', i.getDeck().main], ['side', i.getDeck().side], ['Participant', [i.id]]
-                ]))
+                emitter.emit(Const.picsOpen, {
+                    participant : i,
+                    main : i.getDeck().main,
+                    side : i.getDeck().side,
+                })
             }
         }
     });

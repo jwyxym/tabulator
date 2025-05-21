@@ -211,7 +211,6 @@
                 title = '比赛创建'
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
             >
-
             </Create>
         </transition>
         <br>

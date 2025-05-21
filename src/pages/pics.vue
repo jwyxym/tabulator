@@ -1,7 +1,7 @@
 <template>
     <view class = 'Pics'>
         <transition name = 'move_right'>
-            <view v-show = 'deck.participant >= 0'>
+            <view v-show = 'deck.participant'>
                 <uni-card :title = "deck.main.length > 0 ? '主卡组' : '暂无主卡组'">
                     <image class = 'deck_cards' v-for = '(i, v) in deck.main' :src = '`https://cdn.233.momobako.com/ygopro/pics/${i}.jpg!half`' mode = 'aspectFit' @error = 'changeImg.main(v)'></image>
                 </uni-card>
@@ -28,24 +28,32 @@ import Participant from '../script/participant.ts';
     };
 
     let deck = reactive({
-        participant : -1 as number,
+        participant : undefined as Participant | undefined,
+        chk : false,
         main : [] as Array<number>,
         side : [] as Array<number>,
-        init : (i : Map<string, Array<number>>) : void => {
-            const participant = i.get('Participant')?.[0] ?? -1;
+        init : (i : {
+            participant : Participant,
+            main : Array<number>,
+            side : Array<number>
+        }) : void => {
+            if (deck.chk) return;
+            const participant = i.participant ?? undefined;
             if (participant && deck.participant == participant) {
                 deck.off();
                 return
             }
-            deck.main = i.get('main') ?? [];
-            deck.side = i.get('side') ?? [];
+            deck.main = i.main;
+            deck.side = i.side;
             deck.participant = participant;
         },
         off : async () : Promise<void> => {
-            deck.participant = -1;
+            deck.chk = true;
+            deck.participant = undefined;
             await (new Promise(resolve => setTimeout(resolve, 500)));
             deck.main = [];
             deck.side = [];
+            deck.chk = false;
         },
         clickClear : (e) : void => {
             let element = e.target;
