@@ -79,11 +79,11 @@
 </template>
 <script setup lang = 'ts'>
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
-    import { TournamentFindObject, ruleSettings, UserObject } from '../script/type.ts';
-    import {Tabulator, User} from '../script/post.ts';
-    import Mycard from '../script/mycard.ts';
-    import emitter from '../script/emitter.ts'
-    import Const from '../script/const.ts'
+    import { TournamentFindObject, ruleSettings, UserObject } from '../../script/type.ts';
+    import {Tabulator, User} from '../../script/post.ts';
+    import Mycard from '../../script/mycard.ts';
+    import emitter from '../../script/emitter.ts'
+    import Const from '../../script/const.ts'
 
     let create = reactive({
         name : '',

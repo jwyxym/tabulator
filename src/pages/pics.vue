@@ -3,10 +3,10 @@
         <transition name = 'move_right'>
             <view v-show = 'deck.participant'>
                 <uni-card :title = "deck.main.length > 0 ? '主卡组' : '暂无主卡组'">
-                    <image class = 'deck_cards' v-for = '(i, v) in deck.main' :src = '`https://cdn.233.momobako.com/ygopro/pics/${i}.jpg!half`' mode = 'aspectFit' @error = 'changeImg.main(v)'></image>
+                    <image class = 'deck_cards' v-for = '(i, v) in deck.main' :src = 'getImg(i)' mode = 'aspectFit' @error = 'changeImg.main(v)'></image>
                 </uni-card>
                 <uni-card :title = "deck.side.length > 0 ? '副卡组' : '暂无副卡组'">
-                    <image class = 'deck_cards' v-for = '(i, v) in deck.side' :src = '`https://cdn.233.momobako.com/ygopro/pics/${i}.jpg!half`' mode = 'aspectFit' @error = 'changeImg.main(v)'></image>
+                    <image class = 'deck_cards' v-for = '(i, v) in deck.side' :src = 'getImg(i)' mode = 'aspectFit' @error = 'changeImg.main(v)'></image>
                 </uni-card>
             </view>
         </transition>
@@ -16,7 +16,11 @@
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
     import emitter from '../script/emitter.ts'
     import Const from '../script/const.ts'
-import Participant from '../script/participant.ts';
+    import Participant from '../script/participant.ts';
+
+    const getImg = (i : number) => {
+        return i == 0 || Math.floor(Math.log10(Math.abs(i))) < 8 ? `https://cdn.233.momobako.com/ygopro/pics/${i}.jpg!half` : `https://cdn02.moecube.com:444/ygopro-super-pre/data/pics/${i}.jpg`
+    };
 
     const changeImg = {
         main : (v : number) : void => {
