@@ -263,7 +263,7 @@
     import emitter from '../script/emitter.ts'
     import Const from '../script/const.ts'
     import PageTournament from './tournament.vue';
-    import Create from './drawer.vue';
+    import Create from './creator.vue';
     import Pics from './pics.vue';
     
     let page = reactive({
