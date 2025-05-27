@@ -121,8 +121,8 @@ interface ApiKeyFindObject {
 
 interface ApiKeyCreateObject {
     name : string;
-    description : string;
-    expireAt : string;
+    description ?: string;
+    expireAt ?: Date;
 }
 
 interface ApiKeyObject extends ApiKeyCreateObject {
@@ -145,6 +145,10 @@ interface AllParticipant extends All {
 
 interface AllMatch extends All {
     matchs : Array<Match>;
+}
+
+interface AllAPI extends All {
+    api : Array<ApiKey>;
 }
 
 interface TournamentAParticipant {
@@ -182,6 +186,7 @@ export {
     AllTournament,
     AllParticipant,
     AllMatch,
+    AllAPI,
     ruleSettings,
     UserObject,
     TournamentAParticipant,

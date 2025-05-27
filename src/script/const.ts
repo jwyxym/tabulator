@@ -6,6 +6,7 @@ class ConstData {
     createOff = 'createOff';
     picsOpen = 'picsOpen';
     searcherInit = 'searcherInit';
+    settingInit = 'settingInit';
 }
 
 const Const = new ConstData();

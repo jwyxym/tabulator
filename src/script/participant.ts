@@ -35,6 +35,11 @@ class  Participant {
             side : this.deck?.side.slice() ?? [],
         };
     }
+
+    Blob = () : Blob => {
+        const data = this.deck?.toYdkString() ?? '';
+        return new Blob([data], { type: 'text/plain' });
+    }
 }
 
 export default Participant;

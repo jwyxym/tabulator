@@ -38,7 +38,8 @@
             <view
                 v-show = 'Mycard.id >= 0'
                 class = 'user'
-            ><span>获取api_key</span></view>
+                @click = 'page.show.api()'
+            ><span>api_key</span></view>
             <hr v-show = 'Mycard.id >= 0'>
             <view
                 v-show = 'Mycard.id >= 0'
@@ -55,71 +56,19 @@
             </uni-card>
         </transition>
         <transition name = 'move_left'>
-            <uni-card
+            <Searcher
                 class = 'click'
                 id = 'drawer'
-                v-show = 'page.drawer && page.menu && !page.create'
+                v-show = 'page.drawer && page.menu && !(page.create || page.apikey)'
                 title = '搜索'
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
-            >
-                <uni-datetime-picker type = 'daterange' v-model = 'search.date'/>
-                <uni-easyinput
-                    prefixIcon = 'search'
-                    type = 'number'
-                    placeholder = '组织者id'
-                    cancelButton = 'none'
-                    v-model = 'search.creator'
-                ></uni-easyinput>
-                <view class = 'button' @click = 'search.mine()'>
-                    我组织的比赛
-                </view>
-                <uni-easyinput
-                    prefixIcon = 'search'
-                    type = 'text'
-                    placeholder = '比赛名称'
-                    cancelButton = 'none'
-                    v-model = 'search.info.name'
-                ></uni-easyinput>
-                <uni-easyinput
-                    prefixIcon = 'search'
-                    type = 'number'
-                    placeholder = '比赛id'
-                    cancelButton = 'none'
-                    v-model = 'search.id'
-                ></uni-easyinput>
-                <uni-data-select
-                    placeholder = '比赛规则'
-                    v-model = 'search.info.rule'
-                    :localdata = 'search.rule.range'
-                >
-                </uni-data-select>
-                <uni-data-select
-                    placeholder = '状态'
-                    v-model = 'search.info.status'
-                    :localdata = 'search.status.range'
-                >
-                </uni-data-select>
-                <uni-data-select
-                    placeholder = '可见性'
-                    v-model = 'search.info.visibility'
-                    :localdata = 'search.visibility.range'
-                    v-show = 'Mycard.id >= 0'
-                >
-                </uni-data-select>
-                <br>
-                <view class = 'button' @click = 'search.on()'>
-                    <view>
-                        <span>搜索</span>
-                        <uni-icons type = 'search'></uni-icons>
-                    </view>
-                </view>
-            </uni-card>
+            ></Searcher>
         </transition>
         <transition name = 'move_left'>
             <Setting
                 class = 'click'
                 id = 'drawer'
-                v-show = 'page.drawer && page.tournament && !page.create'
+                v-show = 'page.drawer && page.tournament && !(page.create || page.apikey)'
                 title = '比赛设置'
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
             ></Setting>
@@ -133,6 +82,16 @@
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
             >
             </Create>
+        </transition>
+        <transition name = 'move_left'>
+            <API
+                class = 'click'
+                id = 'drawer'
+                v-show = 'page.drawer && page.apikey'
+                title = '我的api密钥'
+                :style = "{ '--size' : `${size.width > size.height ? size.width / 4 : size.width / 2}px` }"
+            >
+            </API>
         </transition>
         <br>
         <transition name = 'switch'>
@@ -177,9 +136,8 @@
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
     import { TournamentFindObject, TournamentCreateObject, ruleSettings, UserObject } from '../script/type.ts';
     import Uniapp from '../script/uniapp.ts';
-    import {Tabulator, User} from '../script/post.ts';
+    import { Tabulator, User} from '../script/post.ts';
     import Tournament from '../script/tournament.ts';
-    import ApiKey from '../script/apikey.ts';
     import Mycard from '../script/mycard.ts';
     import emitter from '../script/emitter.ts'
     import Const from '../script/const.ts'
@@ -187,6 +145,8 @@
     import Create from './drawer/creator.vue';
     import Pics from './pics.vue';
     import Setting from './drawer/setting.vue';
+    import Searcher from './drawer/searcher.vue';
+    import API from './drawer/api.vue';
     
     let page = reactive({
         user : false,
@@ -194,6 +154,7 @@
         menu : true,
         tournament : false,
         create : false,
+        apikey : false,
         show : {
             user : () : void => {
                 page.user = !page.user;
@@ -202,6 +163,8 @@
                 page.drawer = !page.drawer;
                 if (!page.drawer && page.create)
                     page.create = false;
+                if (!page.drawer && page.apikey)
+                    page.apikey = false;
                 if (!page.drawer && page.tournament)
                     tournament.init(tournament.this as Tournament);
             },
@@ -225,6 +188,14 @@
                     await (new Promise(resolve => setTimeout(resolve, 500)));
                 }
                 page.create = true;
+                page.show.drawer();
+            },
+            api : async(): Promise<void> => {
+                if (page.drawer) {
+                    page.show.drawer();
+                    await (new Promise(resolve => setTimeout(resolve, 500)));
+                }
+                page.apikey = true;
                 page.show.drawer();
             },
             clear : (e) : void => {
@@ -286,7 +257,8 @@
             pageCount : 1,
             id : 0,
             creator : 0,
-            
+            before : undefined,
+            after : undefined,
             name : '',
             rule : '',
             visibility : '',
@@ -451,7 +423,8 @@
     });
 
     onMounted(() => {
-        emitter.emit(Const.searcherInit, tournament);
+        emitter.emit(Const.settingInit, tournament);
+        emitter.emit(Const.searcherInit, search);
     });
 
     onUnmounted(() => {
@@ -463,14 +436,15 @@
     });
 
     watch(() => { return search.date; }, () => {
-        search.date.length > 0 ? () => {
+        const toDate = () => {
             search.info.after = new Date(search.date[0]);
             search.info.before = new Date(`${search.date[1]}T23:59:59.999`);
-        } : () => {
+        };
+        const toUndefined = () => {
             search.info.after = undefined;
             search.info.before = undefined;
-        }
-
+        };
+        search.date.length > 0 ? toDate() : toUndefined();
     });
 
     watch(() => { return search.id; }, () => {

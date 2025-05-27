@@ -69,6 +69,22 @@ class UniappFuncs {
         uni.offDeviceOrientationChange(chk)
         // #endif
     }
+
+    copy (string) : void {
+        uni.setClipboardData({
+            data: string,
+            success: () => {
+                uni.showToast({
+                    title: '复制成功',
+                });
+            },
+            fail: () => {
+                    uni.showToast({
+                    title: '复制失败',
+                });
+            }
+        });
+    }
 }
 
 const UniApp = new UniappFuncs()

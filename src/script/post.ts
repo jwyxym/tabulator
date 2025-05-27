@@ -20,6 +20,7 @@ import {
     AllTournament,
     AllParticipant,
     AllMatch,
+    AllAPI,
     UserObject,
     TournamentAParticipant
 } from './type.ts'
@@ -485,7 +486,7 @@ class TabulatorAPI {
             }
         }
     }
-    ApiKeyObject = {
+    ApiKey = {
         Create : async (token : string, Data : ApiKeyCreateObject) : Promise<boolean> => {
             let response :  {
                 data : {
@@ -493,7 +494,11 @@ class TabulatorAPI {
                 }
             };
             try {
-                response = await this.url.post(`/api/api-key`, Data, {
+                response = await this.url.post(`/api/api-key`, {
+                name : Data.name,
+                description : Data.description?.length ?? 0 > 0 ? Data.description : undefined,
+                expireAt : Data.expireAt?.toISOString() ?? undefined
+            }, {
                     headers : {
                         'x-user-token' : token
                     }
@@ -501,6 +506,11 @@ class TabulatorAPI {
                 return response.data.success;
             }
             catch(error) {
+                uni.showModal({
+                    title : '创建失败',
+                    content : error.message,
+                    showCancel : false
+                });
                 console.error(error);
                 return false;
             }
@@ -524,14 +534,15 @@ class TabulatorAPI {
                 return undefined;
             }
         },
-        FindALL : async (token : string, obj : ApiKeyFindObject = {}) : Promise<Array<ApiKey>> => {
+        FindALL : async (token : string, obj : ApiKeyFindObject = {}) : Promise<AllAPI> => {
             let response :  {
                 data : {
                     data : Array<ApiKeyObject>;
+                    total : number;
                 }
             };
             try {
-                response = await this.url.get(`/api/match`, {
+                response = await this.url.get(`/api/api-key`, {
                     params : {
                         recordsPerPage : 20,
                         pageCount : obj.pageCount ?? 1,
@@ -547,11 +558,17 @@ class TabulatorAPI {
                 response.data.data.forEach((i : ApiKeyObject) => {
                     keys.push(new ApiKey(i));
                 })
-                return keys;
+                return {
+                    total : response.data.total,
+                    api : keys
+                };
             }
             catch(error) {
                 console.error(error);
-                return [];
+                return {
+                    total : 0,
+                    api : []
+                };
             }
         },
         Update : async (token : string, id : number, Data : ApiKeyCreateObject) : Promise<boolean> => {
@@ -561,7 +578,12 @@ class TabulatorAPI {
                 }
             };
             try {
-                response = await this.url.patch(`/api/api-key/${id}`, Data, {
+                console.log(Data.expireAt?.toISOString())
+                response = await this.url.patch(`/api/api-key/${id}`, {
+                name : Data.name,
+                description : Data.description?.length ?? 0 > 0 ? Data.description : '',
+                expireAt : Data.expireAt?.toISOString() ?? new Date(2038, 0, 1).toISOString()
+            }, {
                     headers : {
                         'x-user-token' : token
                     }

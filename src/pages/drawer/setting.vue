@@ -92,9 +92,9 @@
     };
 
     onBeforeMount(() : void => {
-        emitter.on(Const.searcherInit, init)
+        emitter.on(Const.settingInit, init)
     });
     onUnmounted(() : void => {
-        emitter.off(Const.searcherInit, init)
+        emitter.off(Const.settingInit, init)
     });
 </script>

@@ -22,7 +22,7 @@
                         </view>
                         <view class = 'button' @click = 'page.copyUrl()'>
                             <span>分享</span>
-                            <uni-icons type = 'redo'></uni-icons>
+                            <uni-icons type = 'paperclip'></uni-icons>
                         </view>
                         <view class = 'button' @click = 'page.clear()'>
                             <span>关闭</span>
@@ -482,6 +482,7 @@
                     participant : i,
                     main : i.getDeck().main,
                     side : i.getDeck().side,
+                    blob : i.Blob()
                 })
             }
         }
@@ -533,14 +534,7 @@
             match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
         },
         copyUrl : () => {
-            uni.setClipboardData({
-                data : `${window.location.href.split('/?')[0]}`,
-                success : () => {
-                    uni.showToast({
-                        title : '复制成功'
-                    })
-                }
-            })
+            UniApp.copy(`${window.location.href.split('/?')[0]}`);
         }
     });
 
