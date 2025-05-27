@@ -201,7 +201,7 @@
         const toUndefined = () => {
             api.changeInfo.expireAt = undefined;
         };
-        api.changeInfo.date.length > 0 ? toDate() : toUndefined();
+        api.changeInfo.date?.length ?? 0 > 0 ? toDate() : toUndefined();
     });
 
     onBeforeMount(() : void => {
