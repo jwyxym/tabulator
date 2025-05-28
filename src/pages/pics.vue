@@ -77,7 +77,7 @@
         clickClear : (e) : void => {
             let element = e.target;
             while (element) {
-                if (['body'].includes(element.id) || element.classList.contains('Pics'))
+                if (['deckbutton'].includes(element.id) || element.classList.contains('Pics'))
                     return undefined;
                 element = element.parentElement;
             }

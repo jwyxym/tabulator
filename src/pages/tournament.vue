@@ -68,7 +68,6 @@
                                     :title = "i.score ? `胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
                                     :note = "i.score ? `小分：${i.score.score}` : ''"
                                     :clickable = true
-                                    @click = 'participant.pics.on(i)'
                                 >
                                     <template v-slot:header>
                                         <view id = 'header'>
@@ -79,6 +78,15 @@
                                     </template>
                                     <template v-slot:footer>
                                         <view  id = 'footer'>
+                                            <view
+                                                class = 'button'
+                                                id = 'deckbutton'
+                                                :style = "{ '--color' : 'gray' }"
+                                                v-show = '!i.quit'
+                                                @click = 'participant.pics.on(i)'
+                                            >
+                                                <uni-icons type = 'wallet'></uni-icons>
+                                            </view>
                                             <view
                                                 class = 'button'
                                                 :style = "{ '--color' : 'gray' }"
