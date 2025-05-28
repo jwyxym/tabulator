@@ -39,6 +39,10 @@
                             <span>重置</span>
                             <uni-icons type = 'loop'></uni-icons>
                         </view>
+                        <view class = 'button click'  @click = 'tournament.operatorChk(tournament.shuffle)'>
+                            <span>打乱</span>
+                            <uni-icons type = 'loop'></uni-icons>
+                        </view>
                         <view class = 'button click'  @click = 'tournament.operatorChk(tournament.upload)'>
                             <span>上传</span>
                             <uni-icons type = 'cloud-upload'></uni-icons>
@@ -344,6 +348,18 @@
                     // @ts-ignore
                     if (await Tabulator.Tournament.Delete(Mycard.token, tournament.this.id))
                         page.clear();
+                }
+            });
+        },
+        shuffle : () : void => {
+            if (tournament.this?.status != 'Ready') return;
+            uni.showModal({
+                title : '确认要打乱次序吗？',
+                success : async (res : UniApp.ShowModalRes) : Promise<void> => {
+                    if (!res.confirm) return;
+                    // @ts-ignore
+                    if (await Tabulator.Tournament.Shuffle(Mycard.token, tournament.this.id))
+                        participant.search();
                 }
             });
         },

@@ -257,6 +257,47 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+        },
+        Shuffle : async (token : string, id : number) : Promise<Boolean> => {
+            let response : {
+                data : {
+                    success : boolean;
+                }
+            };
+            try {
+                response = await this.url.post(`/api/tournament/${id}/shuffle-participants`, {}, {
+                    headers: {
+                        'x-user-token' : token
+                    }
+                });
+                return response.data.success;
+            }
+            catch(error) {
+                console.error(error);
+                return false;
+            }
+        },
+        Drag : async (token : string, id : number, from : number, to : number) : Promise<Boolean> => {
+            let response : {
+                data : {
+                    success : boolean;
+                }
+            };
+            try {
+                response = await this.url.post(`/api/tournament/${id}/drag-participant`, {
+                    draggingParticipantId : from,
+                    placeAfterParticipantId : to
+                }, {
+                    headers: {
+                        'x-user-token' : token
+                    }
+                });
+                return response.data.success;
+            }
+            catch(error) {
+                console.error(error);
+                return false;
+            }
         }
     }
     Participant = {
