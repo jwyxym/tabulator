@@ -87,6 +87,24 @@
                                                 id = 'deckbutton'
                                                 :style = "{ '--color' : 'gray' }"
                                                 v-show = '!i.quit'
+                                                @click = 'tournament.operatorChk(participant.drag.up, [i])'
+                                            >
+                                                <uni-icons type = 'up'></uni-icons>
+                                            </view>
+                                            <view
+                                                class = 'button'
+                                                id = 'deckbutton'
+                                                :style = "{ '--color' : 'gray' }"
+                                                v-show = '!i.quit'
+                                                @click = 'tournament.operatorChk(participant.drag.down, [i])'
+                                            >
+                                                <uni-icons type = 'down'></uni-icons>
+                                            </view>
+                                            <view
+                                                class = 'button'
+                                                id = 'deckbutton'
+                                                :style = "{ '--color' : 'gray' }"
+                                                v-show = '!i.quit'
                                                 @click = 'participant.pics.on(i)'
                                             >
                                                 <uni-icons type = 'wallet'></uni-icons>
@@ -102,7 +120,7 @@
                                             <view
                                                 class = 'button'
                                                 :style = "{ '--color' : 'red' }"
-                                                @click = 'tournament.operatorChk(participant.del, [v])'
+                                                @click = 'tournament.operatorChk(participant.del, [i])'
                                                 v-show = '!i.quit'
                                             >
                                                 <uni-icons type = 'trash' color = 'red'></uni-icons>
@@ -375,9 +393,20 @@
         },
         upload : async () : Promise<void> => {
             const f = async (res : UniApp.ChooseFileSuccessCallbackResult) : Promise<void> => {
+                let del_list : Array<Participant> = [];
                 // @ts-ignore
-                if (await Tabulator.Tournament.UpdateYdk(Mycard.token, tournament.this.id, res))
+                res.tempFiles.forEach(i => {
+                    const p = participant.array.filter(p => p.name == i.name.replace(/\.[^/.]+$/, ""));
+                    del_list.push(...p);
+                });
+
+                // @ts-ignore
+                if (await Tabulator.Tournament.UpdateYdk(Mycard.token, tournament.this.id, res)) {
+                    for (const i of del_list)
+                        await participant.del(i);
                     await participant.search();
+                    console.log(participant.array)
+                }
             };
             await UniApp.selectFile(['.ydk', '.txt'], f);
         }
@@ -451,14 +480,14 @@
                 await participant.search();
             }
         },
-        del : async(v : number) : Promise<void> => {
+        del : async(i : Participant) : Promise<void> => {
             const del = async() : Promise<boolean> => {
                 // @ts-ignore
-                return await Tabulator.Participant.Delete(Mycard.token, participant.array[v].id);
+                return await Tabulator.Participant.Delete(Mycard.token, i.id);
             }
             const update = async() : Promise<boolean> => {
-                return await Tabulator.Participant.Update(Mycard.token, participant.array[v].id, {
-                    name : participant.array[v].name,
+                return await Tabulator.Participant.Update(Mycard.token, i.id, {
+                    name : i.name,
                     quit : true
                 });
             }
@@ -508,6 +537,26 @@
                     side : i.getDeck().side,
                     blob : i.Blob()
                 })
+            }
+        },
+        drag : {
+            up : async (i : Participant) : Promise<void> => {
+                console.log('up')
+                const v = participant.array.findIndex(p => p === i);
+                if (v == 0 || !tournament.this) return;
+                let result : Boolean;
+                if (v == 1)
+                    result = await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, i.id, 0);
+                else
+                    result = await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, i.id, participant.array[v - 2].id);
+                if (result)
+                    await participant.search();
+            },
+            down : async (i : Participant) : Promise<void> => {
+                const v = participant.array.findIndex(p => p === i);
+                if (v == participant.array.length - 1 || !tournament.this) return;
+                if (await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, i.id, participant.array[v + 1].id))
+                    await participant.search();
             }
         }
     });
