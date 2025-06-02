@@ -545,9 +545,6 @@
                     }
                     const v1 = participant.array.findIndex(p => { return p === i; });
                     const v2 = participant.array.findIndex(p => { return p === participant.move.this; });
-                    // const p = participant.array[v1];
-                    // participant.array[v1] = participant.move.this as Participant;
-                    // participant.array[v2] = p;
                     participant.move.this = undefined;
                     if (v1 - v2 != 1) {
                         // @ts-ignore
