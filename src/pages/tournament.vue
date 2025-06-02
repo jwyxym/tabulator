@@ -89,7 +89,7 @@
                                                 v-show = '!i.quit'
                                                 @click = 'tournament.operatorChk(participant.move.start, [i, $event])'
                                             >
-                                                <uni-icons type = 'settings'></uni-icons>
+                                                <uni-icons :type = "participant.move.this && participant.move.this !== i ? 'pulldown' : 'list'"></uni-icons>
                                             </view>
                                             <view
                                                 class = 'button'
@@ -539,6 +539,10 @@
                     participant.move.this = i;
                 };
                 const end = async () : Promise<void> => {
+                    if (participant.move.this === i) {
+                        participant.move.this = undefined;
+                        return;
+                    }
                     const v1 = participant.array.findIndex(p => { return p === i; });
                     const v2 = participant.array.findIndex(p => { return p === participant.move.this; });
                     // const p = participant.array[v1];
