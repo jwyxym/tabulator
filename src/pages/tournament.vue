@@ -1,5 +1,6 @@
 <template>
     <view class = 'PageTournament'>
+        <!-- <Drag v-model = 'participant.array'></Drag> -->
         <transition name = 'switch'>
             <uni-card
                 id = 'PageTournament'
@@ -85,20 +86,11 @@
                                             <view
                                                 class = 'button'
                                                 id = 'deckbutton'
-                                                :style = "{ '--color' : 'gray' }"
+                                                :style = "{ '--color' : participant.move.this === i ? '#409eff' : 'gray', 'background-color' : participant.move.this === i ? '#e6e6e6' : 'white'}"
                                                 v-show = '!i.quit'
-                                                @click = 'tournament.operatorChk(participant.drag.up, [i])'
+                                                @click = 'tournament.operatorChk(participant.move.start, [i, $event])'
                                             >
-                                                <uni-icons type = 'up'></uni-icons>
-                                            </view>
-                                            <view
-                                                class = 'button'
-                                                id = 'deckbutton'
-                                                :style = "{ '--color' : 'gray' }"
-                                                v-show = '!i.quit'
-                                                @click = 'tournament.operatorChk(participant.drag.down, [i])'
-                                            >
-                                                <uni-icons type = 'down'></uni-icons>
+                                                <uni-icons type = 'settings'></uni-icons>
                                             </view>
                                             <view
                                                 class = 'button'
@@ -301,7 +293,7 @@
     import Const from '../script/const.ts'
     import Mycard from '../script/mycard.ts';
     import {TournamentCreateObject, MatchUpdateObject, TournamentAParticipant, ParticipantUpdateObject} from '../script/type.ts'
-
+    import Drag from '../script/drag/drag-list.vue';
     let tournament = reactive({
         this : undefined as undefined | Tournament,
         status : {
@@ -540,22 +532,39 @@
             }
         },
         drag : {
-            up : async (i : Participant) : Promise<void> => {
-                console.log('up')
-                const v = participant.array.findIndex(p => p === i);
-                if (v == 0 || !tournament.this) return;
-                let result : Boolean;
-                if (v == 1)
-                    result = await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, i.id, 0);
-                else
-                    result = await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, i.id, participant.array[v - 2].id);
-                if (result)
-                    await participant.search();
+
+        },
+        move : {
+            this : undefined as Participant | undefined,
+            start : (i : Participant, e : TouchEvent) : void => {
+                const on = () : void => {
+                    participant.move.this = i;
+                };
+                const end = async () : Promise<void> => {
+                    const v1 = participant.array.findIndex(p => { return p === i; });
+                    const v2 = participant.array.findIndex(p => { return p === participant.move.this; });
+                    // const p = participant.array[v1];
+                    // participant.array[v1] = participant.move.this as Participant;
+                    // participant.array[v2] = p;
+                    participant.move.this = undefined;
+                    if (v1 - v2 != 1) {
+                        // @ts-ignore
+                        if (await participant.move.change(participant.array[v1].id, v2 >= 1 ? participant.array[v2 - 1].id : 0) && await participant.move.change(participant.array[v2].id, v1 >= 1 ? participant.array[v1 - 1].id : 0))
+                            await participant.search();
+                    } else {
+                        const v = v1 > v2 ? v1 : v2;
+                        await participant.move.down(participant.array[v - 1].id, participant.array[v].id);
+                    }
+                };
+                participant.move.this ? end() : on();
             },
-            down : async (i : Participant) : Promise<void> => {
-                const v = participant.array.findIndex(p => p === i);
-                if (v == participant.array.length - 1 || !tournament.this) return;
-                if (await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, i.id, participant.array[v + 1].id))
+            change : async (from : number, to : number) : Promise<void> => {
+                // @ts-ignore
+                return await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, from, to);
+            },
+            down : async (from : number, to : number) : Promise<void> => {
+                // @ts-ignore
+                if (await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, from, to))
                     await participant.search();
             }
         }
@@ -635,6 +644,7 @@
         match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
         match.maxRound = match.array.find(i => i.isThirdPlaceMatch)?.round ?? match.round + 1;
     }, {deep : true});
+
 </script>
 
 <style scoped lang = 'scss'>
