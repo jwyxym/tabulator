@@ -1,6 +1,5 @@
 <template>
     <view class = 'PageTournament'>
-        <!-- <Drag v-model = 'participant.array'></Drag> -->
         <transition name = 'switch'>
             <uni-card
                 id = 'PageTournament'
@@ -293,7 +292,6 @@
     import Const from '../script/const.ts'
     import Mycard from '../script/mycard.ts';
     import {TournamentCreateObject, MatchUpdateObject, TournamentAParticipant, ParticipantUpdateObject} from '../script/type.ts'
-    import Drag from '../script/drag/drag-list.vue';
     let tournament = reactive({
         this : undefined as undefined | Tournament,
         status : {
@@ -644,7 +642,6 @@
         match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
         match.maxRound = match.array.find(i => i.isThirdPlaceMatch)?.round ?? match.round + 1;
     }, {deep : true});
-
 </script>
 
 <style scoped lang = 'scss'>
