@@ -19,7 +19,7 @@
     @import '../style/transition.scss';
     #background {
         position: fixed;
-        background: linear-gradient(45deg, rgb(0, 162, 255), rgb(0, 72, 255));
+        // background: linear-gradient(45deg, rgb(0, 162, 255), rgb(0, 72, 255));
         width: 100vw;
         height: 100vh;
         z-index: 2;
