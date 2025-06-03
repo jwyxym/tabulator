@@ -42,7 +42,7 @@
                 :title = 'Mycard.username'
                 :sub-title = 'Mycard.email'
                 :thumbnail = 'Mycard.avatar'
-                :style = "{ '--size' : `${size.width > size.height ? size.width / 2 : size.width / 1.2}px` }"
+                :style = "{ '--size' : `${size.width > size.height ? size.width / 2 : size.width / 1.2}px`, '--minsize' : `${size.width > size.height ? size.width / 4 : size.width / 2.4}px` }"
             >
             <view v-show = 'Mycard.id >= 0'><h2>{{ Mycard.id }}</h2></view>
             <hr v-show = 'Mycard.id >= 0'>
@@ -181,7 +181,7 @@
             },
             tournament : (v : number = 0): void => {
                 const url = window.location.href.split('/?');
-                emitter.emit(Const.changeUrl, `${url[0].replace(/\/?$/, '')}/${search.result.tournaments[v].id}${url[1] ? `/?${url[1]}` : ''}`);
+                emitter.emit(Const.changeUrl, `${url[0]}/${search.result.tournaments[v].id}${url[1] ? `/?${url[1]}` : ''}`);
             },
             menu : async(): Promise<void> => {
                 page.tournament = false;
@@ -411,12 +411,18 @@
     const loading = async () : Promise<void> => {
         const url = window.location.hash.match(/#\/(.*?)(?:\?|$)/);
         if (url) {
+            
             if (!isNaN(parseInt(url[1]))) {
                 page.menu = false;
                 page.tournament = true;
                 emitter.emit(Const.showTournament);
                 return;
             } else if (url[1].length == 0) {
+                if (window.location.href.includes('/?') && window.location.hash.endsWith('#/')) {
+                    const i = window.location.href.split('/?');
+                    window.location.replace(`${i[0].replace('#/', '')}/#${i[1] ? `/?${i[1].replace('#/', '')}` : '/'}`);
+                    return;
+                }
                 page.tournament = false;
                 page.menu = true;
                 search.mine();

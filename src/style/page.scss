@@ -33,6 +33,7 @@
         right: 2%;
         z-index: 2;
         max-width: var(--size);
+        min-width: var(--minsize);
         .user {
             &:hover {
                 cursor: pointer;

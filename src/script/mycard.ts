@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { ref } from 'vue';
 import emitter from './emitter.ts'
 import Const from './const.ts'
 
@@ -51,9 +52,16 @@ class MyCard {
 
     logout() {
         window.localStorage.removeItem('mycardLogin');
-        emitter.emit(Const.changeUrl, window.location.href.replace(/\/\?.*/, ''));
+        this.user = {} as MyCardSSOUser;
+        this.id = -1;
+        this.token = '';
+        this.username = '';
+        this.email = '';
+        this.avatar = 'https://cdn02.moecube.com:444/accounts/default_avatar.jpg';
+        const url = window.location.href.split('/?');
+        emitter.emit(Const.changeUrl, `${url[0]}/`);
     }
 }
 
-const Mycard = new MyCard();
+const Mycard = ref(new MyCard()).value;
 export default Mycard;
