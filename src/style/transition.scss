@@ -32,7 +32,7 @@
     }
 }
 
-.move_right {
+.move_right, .move_right_slow {
     &-enter-active,
     &-leave-active {
         transition: transform 0.5s ease;
@@ -46,6 +46,12 @@
     &-enter-to,
     &-leave-from {
         transform: translateX(0%);
+    }
+}
+
+.move_right_slow {
+    &-leave-active {
+        transition: transform 2s ease;
     }
 }
 
