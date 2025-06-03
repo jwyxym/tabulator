@@ -1,12 +1,12 @@
 <template>
     <transition name = 'move_right'>
         <view v-show = 'loading.end' class = 'background' :style = "{ '--index' : index.end }">
-            <view class = 'pic'></view>
+            <view class = 'pic' v-html = 'Const.pic.hajimi'></view>
         </view>
     </transition>
     <transition name = 'move_left'>
         <view v-show = 'loading.start' class = 'background' :style = "{ '--index' : index.start }">
-            <view class = 'pic'></view>
+            <view class = 'pic' v-html = 'Const.pic.hajimi'></view>
         </view>
     </transition>
     <Tabulator/>
@@ -70,13 +70,17 @@
         width: 100vw;
         height: 100vh;
         z-index: var(--index);
+        font-family: 'Courier New', monospace;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
         .pic {
-            // background-image: url("./static/pic.png");
-            width: 100%;
-            height: 100%;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+            color: white;
+            white-space: pre;
+            line-height: 1;
+            letter-spacing: 0;
+            font-size: 12px;
         }
     }
     .Tabulator {
