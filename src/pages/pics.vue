@@ -5,8 +5,8 @@
                 v-show = 'deck.participant'
                 :title = "`${deck.participant?.name ?? '...'} 的卡组`"
                 id = 'main'
-                :spacing = '0'
-                :padding = '0'
+                spacing = '0px'
+                padding = '0px'
             >
                 <!-- <view
                     class = 'button'
