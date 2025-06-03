@@ -2,7 +2,11 @@
     <view id = 'page'>
         <view id = 'really' class = 'click head'>
             <view>
-                <button class = 'button' @click = 'page.show.drawer()'>
+                <button
+                    :style = "size.width > size.height ? { width: '30%' } : {}"
+                    class = 'button'
+                    @click = 'page.show.drawer()'
+                >
                     <uni-icons :type = "page.menu ? page.drawer ? 'left' : 'search' : page.drawer ? 'left' : 'info'"></uni-icons>
                 </button>
             </view>

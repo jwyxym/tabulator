@@ -9,9 +9,6 @@
                 cursor: pointer;
             }
         }
-        .button {
-            width: 30%;
-        }
     }
     #really {
         box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
@@ -33,7 +30,6 @@
     }
     :deep(#user) {
         position: fixed;
-        top : 70px;
         right: 2%;
         z-index: 2;
         max-width: var(--size);
@@ -46,7 +42,6 @@
     }
     :deep(#drawer) {
         position: fixed;
-        top : 70px;
         z-index: 2;
         width: var(--size);
         height: 80%;
@@ -90,7 +85,6 @@
 
     .Pics {
         position: fixed;
-        top : 70px;
         z-index: 2;
         right: 2%;
         max-width: var(--maxsize);
