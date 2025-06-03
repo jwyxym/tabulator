@@ -51,17 +51,21 @@
         main : [] as Array<number>,
         side : [] as Array<number>,
         blob : undefined as Blob | undefined,
-        init : (i : {
+        init : async (i : {
             participant : Participant,
             main : Array<number>,
             side : Array<number>,
             blob : Blob,
-        }) : void => {
+        }) : Promise<void> => {
             if (deck.chk) return;
             const participant = i.participant ?? undefined;
             if (participant && deck.participant == participant) {
                 deck.off();
-                return
+                return;
+            }
+            if (deck.participant) {
+                deck.participant = undefined;
+                await (new Promise(resolve => setTimeout(resolve, 500)));
             }
             deck.main = i.main;
             deck.side = i.side;
@@ -104,6 +108,7 @@
     });
 </script>
 <style scoped lang = 'scss'>
+    @import '../style/transition.scss';
     .button {
         border: 1px solid #409eff;
         display: flex;
