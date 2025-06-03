@@ -103,6 +103,7 @@
         page : 1,
         total : 0,
         search : async () : Promise<void> => {
+            if (Mycard.id < 0) return;
             const res = await Tabulator.ApiKey.FindALL(Mycard.token, {
                 pageCount : api.page,
                 userId : Mycard.id
@@ -207,8 +208,10 @@
     onBeforeMount(() : void => {
         api.search();
     });
+
     onUnmounted(() : void => {
     });
+    
 </script>
 <style lang = 'scss'>
     #footer {

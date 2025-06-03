@@ -583,6 +583,8 @@ class TabulatorAPI {
                 }
             };
             try {
+                if (!obj.userId || obj.userId < 0)
+                    throw new Error('未登录');
                 response = await this.url.get(`/api/api-key`, {
                     params : {
                         recordsPerPage : 20,
