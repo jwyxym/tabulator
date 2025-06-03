@@ -529,9 +529,6 @@
                 })
             }
         },
-        drag : {
-
-        },
         move : {
             this : undefined as Participant | undefined,
             start : (i : Participant, e : TouchEvent) : void => {
