@@ -77,7 +77,7 @@
                                         <view id = 'header'>
                                             <span>{{ i.name }}</span>
                                             <br>
-                                            <span class = 'small'>{{ tournament.this.status == 'Ready' ? v : (i.score ? i.score.rank : '') }}</span>
+                                            <span class = 'small'>{{ tournament.this.status == 'Ready' ? `${v + 1}` : (i.score ? i.score.rank : '') }}</span>
                                         </view>
                                     </template>
                                     <template v-slot:footer>
