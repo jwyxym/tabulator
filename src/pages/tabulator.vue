@@ -179,12 +179,9 @@
                 if (!page.drawer && page.tournament)
                     tournament.init(tournament.this as Tournament);
             },
-            tournament : async(v : number = 0): Promise<void> => {
-                page.menu = false;
-                await (new Promise(resolve => setTimeout(resolve, 500)));
-                page.tournament = true;
+            tournament : (v : number = 0): void => {
                 const url = window.location.href.split('/?');
-                window.location.replace(`${url[0].replace(/\/?$/, '')}/tournament/${search.result.tournaments[v].id}${url[1] ? `/?${url[1]}` : ''}`);
+                emitter.emit(Const.changeUrl, `${url[0].replace(/\/?$/, '')}/${search.result.tournaments[v].id}${url[1] ? `/?${url[1]}` : ''}`);
             },
             menu : async(): Promise<void> => {
                 page.tournament = false;
@@ -411,6 +408,27 @@
         }
     });
 
+    const loading = async () : Promise<void> => {
+        const url = window.location.hash.match(/#\/(.*?)(?:\?|$)/);
+        if (url) {
+            if (!isNaN(parseInt(url[1]))) {
+                page.menu = false;
+                page.tournament = true;
+                emitter.emit(Const.showTournament);
+                return;
+            } else if (url[1].length == 0) {
+                page.tournament = false;
+                page.menu = true;
+                search.mine();
+                await search.on();
+                emitter.emit(Const.show);
+                return;
+            }
+        }
+        const i = window.location.href.split('/?');
+        emitter.emit(Const.changeUrl, `${window.location.origin}/#${i[1] ? `/?${i[1]}` : '/'}`);
+    };
+
     onBeforeMount(() : void => {
         Uniapp.chkScreen(size.get);
         document.addEventListener("click", page.show.clear);
@@ -418,19 +436,8 @@
         // @ts-ignore
         emitter.on(Const.tournamentReload, tournament.init);
         emitter.on(Const.createOff, creator.off);
-
-        const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
-        if (url && !isNaN(parseInt(url[1]))) {
-            page.menu = false;
-            page.tournament = true;
-        } else {
-            if (window.location.pathname.length > 1)
-                window.location.replace(window.location.href.replace(window.location.pathname, ''))
-            else {
-                search.mine();
-                search.on();
-            }
-        }
+        window.addEventListener('hashchange', loading);
+        loading();
     });
 
     onMounted(() => {
@@ -444,6 +451,7 @@
         // @ts-ignore
         emitter.off(Const.tournamentReload, tournament.init);
         emitter.off(Const.createOff, creator.off);
+        window.removeEventListener('hashchange', loading);
     });
 
     watch(() => { return search.date; }, () => {

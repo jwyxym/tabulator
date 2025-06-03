@@ -395,7 +395,6 @@
                     for (const i of del_list)
                         await participant.del(i);
                     await participant.search();
-                    console.log(participant.array)
                 }
             };
             await UniApp.selectFile(['.ydk', '.txt'], f);
@@ -491,7 +490,7 @@
                 page.reload();
         },
         search : async () : Promise<boolean> => {
-            const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
+            const url = window.location.hash.match(/#\/(.*?)(?:\?|$)/);
             // @ts-ignore
             const id = url[1];
             // @ts-ignore
@@ -569,16 +568,23 @@
     let page = reactive({
         height : 0,
         loading : false,
-        clear : async () : Promise<void>=> {
-            tournament.this = undefined;
-            await (new Promise(resolve => setTimeout(resolve, 450)));
-            window.location.replace(window.location.href.replace(window.location.pathname, ''))
+        clear : (chk = false) : void => {
+            const i = window.location.href.split('/?');
+            if (chk)
+                window.location.replace(`${window.location.origin}/#${i[1] ? `/?${i[1]}` : '/'}`);
+            else
+                emitter.emit(Const.changeUrl, `${window.location.origin}/#${i[1] ? `/?${i[1]}` : '/'}`);
+        },
+        show : () : void => {
+            emitter.emit(Const.show);
         },
         get : async () : Promise<void> => {
-            if (await participant.search()) 
+            if (await participant.search()) {
                 await match.search();
-             else 
-                page.clear();
+                page.show();
+            }
+            else
+                page.clear(true);
         },
         reload : async () : Promise<void> => {
             const query = uni.createSelectorQuery().in(this);
@@ -616,18 +622,24 @@
         }
     });
 
-    onBeforeMount(() => {
-        const url = window.location.pathname.match(/\/tournament\/([^\/]+)(?=\/|$)/);
+    const loading = () : void => {
+        const url = window.location.hash.match(/#\/(.*?)(?:\?|$)/);
         url && !isNaN(parseInt(url[1])) ? page.get() : page.clear();
+    };
+
+    onBeforeMount(() => {
+        loading();
         document.addEventListener("click", page.clickClear);
         // @ts-ignore
         emitter.on(Const.updateTournament, participant.update);
+        emitter.on(Const.showTournament, loading);
     });
 
     onUnmounted(() => {
         document.removeEventListener("click", page.clickClear);
         // @ts-ignore
         emitter.off(Const.updateTournament, participant.update);
+        emitter.off(Const.showTournament, loading);
     });
 
     watch(() => { return match.round; }, async () : Promise<void> => {

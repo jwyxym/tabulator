@@ -7,6 +7,9 @@ class ConstData {
     picsOpen = 'picsOpen';
     searcherInit = 'searcherInit';
     settingInit = 'settingInit';
+    changeUrl = 'changeUrl';
+    show = 'show';
+    showTournament = 'showTournament';
 }
 
 const Const = new ConstData();

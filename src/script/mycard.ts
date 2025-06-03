@@ -1,4 +1,6 @@
 import { Buffer } from 'buffer';
+import emitter from './emitter.ts'
+import Const from './const.ts'
 
 interface MyCardSSOUser {
     token : string;
@@ -49,7 +51,7 @@ class MyCard {
 
     logout() {
         window.localStorage.removeItem('mycardLogin');
-        window.location.replace(window.location.href.replace(/\/\?.*/, ''))
+        emitter.emit(Const.changeUrl, window.location.href.replace(/\/\?.*/, ''));
     }
 }
 
