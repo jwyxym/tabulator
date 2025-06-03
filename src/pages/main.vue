@@ -1,6 +1,6 @@
 <template>
     <view id = 'page'>
-        <view id = 'head' class = 'click'>
+        <view id = 'really' class = 'click head'>
             <view>
                 <button class = 'button' @click = 'page.show.drawer()'>
                     <uni-icons :type = "page.menu ? page.drawer ? 'left' : 'search' : page.drawer ? 'left' : 'info'"></uni-icons>
@@ -22,6 +22,7 @@
                 </uni-list-chat>
             </uni-list>
         </view>
+        <view class = 'click head'><uni-list><uni-list-chat></uni-list-chat></uni-list></view>
         <Pics></Pics>
         <transition name = 'move_right'>
             <uni-card
