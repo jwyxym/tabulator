@@ -4,6 +4,9 @@
             <uni-card
                 v-show = 'deck.participant'
                 :title = "`${deck.participant?.name ?? '...'} 的卡组`"
+                id = 'main'
+                :spacing = '0'
+                :padding = '0'
             >
                 <!-- <view
                     class = 'button'
@@ -12,11 +15,11 @@
                 >
                     <uni-icons type = 'download'></uni-icons>
                 </view> -->
-                <uni-card :title = "deck.main.length > 0 ? '主卡组' : '暂无主卡组'">
-                    <image class = 'deck_cards' v-for = '(i, v) in deck.main' :src = 'getImg(i)' mode = 'aspectFit' @error = 'changeImg.main(v)'></image>
+                <uni-card class = 'deck' :title = "deck.main.length > 0 ? '主卡组' : '暂无主卡组'">
+                    <cover-image class = 'deck_cards' v-for = '(i, v) in deck.main' :src = 'getImg(i)' @error = 'changeImg.main(v)'></cover-image>
                 </uni-card>
-                <uni-card :title = "deck.side.length > 0 ? '副卡组' : '暂无副卡组'">
-                    <image class = 'deck_cards' v-for = '(i, v) in deck.side' :src = 'getImg(i)' mode = 'aspectFit' @error = 'changeImg.main(v)'></image>
+                <uni-card class = 'deck' :title = "deck.side.length > 0 ? '副卡组' : '暂无副卡组'">
+                    <cover-image class = 'deck_cards' v-for = '(i, v) in deck.side' :src = 'getImg(i)' @error = 'changeImg.main(v)'></cover-image>
                 </uni-card>
             </uni-card>
         </transition>

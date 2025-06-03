@@ -37,7 +37,6 @@
         right: 2%;
         z-index: 2;
         max-width: var(--size);
-        width: 20%;
         .user {
             &:hover {
                 cursor: pointer;
@@ -94,15 +93,17 @@
         top : 70px;
         z-index: 2;
         right: 2%;
-        width: 50%;
-        :deep(.uni-card) {
-            // display: flex;
-            .deck_cards {
-                width: 10%;
-                height: 11.52vh;
-                aspect-ratio: 1 / 1.43;
-                display: inline-block;
-                vertical-align: top;
+        max-width: var(--maxsize);
+        min-width: var(--minsize);
+        :deep(#main) {
+            overflow-y: auto;
+            max-height: 90vh;
+            .deck {
+                .deck_cards {
+                    width: var(--height);
+                    display: inline-block;
+                    vertical-align: top;
+                }
             }
         }
     }

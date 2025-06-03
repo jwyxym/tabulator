@@ -23,7 +23,13 @@
             </uni-list>
         </view>
         <view class = 'click head'><uni-list><uni-list-chat></uni-list-chat></uni-list></view>
-        <Pics></Pics>
+        <Pics
+            :style = "{
+                '--maxsize' : `${size.width > size.height ? size.width / 2 : size.width / 1.2}px`,
+                '--minsize' : `${size.width / 2}px`,
+                '--height' : `${size.width > size.height ? 10 : 25}%`,
+            }"
+        ></Pics>
         <transition name = 'move_right'>
             <uni-card
                 class = 'click'
@@ -32,7 +38,7 @@
                 :title = 'Mycard.username'
                 :sub-title = 'Mycard.email'
                 :thumbnail = 'Mycard.avatar'
-                :style = "{ '--size' : `${size.width / 2}px` }"
+                :style = "{ '--size' : `${size.width > size.height ? size.width / 2 : size.width / 1.2}px` }"
             >
             <view v-show = 'Mycard.id >= 0'><h2>{{ Mycard.id }}</h2></view>
             <hr v-show = 'Mycard.id >= 0'>
@@ -98,7 +104,7 @@
         <transition name = 'switch'>
             <view
                 id = 'body'
-                :style = "{ '--size' : `${size.width > size.height ? size.width / 2 : size.width / 1.2}px` }"
+                :style = "{ '--size' : `${size.width > size.height ? size.width / 2 : size.width}px` }"
             >
                 <transition name = 'switch'>
                     <uni-list
