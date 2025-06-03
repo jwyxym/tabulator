@@ -69,8 +69,8 @@
                                 </uni-list-item>
                                 <uni-list-item
                                     v-for = '(i, v) in participant.array.slice((participant.page - 1) * 20, participant.page * 20)'
-                                    :title = "i.score ? `胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
-                                    :note = "i.score ? `小分：${i.score.score}` : ''"
+                                    :title = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1Id == i.id || m.player2Id == i.id)) > -1 ? `胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
+                                    :note = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1Id == i.id || m.player2Id == i.id)) > -1 ? `小分：${i.score.score}` : ''"
                                     :clickable = true
                                 >
                                     <template v-slot:header>
