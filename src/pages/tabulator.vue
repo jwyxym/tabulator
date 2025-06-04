@@ -113,7 +113,6 @@
                 <transition name = 'switch'>
                     <uni-list
                         v-show = 'search.result.total > 0 && page.menu'
-                        :class = "{ vertical : size.width <= size.height}"
                     >
                         <uni-list-item
                             id = 'list'
@@ -485,4 +484,5 @@
 <style scoped lang = 'scss'>
     @import '../style/page.scss';
     @import '../style/transition.scss';
+    @import '../style/style.scss';
 </style>
