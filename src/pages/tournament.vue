@@ -635,7 +635,7 @@
         emitter.off(Const.showTournament, loading);
     });
 
-    watch(() => { return match.round; }, async () : Promise<void> => {
+    watch(() => { return match.round; }, () : void => {
         match.page = 1;
     });
 
