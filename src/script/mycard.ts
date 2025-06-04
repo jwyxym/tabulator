@@ -59,7 +59,7 @@ class MyCard {
         this.email = '';
         this.avatar = 'https://cdn02.moecube.com:444/accounts/default_avatar.jpg';
         const url = window.location.href.split('/?');
-        emitter.emit(Const.changeUrl, `${url[0]}/`);
+        emitter.emit(Const.changeUrl, url[0].endsWith('/') ? url[0] : `${url[0]}/`);
     }
 }
 

@@ -113,6 +113,7 @@
                 <transition name = 'switch'>
                     <uni-list
                         v-show = 'search.result.total > 0 && page.menu'
+                        :class = "{ vertical : size.width <= size.height}"
                     >
                         <uni-list-item
                             id = 'list'
@@ -181,7 +182,7 @@
             },
             tournament : (v : number = 0): void => {
                 const url = window.location.href.split('/?');
-                emitter.emit(Const.changeUrl, `${url[0]}/${search.result.tournaments[v].id}${url[1] ? `/?${url[1]}` : ''}`);
+                emitter.emit(Const.changeUrl, `${url[0].endsWith('/') ? url[0] : `${url[0]}/`}${search.result.tournaments[v].id}${url[1] ? `/?${url[1]}` : ''}`);
             },
             menu : async(): Promise<void> => {
                 page.tournament = false;

@@ -102,4 +102,10 @@
             }
         }
     }
+
+    .vertical {
+        :deep(.uni-list-item) {
+            background: linear-gradient(to right, rgb(255, 228, 230), white, white, white, rgb(204, 251, 241)) !important;
+        }
+    }
 }
