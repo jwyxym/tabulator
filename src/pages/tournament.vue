@@ -162,13 +162,13 @@
                                 第
                                 <uni-number-box
                                     v-model = 'match.round'
-                                    :min = '1'
+                                    :min = '0'
                                     :max = 'match.maxRound'
                                     :disabled = "tournament.this.status == 'Ready'"
                                 ></uni-number-box>
                                 轮
                             </div>
-                            <view class = 'button' @click = '() => { match.chk = true; match.page = 1; match.search(true); }'>全部轮次</view>
+                            <view class = 'button' @click = '() => { match.round = 0; }'>全部轮次</view>
                         </view>
                         <transition name = 'switch'>
                             <uni-list>
@@ -177,7 +177,9 @@
                                     title = '暂无比赛'
                                 >
                                 </uni-list-item>
-                                <view v-for = '(i, v) in match.array'>
+                                <view
+                                    v-for = '(i, v) in (match.round == 0) ? match.array.slice((match.page - 1) * 20, match.page * 20) : match.array.filter(m => m.round == match.round).slice((match.page - 1) * 20, match.page * 20)'
+                                >
                                     <view
                                         class = 'match'
                                         v-show = "match.submit.page === i && (i.status == 'Running' || i.status == 'Finished')"
@@ -205,7 +207,7 @@
                                     </view>
                                     <uni-list-item
                                         :clickable = true
-                                        @click = 'match.submit.show(v)'
+                                        @click = 'match.submit.show(i)'
                                         id = 'matchList'
                                     >
                                         <template v-slot:body>
@@ -270,8 +272,7 @@
                             :current = 'match.page'
                             v-model = 'match.page'
                             pageSize = 20
-                            :total = 'match.total'
-                            @change = 'match.search()'
+                            :total = '(match.round == 0) ? match.total : match.array.filter(m => m.round == match.round).length'
                         >
                         </uni-pagination>
                     </uni-card>
@@ -282,7 +283,6 @@
 </template>
 <script setup lang = 'ts'>
     import {ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
-    import YGOProDeck from 'ygopro-deck-encode';
     import emitter from '../script/emitter.ts'
     import UniApp from '../script/uniapp.ts';
     import {Tabulator, User} from '../script/post.ts';
@@ -291,7 +291,7 @@
     import Match from '../script/match.ts';
     import Const from '../script/const.ts'
     import Mycard from '../script/mycard.ts';
-    import {TournamentCreateObject, MatchUpdateObject, TournamentAParticipant, ParticipantUpdateObject} from '../script/type.ts'
+    import {TournamentCreateObject, MatchUpdateObject, TournamentGet, ParticipantUpdateObject} from '../script/type.ts'
     let tournament = reactive({
         this : undefined as undefined | Tournament,
         status : {
@@ -305,6 +305,25 @@
                 ['Running', 'red'],
                 ['Finished', 'darkgray']
             ]) as Map<string, string>,
+        },
+        search : async () : Promise<boolean> => {
+            const url = window.location.hash.match(/#\/(.*?)(?:\?|$)/);
+            // @ts-ignore
+            const id = url[1];
+            // @ts-ignore
+            const t : TournamentGet = await Tabulator.Tournament.Find(Mycard.token, id);
+            if (t.tournament) {
+                tournament.this = t.tournament;
+                emitter.emit(Const.tournamentReload, tournament.this)
+                const participants = t.participant;
+                participant.array = participants.participants;
+                participant.total = participants.total;
+                const matches = t.match;
+                match.array = matches.matches;
+                match.total = matches.total;
+                return true;
+            }
+            return false;
         },
         on : () : void => {
             switch(tournament.this?.status) {
@@ -367,7 +386,7 @@
                     if (!res.confirm) return;
                     // @ts-ignore
                     if (await Tabulator.Tournament.Shuffle(Mycard.token, tournament.this.id))
-                        participant.search();
+                        tournament.search();
                 }
             });
         },
@@ -394,7 +413,7 @@
                 if (await Tabulator.Tournament.UpdateYdk(Mycard.token, tournament.this.id, res)) {
                     for (const i of del_list)
                         await participant.del(i);
-                    await participant.search();
+                    await tournament.search();
                 }
             };
             await UniApp.selectFile(['.ydk', '.txt'], f);
@@ -407,7 +426,6 @@
         page : 1,
         round : 1,
         maxRound : 2,
-        chk : false,
         status : {
             color : new Map([
                 ['Running', 'rgb(84, 200, 17)'],
@@ -417,8 +435,8 @@
         },
         submit : {
             page : undefined as Match | undefined,
-            show : (v : number) : void => {
-                match.submit.page = match.submit.page == match.array[v] ? undefined : match.array[v];
+            show : (i : Match) : void => {
+                match.submit.page = match.submit.page === i ? undefined : i;
                 if (!match.submit.page)
                     match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
             },
@@ -448,12 +466,6 @@
                 }
             },
             chk : [] as Array<Array<number>>
-        },
-        search : async (chk : boolean = match.chk) : Promise<void> => {
-            // @ts-ignore
-            const matchs = await Tabulator.Match.FindALL(Mycard.token, {tournamentId : tournament.this.id, statusIn : 'Running,Finished', pageCount : match.page, round : chk ? undefined : match.round});
-            match.array = matchs.matchs;
-            match.total = matchs.total;
         }
     });
 
@@ -466,7 +478,7 @@
             // @ts-ignore
             if (await Tabulator.Participant.Create(Mycard.token, { name : participant.name, tournamentId : tournament.this.id}, participant.array)) {
                 participant.name = '';
-                await participant.search();
+                await tournament.search();
             }
         },
         del : async(i : Participant) : Promise<void> => {
@@ -482,28 +494,12 @@
             }
             // @ts-ignore
             if (tournament.this.status == 'Ready' ? await del() : await update())
-                await participant.search();
+                await tournament.search();
         },
         update : async (Data : TournamentCreateObject) : Promise<void> => {
             // @ts-ignore
             if (await Tabulator.Tournament.Update(Mycard.token, tournament.this.id, Data))
                 page.reload();
-        },
-        search : async () : Promise<boolean> => {
-            const url = window.location.hash.match(/#\/(.*?)(?:\?|$)/);
-            // @ts-ignore
-            const id = url[1];
-            // @ts-ignore
-            const t : TournamentAParticipant = await Tabulator.Tournament.Find(Mycard.token, id);
-            if (t.tournament) {
-                tournament.this = t.tournament;
-                emitter.emit(Const.tournamentReload, tournament.this)
-                const participants = t.participant;
-                participant.array = participants.participants;
-                participant.total = participants.total;
-                return true;
-            }
-            return false;
         },
         upload : async (i : Participant) : Promise<void> => {
             const f = async (res : UniApp.ChooseFileSuccessCallbackResult) : Promise<void> => {
@@ -513,7 +509,7 @@
                         name : i.name,
                         deckbuf : i.deckbuf
                     } as ParticipantUpdateObject))
-                        await participant.search();
+                        await tournament.search();
                 }
             };
             await UniApp.selectFile(['.ydk', '.txt'], f, 1);
@@ -545,7 +541,7 @@
                     if (v1 - v2 != 1) {
                         // @ts-ignore
                         if (await participant.move.change(participant.array[v1].id, v2 >= 1 ? participant.array[v2 - 1].id : 0) && await participant.move.change(participant.array[v2].id, v1 >= 1 ? participant.array[v1 - 1].id : 0))
-                            await participant.search();
+                            await tournament.search();
                     } else {
                         const v = v1 > v2 ? v1 : v2;
                         await participant.move.down(participant.array[v - 1].id, participant.array[v].id);
@@ -560,7 +556,7 @@
             down : async (from : number, to : number) : Promise<void> => {
                 // @ts-ignore
                 if (await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, from, to))
-                    await participant.search();
+                    await tournament.search();
             }
         }
     });
@@ -579,10 +575,8 @@
             emitter.emit(Const.show);
         },
         get : async () : Promise<void> => {
-            if (await participant.search()) {
-                await match.search();
+            if (await tournament.search())
                 page.show();
-            }
             else
                 page.clear(true);
         },
@@ -594,8 +588,7 @@
             }).exec();
             page.loading = true;
             participant.name = '';
-            if (await participant.search()) {
-                await match.search();
+            if (await tournament.search()) {
                 await (new Promise(resolve => setTimeout(resolve, 500)));
                 page.loading = false;
                 page.height = 0;
@@ -644,8 +637,6 @@
 
     watch(() => { return match.round; }, async () : Promise<void> => {
         match.page = 1;
-        match.chk = false;
-        await match.search();
     });
 
     watch(() => { return match.array; }, async () : Promise<void> => {

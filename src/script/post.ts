@@ -22,7 +22,7 @@ import {
     AllMatch,
     AllAPI,
     UserObject,
-    TournamentAParticipant
+    TournamentGet
 } from './type.ts'
 import UniApp from './uniapp.ts';
 
@@ -79,7 +79,7 @@ class TabulatorAPI {
                 return false;
             }
         },
-        Find : async (token : string, id : number) : Promise<TournamentAParticipant> => {
+        Find : async (token : string, id : number) : Promise<TournamentGet> => {
             let response : {
                 data : {
                     data : TournamentObject;
@@ -92,14 +92,22 @@ class TabulatorAPI {
                     }
                 });
                 let participants : Array<Participant> = [];
+                let matches : Array<Match> = [];
                 response.data.data.participants.forEach((i : ParticipantObject) => {
                     participants.push(new Participant(i));
+                });
+                response.data.data.matches.forEach((i : MatchObject) => {
+                    matches.push(new Match(i));
                 });
                 return {
                     tournament : new Tournament(response.data.data),
                     participant : {
                         participants : participants,
                         total : participants.length
+                    },
+                    match : {
+                        matches : matches,
+                        total : matches.length
                     }
                 };
             }
@@ -109,6 +117,10 @@ class TabulatorAPI {
                     tournament : undefined,
                     participant : {
                         participants : [],
+                        total : 0
+                    },
+                    match : {
+                        matches : [],
                         total : 0
                     }
                 };
@@ -496,14 +508,14 @@ class TabulatorAPI {
                 })
                 return {
                     total : response.data.total,
-                    matchs : matchs
+                    matches : matchs
                 };
             }
             catch(error) {
                 console.error(error);
                 return {
                     total : 0,
-                    matchs : []
+                    matches : []
                 };
             }
         },

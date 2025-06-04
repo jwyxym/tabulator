@@ -64,6 +64,7 @@ interface TournamentObject extends TournamentCreateObject {
     creator : number;
     createdAt : string;
     participants : Array<ParticipantObject>;
+    matches : Array<MatchObject>
 }
 
 interface TournamentFindObject {
@@ -144,16 +145,17 @@ interface AllParticipant extends All {
 }
 
 interface AllMatch extends All {
-    matchs : Array<Match>;
+    matches : Array<Match>;
 }
 
 interface AllAPI extends All {
     api : Array<ApiKey>;
 }
 
-interface TournamentAParticipant {
+interface TournamentGet {
     tournament : Tournament | undefined;
-    participant : AllParticipant
+    participant : AllParticipant,
+    match : AllMatch
 }
 
 interface UserObject {
@@ -189,6 +191,6 @@ export {
     AllAPI,
     ruleSettings,
     UserObject,
-    TournamentAParticipant,
+    TournamentGet,
     Deck
 }
