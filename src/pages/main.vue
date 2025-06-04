@@ -1,10 +1,12 @@
 <template>
-    <transition name = 'page'>
-        <view v-show = 'loading' class = 'background'>
-            <view class = 'pic' v-html = 'Const.pic.hajimi'></view>
-        </view>
-    </transition>
-    <Tabulator/>
+    <view id = 'main_page'>
+        <transition name = 'page'>
+            <view v-show = 'loading' class = 'background'>
+                <view class = 'pic' v-html = 'Const.pic.hajimi'></view>
+            </view>
+        </transition>
+        <Tabulator/>
+    </view>
 </template>
 <script setup lang = 'ts'>
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
@@ -39,27 +41,33 @@
 </script>
 <style scoped lang = 'scss'>
     @import '../style/transition.scss';
-    .background {
-        position: fixed;
-        background: linear-gradient(45deg, rgb(0, 162, 255), rgb(0, 72, 255));
-        width: 100vw;
-        height: 100vh;
-        z-index: 100;
-        font-family: 'Courier New', monospace;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0;
-        .pic {
-            color: white;
-            white-space: pre;
-            line-height: 1;
-            letter-spacing: 0;
-            font-size: 12px;
+    #main_page {
+        background: linear-gradient(to right, rgb(255, 228, 230), white, white, white, rgb(204, 251, 241));
+        height: 100%;
+        min-height: 100vh;
+        width: 100%;
+        .background {
+            position: fixed;
+            background: linear-gradient(to right, rgb(134, 239, 172), rgb(59, 130, 246), rgb(147, 51, 234));
+            width: 100%;
+            height: 100vh;
+            z-index: 100;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            .pic {
+                color: white;
+                white-space: pre;
+                line-height: 1;
+                letter-spacing: 0;
+                font-size: 12px;
+            }
         }
-    }
-    .Tabulator {
-        position: fixed;
-        z-index: 1;
+        .Tabulator {
+            position: fixed;
+            z-index: 1;
+        }
     }
 </style>
