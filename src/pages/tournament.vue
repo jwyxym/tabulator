@@ -424,7 +424,7 @@
         array : [] as Array<Match>,
         total : 0,
         page : 1,
-        round : 1,
+        round : 0,
         maxRound : 2,
         status : {
             color : new Map([
@@ -590,6 +590,7 @@
             page.loading = true;
             participant.name = '';
             if (await tournament.search()) {
+                match.round = 0;
                 await (new Promise(resolve => setTimeout(resolve, 500)));
                 page.loading = false;
                 page.height = 0;
