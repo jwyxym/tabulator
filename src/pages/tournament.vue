@@ -41,7 +41,7 @@
                         </view>
                         <view class = 'button click'  @click = 'tournament.operatorChk(tournament.shuffle)'>
                             <span>打乱</span>
-                            <uni-icons type = 'loop'></uni-icons>
+                            <uni-icons type = 'auth'></uni-icons>
                         </view>
                         <view class = 'button click'  @click = 'tournament.operatorChk(tournament.upload)'>
                             <span>上传</span>
@@ -178,7 +178,7 @@
                                 >
                                 </uni-list-item>
                                 <view
-                                    v-for = '(i, v) in (match.round == 0) ? match.array.slice((match.page - 1) * 20, match.page * 20) : match.array.filter(m => m.round == match.round).slice((match.page - 1) * 20, match.page * 20)'
+                                    v-for = 'i in (match.round == 0) ? match.array.slice((match.page - 1) * 20, match.page * 20) : match.array.filter(m => m.round == match.round).slice((match.page - 1) * 20, match.page * 20)'
                                 >
                                     <view
                                         class = 'match'
@@ -189,7 +189,7 @@
                                                 :clearable = 'false'
                                                 type = 'number'
                                                 :placeholder = 'participant.array.find(p => p.id == i.player1Id)?.name'
-                                                v-model = 'match.submit.chk[v][0]'
+                                                v-model = 'match.submit.chk[match.array.findIndex(m => m === i)][0]'
                                                 :disabled = "i.status != 'Running'"
                                             ></uni-easyinput>
                                             <view>
@@ -199,11 +199,11 @@
                                                 :clearable = 'false'
                                                 type = 'number'
                                                 :placeholder = 'participant.array.find(p => p.id == i.player2Id)?.name'
-                                                v-model = 'match.submit.chk[v][1]'
+                                                v-model = 'match.submit.chk[match.array.findIndex(m => m === i)][1]'
                                                 :disabled = "i.status != 'Running'"
                                             ></uni-easyinput>
                                         </view>
-                                        <view class = 'button' @click = 'match.submit.on(v)'>{{ i.status == 'Running' ? '提交比分' : i.status == 'Finished' ? '重赛' : '' }}</view>
+                                        <view class = 'button' @click = 'match.submit.on(i)'>{{ i.status == 'Running' ? '提交比分' : i.status == 'Finished' ? '重赛' : '' }}</view>
                                     </view>
                                     <uni-list-item
                                         :clickable = true
@@ -440,14 +440,15 @@
                 if (!match.submit.page)
                     match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
             },
-            on : async (v : number) : Promise<void> => {
-                switch (match.array[v].status) {
+            on : async (i : Match) : Promise<void> => {
+                const v = match.array.findIndex(m => m === i);
+                switch (i.status) {
                     case 'Running':
                         const player1 : number = match.submit.chk[v][0] ?? 0;
                         const player2 : number = match.submit.chk[v][1] ?? 0;
-                        const id : null | number = player1 > player2 ? match.array[v].player1Id : player1 == player2 ? null : match.array[v].player2Id
+                        const id : null | number = player1 > player2 ? i.player1Id : player1 == player2 ? null : i.player2Id
                         // @ts-ignore
-                        if (await Tabulator.Match.Update(Mycard.token, match.array[v].id, {
+                        if (await Tabulator.Match.Update(Mycard.token, i.id, {
                             player1Score : player1,
                             player2Score : player2,
                             winnerId : id
@@ -456,7 +457,7 @@
                         break;
                     case 'Finished':
                         // @ts-ignore
-                        if (await Tabulator.Match.Update(Mycard.token, match.array[v].id, {
+                        if (await Tabulator.Match.Update(Mycard.token, i.id, {
                             player1Score : 0,
                             player2Score : 0,
                             winnerId : undefined
