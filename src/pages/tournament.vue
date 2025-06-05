@@ -277,6 +277,15 @@
                         </uni-pagination>
                     </uni-card>
                 </transition>
+                <!--
+                <transition name = 'switch'>
+                    <MatchTree
+                        v-show = "match.array.length > 0 && tournament.this.rule == 'SingleElimination'"
+                        :matches = 'match.array'
+                        :participants = 'participant.array'
+                    ></MatchTree>
+                </transition>
+                -->
             </uni-card>
         </transition>
     </view>
@@ -292,6 +301,8 @@
     import Const from '../script/const.ts'
     import Mycard from '../script/mycard.ts';
     import {TournamentCreateObject, MatchUpdateObject, TournamentGet, ParticipantUpdateObject} from '../script/type.ts'
+    import MatchTree from './matchTree.vue';
+
     let tournament = reactive({
         this : undefined as undefined | Tournament,
         status : {
