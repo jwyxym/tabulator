@@ -59,6 +59,7 @@
     "vite-plugin-vue-setup-extend": "^0.4.0",
     "vue": "^3.4.21",
     "vue-i18n": "^9.1.9",
+    "vue-tournament-bracket": "^3.0.0",
     "ygopro-deck-encode": "^1.0.7"
   },
   "devDependencies": {

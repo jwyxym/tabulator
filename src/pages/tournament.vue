@@ -277,15 +277,14 @@
                         </uni-pagination>
                     </uni-card>
                 </transition>
-                <!--
                 <transition name = 'switch'>
                     <MatchTree
-                        v-show = "match.array.length > 0 && tournament.this.rule == 'SingleElimination'"
+                        v-if = "!page.loading && tournament.this.rule == 'SingleElimination'"
+                        v-show = "match.array.length > 0"
                         :matches = 'match.array'
                         :participants = 'participant.array'
                     ></MatchTree>
                 </transition>
-                -->
             </uni-card>
         </transition>
     </view>
