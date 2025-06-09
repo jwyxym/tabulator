@@ -411,12 +411,10 @@
     const loading = async () : Promise<void> => {
         const url = window.location.hash.match(/#\/(.*?)(?:\?|$)/);
         if (url) {
-            
             if (!isNaN(parseInt(url[1]))) {
                 page.menu = false;
                 page.tournament = true;
                 emitter.emit(Const.showTournament);
-                return;
             } else if (url[1].length == 0) {
                 if (window.location.href.includes('/?') && window.location.hash.endsWith('#/')) {
                     const i = window.location.href.split('/?');
@@ -427,15 +425,16 @@
                 page.menu = true;
                 search.mine();
                 await search.on();
-                emitter.emit(Const.show);
-                return;
+                emitter.emit(Const.show, false);
             }
+        } else {
+            const i = window.location.href.split('/?');
+            emitter.emit(Const.changeUrl, `${window.location.origin}/#${i[1] ? `/?${i[1]}` : '/'}`);
         }
-        const i = window.location.href.split('/?');
-        emitter.emit(Const.changeUrl, `${window.location.origin}/#${i[1] ? `/?${i[1]}` : '/'}`);
     };
 
     onBeforeMount(() : void => {
+        loading();
         Uniapp.chkScreen(size.get);
         document.addEventListener("click", page.show.clear);
         emitter.on(Const.tournamentInfo, page.show.drawer);
@@ -443,7 +442,6 @@
         emitter.on(Const.tournamentReload, tournament.init);
         emitter.on(Const.createOff, creator.off);
         window.addEventListener('hashchange', loading);
-        loading();
     });
 
     onMounted(() => {

@@ -22,20 +22,24 @@
         window.location.replace(url);
     }
 
-    const show =  async () : Promise<void> => {
+    const show =  async (chk : boolean | undefined = undefined) : Promise<void> => {
         await (new Promise(resolve => setTimeout(resolve, 500)));
-        loading.value = !loading.value;
+        if (typeof chk === 'undefined')
+            loading.value = !loading.value;
+        else loading.value = chk;
     }
 
     onBeforeMount(() : void => {
         // @ts-ignore
         emitter.on(Const.changeUrl, changeUrl);
+        // @ts-ignore
         emitter.on(Const.show, show);
     })
 
     onUnmounted(() : void => {
         // @ts-ignore
         emitter.off(Const.changeUrl, changeUrl);
+        // @ts-ignore
         emitter.off(Const.show, show);
     });
 </script>
