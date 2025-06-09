@@ -76,6 +76,21 @@
                 }
             });
         });
+        matches.forEach(i => {
+            if (!i.player1.id || !i.player1.id) {
+                const parents = matches.filter(m => m.next == i.id).sort((a, b) => a.id - b.id);
+                if (parents) {
+                    if (!i.player1.id && parents.length > 0) {
+                        i.player1.id = parents[0].player1.winner ? parents[0].player1.id : parents[0].player2.winner ? parents[0].player2.id : '';
+                        i.player1.name = parents[0].player1.winner ? parents[0].player1.name : parents[0].player2.winner ? parents[0].player2.name : '';
+                    }
+                    if (!i.player2.id && parents.length > 1) {
+                        i.player2.id = parents[1].player1.winner ? parents[1].player1.id : parents[1].player2.winner ? parents[1].player2.id : '';
+                        i.player2.name = parents[1].player1.winner ? parents[1].player1.name : parents[1].player2.winner ? parents[1].player2.name : '';
+                    }
+                }
+            }
+        });
     }, { immediate : true, deep : true });
 
 </script>

@@ -121,7 +121,7 @@
             create.collaborators = [];
         },
         update : async() : Promise<void> => {
-            if (create.visibility.select == '')
+            if (!create.visibility.select)
             // @ts-ignore
                 create.visibility.select = 'SingleElimination';
             const collaborators = create.collaborators.map(user => user.id);

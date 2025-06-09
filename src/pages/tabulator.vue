@@ -343,7 +343,7 @@
             tournament.collaborators = [];
         },
         update : () : void => {
-            if (tournament.visibility.select == '')
+            if (!tournament.visibility.select)
                 // @ts-ignore
                 tournament.visibility.select = tournament.this.visibility;
 
@@ -471,11 +471,11 @@
     });
 
     watch(() => { return search.id; }, () => {
-        search.info.id = search.id == '' ? 0 : parseInt(search.id);
+        search.info.id = !search.id ? 0 : parseInt(search.id);
     });
 
     watch(() => { return search.creator; }, () => {
-        search.info.creator = search.creator == '' ? 0 : parseInt(search.creator);
+        search.info.creator = !search.creator ? 0 : parseInt(search.creator);
     });
 
 </script>
