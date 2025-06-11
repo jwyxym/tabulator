@@ -44,7 +44,7 @@
                 :thumbnail = 'Mycard.avatar'
                 :style = "{ '--size' : `${size.width > size.height ? size.width / 2 : size.width / 1.2}px`, '--minsize' : `${size.width > size.height ? size.width / 4 : size.width / 2.4}px` }"
             >
-            <view v-show = 'Mycard.id >= 0'><h2>{{ Mycard.id }}</h2></view>
+            <view v-show = 'Mycard.id >= 0'><h2><span>{{ Mycard.id }}</span></h2></view>
             <hr v-show = 'Mycard.id >= 0'>
             <view
                 v-show = 'Mycard.id >= 0'

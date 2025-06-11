@@ -138,7 +138,8 @@
 		padding: 0 $uni-spacing-sm;
 		border-radius: 4px;
 		overflow: hidden;
-		font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
+		// font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
+		font-family: Microsoft YaHei;
 		background-color: #fff;
 		flex: 1;
 

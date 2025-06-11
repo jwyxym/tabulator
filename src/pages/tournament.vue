@@ -86,7 +86,7 @@
                                                 class = 'button'
                                                 id = 'deckbutton'
                                                 :style = "{ '--color' : participant.move.this === i ? '#409eff' : 'gray', 'background-color' : participant.move.this === i ? '#e6e6e6' : 'white'}"
-                                                v-show = '!i.quit'
+                                                v-show = "!i.quit && tournament.this.status == 'Ready'"
                                                 @click = 'tournament.operatorChk(participant.move.start, [i, $event])'
                                             >
                                                 <uni-icons :type = "participant.move.this && participant.move.this !== i ? 'pulldown' : 'list'"></uni-icons>
@@ -159,14 +159,14 @@
                     >
                         <view id = 'round'>
                             <div>
-                                第
+                                <span>第</span>
                                 <uni-number-box
                                     v-model = 'match.round'
                                     :min = '0'
                                     :max = 'match.maxRound'
                                     :disabled = "tournament.this.status == 'Ready'"
                                 ></uni-number-box>
-                                轮
+                                <span>轮</span>
                             </div>
                             <view class = 'button' @click = '() => { match.round = 0; }'>全部轮次</view>
                         </view>
@@ -233,13 +233,13 @@
                                                     </span>
                                                 </view>
                                                 <view id = 'center'>
-                                                    {{ `第${i.round}轮` }}
+                                                    <span>{{ `第${i.round}轮` }}</span>
                                                     <br v-show = 'i.round == match.maxRound'>
                                                     <span class = 'small' v-show = 'i.isThirdPlaceMatch'>季军赛</span>
                                                     <span class = 'small' v-show = '!i.isThirdPlaceMatch && i.round == match.maxRound'>决赛</span>
                                                 </view>
                                                 <view  id = 'right'>
-                                                    {{ participant.array.find(p => p.id == i.player2Id)?.name }}
+                                                    <span>{{ participant.array.find(p => p.id == i.player2Id)?.name }}</span>
                                                     <br>
                                                     <span v-if = '
                                                         // @ts-ignore
