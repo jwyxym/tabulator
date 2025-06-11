@@ -9,7 +9,7 @@
             v-model = 'search.creator'
         ></uni-easyinput>
         <view class = 'button' @click = 'search.mine()'>
-            我组织的比赛
+            <span>我组织的比赛</span>
         </view>
         <uni-easyinput
             prefixIcon = 'search'

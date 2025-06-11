@@ -490,7 +490,7 @@
 	.uni-popper__arrow_bottom,
 	.uni-popper__arrow_bottom::after,
 	.uni-popper__arrow_top,
-	.uni-popper__arrow_top::after,
+	.uni-popper__arrow_top::after
 	{
 	position: absolute;
 	display: block;

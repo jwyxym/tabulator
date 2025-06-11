@@ -168,7 +168,7 @@
                                 ></uni-number-box>
                                 <span>轮</span>
                             </div>
-                            <view class = 'button' @click = '() => { match.round = 0; }'>全部轮次</view>
+                            <view class = 'button' @click = '() => { match.round = 0; }'><span>全部轮次</span></view>
                         </view>
                         <transition name = 'switch'>
                             <uni-list>
@@ -213,7 +213,7 @@
                                         <template v-slot:body>
                                             <view id = 'body'>
                                                 <view id = 'left'>
-                                                    {{ participant.array.find(p => p.id == i.player1Id)?.name }}
+                                                    <span>{{ participant.array.find(p => p.id == i.player1Id)?.name }}</span>
                                                     <br>
                                                     <span 
                                                         v-if = '

@@ -73,8 +73,12 @@
         src: url('../static/textFont.ttf') format('woff');
     }
 
-    span, :deep(.uni-card) {
+    span, .uni-pagination {
         font-family: '更纱黑体';
     }
 
+    :deep(.uni-card, .uni-easyinput, .uni-datetime-picker, .uni-list-chat) {
+        font-family: '更纱黑体' !important;
+    }
+    
 </style>

@@ -23,7 +23,8 @@
         <view v-show = "tournament.rule.select == 'SingleElimination'">
             <checkbox-group @change = 'tournament.hasThirdPlaceMatch.select'>
                 <label>
-                    <checkbox :checked = 'tournament.rule.settings.hasThirdPlaceMatch' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>季军赛
+                    <checkbox :checked = 'tournament.rule.settings.hasThirdPlaceMatch' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>
+                    <span>季军赛</span>
                 </label>
             </checkbox-group>
         </view>

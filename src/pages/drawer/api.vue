@@ -60,7 +60,7 @@
             <hr>
             <view>
                 <br>
-                <h2>添加密钥</h2>
+                <h2><span>添加密钥</span></h2>
                 <br>
                 <uni-forms>
                     <uni-forms-item>
