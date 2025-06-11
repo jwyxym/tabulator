@@ -68,13 +68,13 @@
     }
 </style>
 <style>
-    /* span {
-        font-family:
-            "黑体",
-            "SimHei",
-            "Microsoft YaHei",
-            "PingFang SC",
-            "Hiragino Sans GB",
-            sans-serif;
-    } */
+    @font-face {
+        font-family: '更纱黑体';
+        src: url('../static/textFont.ttf') format('woff');
+    }
+
+    span, :deep(.uni-card) {
+        font-family: '更纱黑体';
+    }
+
 </style>
