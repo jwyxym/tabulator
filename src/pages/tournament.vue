@@ -10,6 +10,16 @@
                 :sub-title = 'tournament.this.description'
                 :extra = 'tournament.this.createdAt.toLocaleDateString()'
             >
+                <uni-list>
+                    <uni-list-chat
+                    :avatar-circle = true
+                    :title = 'creator.name'
+                    time = '举办者'
+                    :avatar = 'creator.avatar'
+                    >
+                    </uni-list-chat>
+                </uni-list>
+                <br>
                 <uni-forms>
                     <view class = 'button_list' >
                         <view class = 'button click' @click = '() => { emitter.emit(Const.tournamentInfo); }'>
@@ -627,6 +637,11 @@
         }
     });
 
+    let creator = reactive({
+        name : '',
+        avatar : ''
+    });
+
     const loading = () : void => {
         const url = window.location.hash.match(/#\/(.*?)(?:\?|$)/);
         url && !isNaN(parseInt(url[1])) ? page.get() : page.clear();
@@ -655,6 +670,18 @@
         match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
         match.maxRound = match.array.find(i => i.isThirdPlaceMatch)?.round ?? match.round + 1;
     }, {deep : true});
+
+    watch(() => { return tournament.this?.creator; }, async (n = -1) => {
+        if (n >= 0) {
+            const response = await User.Find.Id(n);
+            if (response) {
+                creator.name = response.username;
+                creator.avatar = response.avatar;
+            }
+        }
+            
+    }, {immediate : true});
+
 </script>
 
 <style scoped lang = 'scss'>

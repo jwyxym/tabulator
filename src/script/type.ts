@@ -160,7 +160,7 @@ interface TournamentGet {
 
 interface UserObject {
     avatar : string
-    id : 777668
+    id : number
     username : string
 }
 
