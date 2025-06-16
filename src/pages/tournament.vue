@@ -108,7 +108,6 @@
                                                 v-show = '!i.quit'
                                                 @click = 'participant.pics.on(i)'
                                             >
-                                                <uni-icons type = 'wallet'></uni-icons>
                                                 <svgCards/>
                                             </view>
                                             <view
