@@ -109,6 +109,7 @@
                                                 @click = 'participant.pics.on(i)'
                                             >
                                                 <uni-icons type = 'wallet'></uni-icons>
+                                                <svgCards/>
                                             </view>
                                             <view
                                                 class = 'button'
@@ -116,7 +117,7 @@
                                                 v-show = '!i.quit'
                                                 @click = 'tournament.operatorChk(participant.upload, [i])'
                                             >
-                                                <uni-icons type = 'upload'></uni-icons>
+                                                <svgDeck/>
                                             </view>
                                             <view
                                                 class = 'button'
@@ -311,6 +312,8 @@
     import Mycard from '../script/mycard.ts';
     import {TournamentCreateObject, MatchUpdateObject, TournamentGet, ParticipantUpdateObject} from '../script/type.ts'
     import MatchTree from './matchTree.vue';
+    import svgDeck from './svg/svgDeck.vue';
+    import svgCards from './svg/svgCards.vue';
 
     let tournament = reactive({
         this : undefined as undefined | Tournament,

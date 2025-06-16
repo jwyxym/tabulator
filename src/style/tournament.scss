@@ -69,7 +69,8 @@
                 width: 20%;
                 .button {
                     border: 0.5px solid var(--color);
-                    width: auto;
+                    width: 20px;
+                    height: 20px;
                     min-width: auto;
                     :hover {
                         background-color: #e6e6e6;
