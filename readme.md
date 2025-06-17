@@ -1,8 +1,8 @@
-![排表示例](images/readme_banner.png)
 # Tabulator
 查看、管理MyCard比赛。  
 基于uni-app [<img src="./images/readme_uni-app.png" width=15% alt="uni-app">](https://uniapp.dcloud.net.cn/)。
 
+![排表示例](images/readme_banner.png)
 * * *
 
 ## 功能
