@@ -223,7 +223,9 @@
                                         <template v-slot:body>
                                             <view id = 'body'>
                                                 <view id = 'left'>
-                                                    <span>{{ participant.array.find(p => p.id == i.player1Id)?.name }}</span>
+                                                    <span
+                                                        :class = "{ 'winner': i.winnerId == i.player1Id }"
+                                                    >{{ participant.array.find(p => p.id == i.player1Id)?.name }}</span>
                                                     <br>
                                                     <span 
                                                         v-if = '
@@ -249,7 +251,9 @@
                                                     <span class = 'small' v-show = '!i.isThirdPlaceMatch && i.round == match.maxRound'>决赛</span>
                                                 </view>
                                                 <view  id = 'right'>
-                                                    <span>{{ participant.array.find(p => p.id == i.player2Id)?.name }}</span>
+                                                    <span
+                                                        :class = "{ 'winner': i.winnerId == i.player2Id }"
+                                                    >{{ participant.array.find(p => p.id == i.player2Id)?.name }}</span>
                                                     <br>
                                                     <span v-if = '
                                                         // @ts-ignore

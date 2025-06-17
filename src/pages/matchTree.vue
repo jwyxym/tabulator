@@ -102,6 +102,7 @@
             width: var(--size);
             white-space: nowrap;
             text-overflow: ellipsis;
+            overflow: hidden;
         }
     }
 </style>

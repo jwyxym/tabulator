@@ -34,11 +34,26 @@
             #left {
                 justify-self: left;
             }
-            #center {
-                justify-self: center;
-            }
             #right {
                 justify-self: right;
+            }
+            #left, #right {
+                width: 80px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                font-size: 12px;
+            }
+            #center {
+                justify-self: center;
+                width: 48px;
+                color: #3b4144;
+                flex-direction: column;
+                padding-right: 8px;
+                font-size: 14px;
+            }
+            .winner {
+                color: rgb(255, 153, 0);
             }
         }
 
@@ -50,15 +65,17 @@
                 overflow: hidden;
             }
             #header {
-                min-width: 30%;
-                max-width: 30%;
+                width: 30%;
                 text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                font-size: 14px;
             }
             #body {
                 &:hover {
                     cursor: pointer;
-                scale: (1.05);
-            }
+                    scale: (1.05);
+                }
             }
             #footer {
                 display: flex;
