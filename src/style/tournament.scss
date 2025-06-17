@@ -1,10 +1,11 @@
 .PageTournament {
     #PageTournament {
         #round {
-            display: flex;
-            column-gap: 10%;
+            // display: flex;
+            // column-gap: 10%;
             div {
                 display: flex;
+                column-gap: 10%;
             }
         }
 
@@ -16,7 +17,7 @@
             border: 1px solid #409eff;
             display: flex;
             width: 20%;
-            min-width: 64px;
+            min-width: 80px;
             justify-content: center;
             &:hover {
                 cursor: pointer;

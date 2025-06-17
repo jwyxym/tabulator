@@ -178,7 +178,10 @@
                                 ></uni-number-box>
                                 <span>轮</span>
                             </div>
-                            <view class = 'button' @click = '() => { match.round = 0; }'><span>全部轮次</span></view>
+                            <div>
+                                <view class = 'button' @click = '() => { match.round = 0; }'>全部轮次</view>
+                                <view class = 'button' @click = '() => { match.round = 0; }'>复制对战表</view>
+                            </div>
                         </view>
                         <transition name = 'switch'>
                             <uni-list>
