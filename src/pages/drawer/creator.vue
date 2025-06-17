@@ -99,6 +99,10 @@
         rule : {
             select : '',
             settings : {
+                winScore : 3,
+                drawScore : 1,
+                byeScore : 0,
+                hasThirdPlaceMatch : true
             } as ruleSettings,
             range : [
                 { value: 'SingleElimination', text: '单淘' },
@@ -117,7 +121,12 @@
             create.description = '';
             create.visibility.select = '';
             create.rule.select = '';
-            create.rule.settings = {} as ruleSettings;
+            create.rule.settings = {
+                winScore : 3,
+                drawScore : 1,
+                byeScore : 0,
+                hasThirdPlaceMatch : true
+            } as ruleSettings;
             create.collaborators = [];
         },
         update : async() : Promise<void> => {

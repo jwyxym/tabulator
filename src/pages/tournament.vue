@@ -166,6 +166,7 @@
                         v-show = '!page.loading'
                         :is-full = 'true'
                         :title = '`比赛：${match.total}`'
+                        :sub-title = "tournament.this.rule == 'Swiss' ? `轮数：${match.maxRound}` : ''"
                     >
                         <view id = 'round'>
                             <div>
@@ -180,7 +181,7 @@
                             </div>
                             <div>
                                 <view class = 'button' @click = '() => { match.round = 0; }'>全部轮次</view>
-                                <view class = 'button' @click = '() => { match.round = 0; }'>复制对战表</view>
+                                <view class = 'button' @click = 'tournament.copy()'>复制对战表</view>
                             </div>
                         </view>
                         <transition name = 'switch'>
@@ -446,6 +447,24 @@
                 }
             };
             await UniApp.selectFile(['.ydk', '.txt'], f);
+        },
+        copy : () : void => {
+            if (!tournament.this) return;
+            let string = `<--- ${tournament.this.name} - [${tournament.this.rule == 'SingleElimination' ? '淘汰赛' : '瑞士轮'}]${tournament.this.ruleSettings.rounds ? `[${tournament.this.ruleSettings.rounds}轮]` : ''}[${tournament.this.count ?? 0}人] --->\n`
+            for (let round = 1; round <= match.maxRound; round ++) {
+                if (match.round > 0 && match.round != round) continue;
+                string += `---------------------------------------------\n第[ ${round} ]轮对决战况表\n---------------------------------------------\n`
+                match.array.filter(i => i.round == round).forEach((i, v) => {
+                    if (i.player1Id || i.player2Id) {
+                        string += `[${v + 1}]组\n`;
+                        string += `\t[选手A][${participant.array.find(p => p.id == i.player1Id)?.name ?? ''}]\n`;
+                        string += `\t[比 分][${i.status == 'Finished' ? `${i.player1Score} : ${i.player2Score}` : 'VS'}]\n`;
+                        string += `\t[选手B][${participant.array.find(p => p.id == i.player2Id)?.name ?? ''}]\n`;
+                    }
+                });
+            }
+            string += '---------------------------------------------';
+            UniApp.copy(string);
         }
     });
 
@@ -454,7 +473,7 @@
         total : 0,
         page : 1,
         round : 0,
-        maxRound : 2,
+        maxRound : 0,
         status : {
             color : new Map([
                 ['Running', 'rgb(84, 200, 17)'],
@@ -677,7 +696,8 @@
 
     watch(() => { return match.array; }, async () : Promise<void> => {
         match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
-        match.maxRound = match.array.find(i => i.isThirdPlaceMatch)?.round ?? match.round + 1;
+        if (match.array.length > 0)
+            match.maxRound = match.array.reduce((a, b) => (a.round > b.round) ? a : b)?.round ?? 0;
     }, {deep : true});
 
     watch(() => { return tournament.this?.creator; }, async (n = -1) => {
