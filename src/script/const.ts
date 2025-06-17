@@ -10,6 +10,7 @@ class ConstData {
     changeUrl = 'changeUrl';
     show = 'show';
     showTournament = 'showTournament';
+    updateRounds = 'updateRounds';
     pic = {
         hajimi : `
 <pre>                                   :==+++=-.                                                        

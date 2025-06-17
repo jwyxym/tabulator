@@ -32,6 +32,9 @@ class Tournament {
         this.creator = obj.creator;
         this.createdAt = new Date(obj.createdAt);
         this.count = obj.participants.length;
+        if (!Number.isNaN(this.ruleSettings.winScore)) this.ruleSettings.winScore = 3;
+        if (!Number.isNaN(this.ruleSettings.drawScore)) this.ruleSettings.drawScore = 1;
+        if (!Number.isNaN(this.ruleSettings.byeScore)) this.ruleSettings.byeScore = 0;
     }
 }
 

@@ -344,13 +344,13 @@
             const t : TournamentGet = await Tabulator.Tournament.Find(Mycard.token, id);
             if (t.tournament) {
                 tournament.this = t.tournament;
-                emitter.emit(Const.tournamentReload, tournament.this)
                 const participants = t.participant;
                 participant.array = participants.participants;
                 participant.total = participants.total;
                 const matches = t.match;
                 match.array = matches.matches;
                 match.total = matches.total;
+                emitter.emit(Const.tournamentReload, tournament.this);
                 return true;
             }
             return false;
@@ -698,7 +698,13 @@
         match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
         if (match.array.length > 0)
             match.maxRound = match.array.reduce((a, b) => (a.round > b.round) ? a : b)?.round ?? 0;
+        else match.maxRound = 0;
     }, {deep : true});
+
+    watch(() => { return match.maxRound; }, async () : Promise<void> => {
+        if (!Number.isNaN(tournament.this?.ruleSettings.rounds ?? 0))
+            emitter.emit(Const.updateRounds, match.maxRound);
+    });
 
     watch(() => { return tournament.this?.creator; }, async (n = -1) => {
         if (n >= 0) {
@@ -708,7 +714,6 @@
                 creator.avatar = response.avatar;
             }
         }
-            
     }, {immediate : true});
 
 </script>

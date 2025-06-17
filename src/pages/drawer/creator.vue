@@ -13,6 +13,7 @@
             :localdata = 'create.rule.range'
         ></uni-data-select>
         <view v-show = "create.rule.select == 'Swiss'">
+            <uni-easyinput type = 'number' placeholder = '轮数(不填则自动计算)' v-model = 'create.rule.settings.rounds'/>
             <uni-easyinput type = 'number' placeholder = '胜利分' v-model = 'create.rule.settings.winScore'/>
             <uni-easyinput type = 'number' placeholder = '平局分' v-model = 'create.rule.settings.drawScore'/>
             <uni-easyinput type = 'number' placeholder = '轮空分' v-model = 'create.rule.settings.byeScore'/>
@@ -79,7 +80,7 @@
 </template>
 <script setup lang = 'ts'>
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
-    import { TournamentFindObject, ruleSettings, UserObject } from '../../script/type.ts';
+    import { ruleSettings, UserObject } from '../../script/type.ts';
     import {Tabulator, User} from '../../script/post.ts';
     import Mycard from '../../script/mycard.ts';
     import emitter from '../../script/emitter.ts'

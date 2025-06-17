@@ -15,7 +15,7 @@
             :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"
         ></uni-data-select>
         <view v-show = "tournament.rule.select == 'Swiss'">
-            <!-- <uni-easyinput type = 'number' placeholder = '轮数' v-model = 'tournament.rule.settings.rounds' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/> -->
+            <uni-easyinput type = 'number' placeholder = '轮数' v-model = 'tournament.rule.settings.rounds' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>
             <uni-easyinput type = 'number' placeholder = '胜利分' v-model = 'tournament.rule.settings.winScore' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>
             <uni-easyinput type = 'number' placeholder = '平局分' v-model = 'tournament.rule.settings.drawScore' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>
             <uni-easyinput type = 'number' placeholder = '轮空分' v-model = 'tournament.rule.settings.byeScore' :disabled = "tournament.this?.status != 'Ready' || tournament.operatorChk()"/>

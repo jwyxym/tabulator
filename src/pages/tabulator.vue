@@ -333,6 +333,9 @@
             }
             tournament.collaborators = collaborators;
         },
+        updateRounds : (round : number) : void => {
+            tournament.rule.settings.rounds = round;
+        },
         clear : () : void => {
             tournament.this = undefined;
             tournament.name = '';
@@ -440,6 +443,8 @@
         emitter.on(Const.tournamentInfo, page.show.drawer);
         // @ts-ignore
         emitter.on(Const.tournamentReload, tournament.init);
+        // @ts-ignore
+        emitter.on(Const.updateRounds, tournament.updateRounds);
         emitter.on(Const.createOff, creator.off);
         window.addEventListener('hashchange', loading);
     });
@@ -454,6 +459,8 @@
         emitter.off(Const.tournamentInfo, page.show.drawer);
         // @ts-ignore
         emitter.off(Const.tournamentReload, tournament.init);
+        // @ts-ignore
+        emitter.off(Const.updateRounds, tournament.updateRounds);
         emitter.off(Const.createOff, creator.off);
         window.removeEventListener('hashchange', loading);
     });
