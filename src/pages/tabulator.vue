@@ -121,7 +121,7 @@
                             :note = 'search.rule.note.get(i.rule)'
                             :rightText = '`${i.createdAt.toLocaleDateString()}\n${i.count}`'
                             :clickable = true
-                            @click = 'page.show.tournament(v)'
+                            @click = 'page.show.tournament(i.id)'
                         ></uni-list-item>
                     </uni-list>
                 </transition>
@@ -146,7 +146,7 @@
 <script setup lang = 'ts'>
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
     import { TournamentFindObject, TournamentCreateObject, ruleSettings, UserObject } from '../script/type.ts';
-    import Uniapp from '../script/uniapp.ts';
+    import UniApp from '../script/uniapp.ts';
     import { Tabulator, User} from '../script/post.ts';
     import Tournament from '../script/tournament.ts';
     import Mycard from '../script/mycard.ts';
@@ -179,9 +179,10 @@
                 if (!page.drawer && page.tournament)
                     tournament.init(tournament.this as Tournament);
             },
-            tournament : (v : number = 0): void => {
+            tournament : (id : number = 0): void => {
                 const url = window.location.href.split('/?');
-                emitter.emit(Const.changeUrl, `${url[0].endsWith('/') ? url[0] : `${url[0]}/`}${search.result.tournaments[v].id}${url[1] ? `/?${url[1]}` : ''}`);
+                const hash = url[0].replace(/\/#\/\d+\/?/, '/#');
+                emitter.emit(Const.changeUrl, `${hash.endsWith('/') ? hash : `${hash}/`}${id}${url[1] ? `/?${url[1]}` : ''}`);
             },
             menu : async(): Promise<void> => {
                 page.tournament = false;
@@ -212,7 +213,7 @@
                 let inPage = false;
                 let uniElement = false;
                 while (element) {
-                    if (['head', 'user', 'drawer'].includes(element.id) || element.classList.contains('click'))
+                    if (['head', 'user', 'drawer', 'newTournament'].includes(element.id) || element.classList.contains('click'))
                         chk = true;
                     if (element.id == 'page')
                         inPage = true;
@@ -356,9 +357,8 @@
                 description: tournament.description,
                 visibility: tournament.visibility.select,
                 collaborators : collaborators,
-                // PS：这里接口暂时不通
-                // rule : tournament.rule.select,
-                // ruleSettings : tournament.rule.settings
+                rule : tournament.this?.status == 'Ready' ? tournament.rule.select : undefined,
+                ruleSettings : tournament.this?.status == 'Ready' ? tournament.rule.settings : undefined
             } as TournamentCreateObject);
         },
         remove : (v : number) : void => {
@@ -375,11 +375,7 @@
                     throw new Error('协作者不可以是比赛创建者');
                 tournament.collaborators.push(i);
             } catch(error) {
-                uni.showModal({
-                    title : '添加失败',
-                    content : error.message,
-                    showCancel : false
-                });
+                UniApp.error(error.message, '添加失败');
             } finally {
                 tournament.collaborator = '';
             }
@@ -392,12 +388,15 @@
     });
 
     const creator = {
-        off : async () : Promise<void> => {
+        off : async (id : number) : Promise<void> => {
+            console.log(page.tournament)
             page.show.drawer();
             if (page.tournament)
-                page.show.menu();
-            search.mine();
-            await search.on();
+                page.show.tournament(id);
+            else {
+                search.mine();
+                await search.on();
+            }
         }
     };
 
@@ -438,9 +437,10 @@
 
     onBeforeMount(() : void => {
         loading();
-        Uniapp.chkScreen(size.get);
+        UniApp.chkScreen(size.get);
         document.addEventListener("click", page.show.clear);
         emitter.on(Const.tournamentInfo, page.show.drawer);
+        emitter.on(Const.newTournament, page.show.create);
         // @ts-ignore
         emitter.on(Const.tournamentReload, tournament.init);
         // @ts-ignore
@@ -457,6 +457,7 @@
     onUnmounted(() => {
         document.removeEventListener("click", page.show.clear);
         emitter.off(Const.tournamentInfo, page.show.drawer);
+        emitter.off(Const.newTournament, page.show.create);
         // @ts-ignore
         emitter.off(Const.tournamentReload, tournament.init);
         // @ts-ignore

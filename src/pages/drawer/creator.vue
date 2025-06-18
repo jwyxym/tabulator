@@ -24,6 +24,23 @@
                     <checkbox :checked = 'create.rule.settings.hasThirdPlaceMatch'/>季军赛
                 </label>
             </checkbox-group>
+            <checkbox-group @change = 'create.import.select'>
+                <label>
+                    <checkbox :checked = 'create.import.chk'/>是否继承瑞士轮
+                </label>
+            </checkbox-group>
+            <uni-easyinput
+                type = 'number'
+                placeholder = '瑞士轮比赛id'
+                v-show = 'create.import.chk'
+                v-model = 'create.import.id'
+            />
+            <uni-easyinput
+                type = 'number'
+                placeholder = '出轮人数'
+                v-show = 'create.import.chk'
+                v-model = 'create.import.count'
+            />
         </view>
         <br>
         <uni-card
@@ -70,6 +87,12 @@
             </uni-list>
         </uni-card>
         <br>
+        <view class = 'button' @click = 'create.clear()'>
+            <view>
+                <span>清空</span>
+                <uni-icons type = 'trash'></uni-icons>
+            </view>
+        </view>
         <view class = 'button' @click = 'create.update()'>
             <view>
                 <span>创建</span>
@@ -85,6 +108,8 @@
     import Mycard from '../../script/mycard.ts';
     import emitter from '../../script/emitter.ts'
     import Const from '../../script/const.ts'
+    import Tournament from '../../script/tournament.ts';
+    import UniApp from '../../script/uniapp.ts';
 
     let create = reactive({
         name : '',
@@ -102,7 +127,7 @@
             settings : {
                 winScore : 3,
                 drawScore : 1,
-                byeScore : 0,
+                byeScore : 3,
                 hasThirdPlaceMatch : true
             } as ruleSettings,
             range : [
@@ -112,7 +137,15 @@
         },
         hasThirdPlaceMatch : {
             select : (e) => {
-                create.rule.settings.hasThirdPlaceMatch = e.detail.value.length > 0
+                create.rule.settings.hasThirdPlaceMatch = e.detail.value.length > 0;
+            }
+        },
+        import : {
+            chk : false,
+            id : undefined as undefined | number,
+            count : undefined as undefined | number,
+            select : (e) => {
+                create.import.chk = e.detail.value.length > 0;
             }
         },
         collaborator : '',
@@ -125,27 +158,44 @@
             create.rule.settings = {
                 winScore : 3,
                 drawScore : 1,
-                byeScore : 0,
+                byeScore : 3,
                 hasThirdPlaceMatch : true
             } as ruleSettings;
             create.collaborators = [];
+            create.import.chk = false;
         },
         update : async() : Promise<void> => {
-            if (!create.visibility.select)
-            // @ts-ignore
-                create.visibility.select = 'SingleElimination';
-            const collaborators = create.collaborators.map(user => user.id);
-            if (await Tabulator.Tournament.Create(Mycard.token, {
+            try {
+                if (!create.visibility.select)
+                    // @ts-ignore
+                    create.visibility.select = 'SingleElimination';
+                if (create.import.chk) {
+                    if (!create.import.id || create.import.id <= 0)
+                        throw new Error('请填写继承的比赛id');
+                    if (!create.import.count || create.import.count <= 0)
+                        throw new Error('请填写出轮的人数');
+                    const n = Math.log2(create.import.count);
+                    if (n > 0 && !Number.isInteger(n) || n <= 0)
+                        throw new Error('出轮的人数必须是2的幂');
+                }
+                const collaborators = create.collaborators.map(user => user.id);
+                const id = await Tabulator.Tournament.Create(Mycard.token, {
                     name: create.name,
                     description: create.description,
                     rule: create.rule.select,
                     ruleSettings: create.rule.settings,
                     visibility: create.visibility.select,
                     collaborators: collaborators
-                })
-            ) {
-                emitter.emit(Const.createOff);
-                create.clear();
+                });
+                if (id >= 0) {
+                    if (create.import.chk)
+                        // @ts-ignore
+                        await Tabulator.Tournament.Import(Mycard.token, id, create.import.id, create.import.count);
+                    emitter.emit(Const.createOff, id);
+                    create.clear();
+                }
+            } catch (error) {
+                UniApp.error(error.message, '创建失败');
             }
         },
         remove : (v : number) : void => {
@@ -162,14 +212,43 @@
                     throw new Error('协作者不可以是比赛创建者');
                 create.collaborators.push(i);
             } catch(error) {
-                uni.showModal({
-                    title : '添加失败',
-                    content : error.message,
-                    showCancel : false
-                });
+                UniApp.error(error.message, '添加失败');
             } finally {
                 create.collaborator = '';
             }
+        },
+        fromSwiss : (t : Tournament) : void => {
+            create.collaborators = [];
+            t.collaborators.forEach(async id => {
+                const i = await User.Find.Id(id);
+                if (i)
+                    create.collaborators.push(i);
+            });
+            create.rule.select = 'SingleElimination'
+            create.visibility.select = 'SingleElimination';
+            create.visibility.select = t.visibility;
+            create.import.chk = true;
+            create.import.id = t.id;
+            create.name = t.name;
+            create.description = t.description;
         }
     });
+
+    onBeforeMount(() => {
+        // @ts-ignore
+        emitter.on(Const.newTournament, create.fromSwiss);
+    });
+
+    onUnmounted(() => {
+        // @ts-ignore
+        emitter.off(Const.newTournament, create.fromSwiss);
+    });
+
+    watch(() => { return create.import.chk; }, () => {
+        if (!create.import.chk) {
+            create.import.id = undefined;
+            create.import.count = undefined;
+        }
+    })
+
 </script>

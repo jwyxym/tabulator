@@ -70,6 +70,14 @@
                         :is-full = 'true'
                         :title = '`参与者：${participant.total}`'
                     >
+                        <view
+                            class = 'button'
+                            id = 'newTournament'
+                            @click = 'tournament.new()'
+                            v-show = "tournament.this.rule == 'Swiss' && tournament.this.status == 'Finished'"
+                        >
+                            新建单淘赛
+                        </view>
                         <transition name = 'switch'>
                             <uni-list>
                                 <uni-list-item
@@ -80,7 +88,7 @@
                                 <uni-list-item
                                     v-for = '(i, v) in participant.array.slice((participant.page - 1) * 20, participant.page * 20)'
                                     :title = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1Id == i.id || m.player2Id == i.id)) > -1 ? `胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
-                                    :note = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1Id == i.id || m.player2Id == i.id)) > -1 ? `小分：${i.score.score}` : ''"
+                                    :note = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1Id == i.id || m.player2Id == i.id)) > -1 ? `分数：${i.score.score}\n小分：${i.score.tieBreaker}` : ''"
                                     :clickable = true
                                 >
                                     <template v-slot:header>
@@ -424,11 +432,7 @@
             if (Mycard.id >= 0 && (Mycard.id == tournament.this?.creator || tournament.this?.collaborators.includes(Mycard.id)))
                 f(...para);
             else
-                uni.showModal({
-                    title : '缺少权限',
-                    content : '请先登陆或联系比赛主办方',
-                    showCancel : false
-                });
+                UniApp.error('请先登陆或联系比赛主办方', '缺少权限');
         },
         upload : async () : Promise<void> => {
             const f = async (res : UniApp.ChooseFileSuccessCallbackResult) : Promise<void> => {
@@ -465,6 +469,10 @@
             }
             string += '---------------------------------------------';
             UniApp.copy(string);
+        },
+        new : () : void => {
+            if (!tournament.this) return;
+            emitter.emit(Const.newTournament, tournament.this);
         }
     });
 
@@ -638,16 +646,14 @@
             page.loading = true;
             participant.name = '';
             if (await tournament.search()) {
-                match.round = 0;
+                if (match.round > match.maxRound)
+                    match.round = match.maxRound;
                 await (new Promise(resolve => setTimeout(resolve, 500)));
                 page.loading = false;
                 page.height = 0;
             } else
-                uni.showModal({
-                    title : '刷新失败',
-                    content : '请重试或检查网络设置',
-                    showCancel : false
-                });
+                UniApp.error('请重试或检查网络设置', '刷新失败');
+
 
         },
         clickClear : (e) : void => {

@@ -18,7 +18,7 @@
 <script setup lang = 'ts'>
     import { defineProps, onBeforeMount, reactive, watch } from 'vue';
     import Match from '../script/match';
-    import Uniapp from '../script/uniapp.ts';
+    import UniApp from '../script/uniapp.ts';
     import Participant from '../script/participant';
     import Bracket from "vue-tournament-bracket";
 
@@ -56,7 +56,7 @@
     }> = reactive([]);
 
     onBeforeMount(() : void => {
-        Uniapp.chkScreen(size.get);
+        UniApp.chkScreen(size.get);
     });
 
     watch(() => { return props.matches; }, () => {

@@ -85,6 +85,14 @@ class UniappFuncs {
             }
         });
     }
+
+    error (content : string, title : string) : void {
+        uni.showModal({
+            title : title,
+            content : content,
+            showCancel : false
+        });
+    }
 }
 
 const UniApp = new UniappFuncs()

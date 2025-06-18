@@ -51,11 +51,7 @@ class TabulatorAPI {
                 return response.data.data.id;
             }
             catch(error) {
-                uni.showModal({
-                    title : '创建失败',
-                    content : error.message,
-                    showCancel : false
-                });
+                UniApp.error(error.message, '创建失败');
                 console.error(error);
                 return -1;
             }
@@ -99,6 +95,11 @@ class TabulatorAPI {
                 response.data.data.matches.forEach((i : MatchObject) => {
                     matches.push(new Match(i));
                 });
+                if (response.data.data.status != 'Ready')
+                    participants.sort((a, b) => {
+                        const ct = b.score.score - a.score.score;
+                        return ct != 0 ? ct : b.score.tieBreaker - a.score.tieBreaker;
+                    });
                 return {
                     tournament : new Tournament(response.data.data),
                     participant : {
@@ -301,6 +302,28 @@ class TabulatorAPI {
                     placeAfterParticipantId : to
                 }, {
                     headers: {
+                        'x-user-token' : token
+                    }
+                });
+                return response.data.success;
+            }
+            catch(error) {
+                console.error(error);
+                return false;
+            }
+        },
+        Import : async (token : string, id : number, fromId : number, count : number) : Promise<boolean> => {
+            let response :  {
+                data : {
+                    success : boolean;
+                }
+            };
+            try {
+                response = await this.url.post(`/api/tournament/${id}/import-participants-from`, {
+                    tournamentId : fromId,
+                    swissMaxPlayers : count
+                }, {
+                    headers : {
                         'x-user-token' : token
                     }
                 });
@@ -559,11 +582,7 @@ class TabulatorAPI {
                 return response.data.success;
             }
             catch(error) {
-                uni.showModal({
-                    title : '创建失败',
-                    content : error.message,
-                    showCancel : false
-                });
+                UniApp.error(error.message, '创建失败');
                 console.error(error);
                 return false;
             }
