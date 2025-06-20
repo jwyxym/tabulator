@@ -70,13 +70,34 @@
                         :is-full = 'true'
                         :title = '`参与者：${participant.total}`'
                     >
-                        <view
-                            class = 'button'
-                            id = 'newTournament'
-                            @click = 'tournament.new()'
-                            v-show = "tournament.this.rule == 'Swiss' && tournament.this.status == 'Finished'"
-                        >
-                            新建单淘赛
+                        <view id = 'round'>
+                            <div>
+                                前
+                                <uni-number-box
+                                    v-model = 'participant.copyValue'
+                                    :min = '0'
+                                    :max = 'participant.array.length'
+                                    v-show = "tournament.this.status == 'Finished'"
+                                ></uni-number-box>
+                                名
+                            </div>
+                            <div>
+                                <view
+                                    class = 'button'
+                                    @click = 'tournament.operatorChk(participant.copy)'
+                                    v-show = "tournament.this.status == 'Finished'"
+                                >
+                                    复制排名
+                                </view>
+                                <view
+                                    class = 'button'
+                                    id = 'newTournament'
+                                    @click = 'tournament.operatorChk(tournament.new)'
+                                    v-show = "tournament.this.rule == 'Swiss' && tournament.this.status == 'Finished'"
+                                >
+                                    新建单淘赛
+                                </view>
+                            </div>
                         </view>
                         <transition name = 'switch'>
                             <uni-list>
@@ -189,7 +210,7 @@
                             </div>
                             <div>
                                 <view class = 'button' @click = '() => { match.round = 0; }'>全部轮次</view>
-                                <view class = 'button' @click = 'tournament.copy()'>复制对战表</view>
+                                <view class = 'button' @click = 'tournament.operatorChk(tournament.copy)'>复制对战表</view>
                             </div>
                         </view>
                         <transition name = 'switch'>
@@ -350,6 +371,7 @@
             const id = url[1];
             // @ts-ignore
             const t : TournamentGet = await Tabulator.Tournament.Find(Mycard.token, id);
+            console.log(t)
             if (t.tournament) {
                 tournament.this = t.tournament;
                 const participants = t.participant;
@@ -472,7 +494,10 @@
         },
         new : () : void => {
             if (!tournament.this) return;
-            emitter.emit(Const.newTournament, tournament.this);
+            emitter.emit(Const.newTournament, {
+                t : tournament.this,
+                value : participant.copyValue
+            });
         }
     });
 
@@ -615,7 +640,25 @@
                 if (await Tabulator.Tournament.Drag(Mycard.token, tournament.this?.id, from, to))
                     await tournament.search();
             }
-        }
+        },
+        copy : () : void => {
+            if (!tournament.this) return;
+            let string = `<--- ${tournament.this.name} - [${tournament.this.rule == 'SingleElimination' ? '淘汰赛' : '瑞士轮'}]${tournament.this.ruleSettings.rounds ? `[${tournament.this.ruleSettings.rounds}轮]` : ''}[${tournament.this.count ?? 0}人] --->\n`;
+            let copyValue = participant.copyValue;
+            if (copyValue == 0) copyValue = participant.array.length;
+            const map : Map<number, string> = new Map([
+                [0, '冠军'],
+                [1, '亚军'],
+                [2, '季军'],
+                [3, '殿军'],
+            ]);
+            for (let i = 0; i < copyValue; i++) {
+                let p = participant.array[i];
+                string += `[${map.get(i) ?? `第${i + 1}名`}]${p.name}\n`
+            }
+            UniApp.copy(string);
+        },
+        copyValue : 0
     });
 
     let page = reactive({
@@ -645,6 +688,7 @@
             }).exec();
             page.loading = true;
             participant.name = '';
+            participant.copyValue = 0;
             if (await tournament.search()) {
                 if (match.round > match.maxRound)
                     match.round = match.maxRound;
@@ -653,8 +697,6 @@
                 page.height = 0;
             } else
                 UniApp.error('请重试或检查网络设置', '刷新失败');
-
-
         },
         clickClear : (e) : void => {
             let element = e.target;

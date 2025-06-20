@@ -217,7 +217,11 @@
                 create.collaborator = '';
             }
         },
-        fromSwiss : (t : Tournament) : void => {
+        fromSwiss : (obj : {
+            t : Tournament,
+            value : number
+        }) : void => {
+            const t = obj.t;
             create.collaborators = [];
             t.collaborators.forEach(async id => {
                 const i = await User.Find.Id(id);
@@ -231,6 +235,7 @@
             create.import.id = t.id;
             create.name = t.name;
             create.description = t.description;
+            create.import.count = obj.value > 0 ? obj.value : undefined;
         }
     });
 
