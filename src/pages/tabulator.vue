@@ -389,7 +389,6 @@
 
     const creator = {
         off : async (id : number) : Promise<void> => {
-            console.log(page.tournament)
             page.show.drawer();
             if (page.tournament)
                 page.show.tournament(id);

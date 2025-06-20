@@ -371,7 +371,6 @@
             const id = url[1];
             // @ts-ignore
             const t : TournamentGet = await Tabulator.Tournament.Find(Mycard.token, id);
-            console.log(t)
             if (t.tournament) {
                 tournament.this = t.tournament;
                 const participants = t.participant;
