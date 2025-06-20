@@ -19,7 +19,7 @@ class UniappFuncs {
         return uni.uploadFile({
             url : url,
             files : files,
-            header : header,
+            header : header
         });
     }
 

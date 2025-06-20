@@ -70,14 +70,13 @@
                         :is-full = 'true'
                         :title = '`参与者：${participant.total}`'
                     >
-                        <view id = 'round'>
+                        <view id = 'round' v-show = "tournament.this.status == 'Finished'">
                             <div>
                                 前
                                 <uni-number-box
                                     v-model = 'participant.copyValue'
                                     :min = '0'
                                     :max = 'participant.array.length'
-                                    v-show = "tournament.this.status == 'Finished'"
                                 ></uni-number-box>
                                 名
                             </div>
@@ -85,7 +84,7 @@
                                 <view
                                     class = 'button'
                                     @click = 'tournament.operatorChk(participant.copy)'
-                                    v-show = "tournament.this.status == 'Finished'"
+                                    
                                 >
                                     复制排名
                                 </view>
@@ -93,7 +92,6 @@
                                     class = 'button'
                                     id = 'newTournament'
                                     @click = 'tournament.operatorChk(tournament.new)'
-                                    v-show = "tournament.this.rule == 'Swiss' && tournament.this.status == 'Finished'"
                                 >
                                     新建单淘赛
                                 </view>

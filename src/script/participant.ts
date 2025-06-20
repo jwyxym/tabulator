@@ -12,7 +12,7 @@ class  Participant {
     deck : YGOProDeck | undefined;
 
     constructor(obj: ParticipantObject) {
-        this.name = new TextDecoder('utf-8').decode(new Uint8Array([...obj.name].map(c => c.charCodeAt(0))));
+        this.name = obj.name;
         this.tournamentId = obj.tournamentId;
         this.id = obj.id;
         this.score = obj.score;

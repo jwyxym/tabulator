@@ -445,6 +445,7 @@
         emitter.on(Const.tournamentReload, tournament.init);
         // @ts-ignore
         emitter.on(Const.updateRounds, tournament.updateRounds);
+        // @ts-ignore
         emitter.on(Const.createOff, creator.off);
         window.addEventListener('hashchange', loading);
     });
@@ -462,6 +463,7 @@
         emitter.off(Const.tournamentReload, tournament.init);
         // @ts-ignore
         emitter.off(Const.updateRounds, tournament.updateRounds);
+        // @ts-ignore
         emitter.off(Const.createOff, creator.off);
         window.removeEventListener('hashchange', loading);
     });

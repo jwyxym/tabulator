@@ -133,6 +133,7 @@ class TabulatorAPI {
                     data : Array<TournamentObject>;
                 }
             };
+            console.log(token)
             try {
                 response = await this.url.get(`/api/tournament`, {
                     params : {
@@ -246,20 +247,23 @@ class TabulatorAPI {
         },
         UpdateYdk : async (token : string, id : number, res : UniApp.ChooseFileSuccessCallbackResult) : Promise<Boolean> => {
             let response : {
-                data : string
+                data : {
+                    success : boolean
+                }
             };
             try {
-                // @ts-ignore
-                const files : Array<UniApp.UploadFileOptionFiles> = res.tempFiles.map(file => ({
-                    name: 'files',
-                    uri: file.path,
-                    type: file.type
-                }));
-                response = await UniApp.uploadFile(
-                    `${this.url.defaults.baseURL}/api/tournament/${id}/upload-ydk`, files, { 'x-user-token' : token }
-                )
-                const data = JSON.parse(response.data)
-                return data.success;
+                let formData = new FormData();
+                for (let i = 0; i < res.tempFilePaths.length; i++) {
+                    let f = await fetch(res.tempFilePaths[i]);
+                    let blob = await f.blob();
+                    formData.append('files', blob, res.tempFiles[i].name.replace('.ydk', ''));
+                }
+                response = await this.url.post(`/api/tournament/${id}/upload-ydk`,formData, {
+                    headers : {
+                        'x-user-token' : token
+                    }
+                });
+                return response.data.success;
             }
             catch(error) {
                 console.error(error);
