@@ -123,9 +123,9 @@ class TabulatorAPI {
             }
         },
         FindALL : async (token : string, obj : TournamentFindObject = {}) : Promise<AllTournament> => {
-            const filter = (obj : any) : any => {
-                const v = obj ?? '';
-                return v != '' && v != ' ' ? obj : undefined;
+            const filter = (i : any) : any => {
+                const v = i ?? '';
+                return (v != '' && v != ' ') ? i : undefined;
             }
             let response :  {
                 data : {
@@ -647,7 +647,6 @@ class TabulatorAPI {
                 }
             };
             try {
-                console.log(Data.expireAt?.toISOString())
                 response = await this.url.patch(`/api/api-key/${id}`, {
                 name : Data.name,
                 description : Data.description?.length ?? 0 > 0 ? Data.description : '',

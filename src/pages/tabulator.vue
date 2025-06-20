@@ -425,6 +425,7 @@
                 page.tournament = false;
                 page.menu = true;
                 search.mine();
+                search.info.creator = search.creator == '' ? 0 : parseInt(search.creator);
                 await search.on();
                 emitter.emit(Const.show, false);
             }
@@ -478,11 +479,11 @@
     });
 
     watch(() => { return search.id; }, () => {
-        search.info.id = !search.id ? 0 : parseInt(search.id);
+        search.info.id = search.id == '' ? 0 : parseInt(search.id);
     });
 
     watch(() => { return search.creator; }, () => {
-        search.info.creator = !search.creator ? 0 : parseInt(search.creator);
+        search.info.creator = search.creator == '' ? 0 : parseInt(search.creator);
     });
 
 </script>
