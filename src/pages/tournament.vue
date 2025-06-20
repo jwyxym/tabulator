@@ -160,7 +160,7 @@
                                 <uni-list-item>
                                     <template v-slot:header>
                                         <uni-forms>
-                                            <uni-forms-item id = 'header'>
+                                            <uni-forms-item id = 'header' class = 'input'>
                                                 <uni-easyinput type = 'text' placeholder = '添加选手' v-model = 'participant.name' :disabled = "tournament.this.status != 'Ready'"/>
                                             </uni-forms-item>
                                         </uni-forms>

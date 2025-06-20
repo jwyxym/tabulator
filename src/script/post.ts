@@ -133,7 +133,6 @@ class TabulatorAPI {
                     data : Array<TournamentObject>;
                 }
             };
-            console.log(token)
             try {
                 response = await this.url.get(`/api/tournament`, {
                     params : {
