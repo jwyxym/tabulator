@@ -154,6 +154,14 @@
                                                 <uni-icons type = 'trash' color = 'red'></uni-icons>
                                             </view>
                                             <span v-show = 'i.quit' class = 'small'>已退赛</span>
+                                            <view
+                                                class = 'button'
+                                                :style = "{ '--color' : 'gray' }"
+                                                @click = 'tournament.operatorChk(participant.undo, [i])'
+                                                v-show = 'i.quit'
+                                            >
+                                                <uni-icons type = 'undo'></uni-icons>
+                                            </view>
                                         </view>
                                     </template>
                                 </uni-list-item>
@@ -573,6 +581,13 @@
             }
             // @ts-ignore
             if (tournament.this.status == 'Ready' ? await del() : await update())
+                await tournament.search();
+        },
+        undo : async(i : Participant) : Promise<void> => {
+            if (await Tabulator.Participant.Update(Mycard.token, i.id, {
+                name : i.name,
+                quit : false
+            }))
                 await tournament.search();
         },
         update : async (Data : TournamentCreateObject) : Promise<void> => {
