@@ -13,7 +13,7 @@ class  Participant {
 
     constructor(obj: ParticipantObject) {
         const name = obj.name.split('+')
-        this.name = (name.length == 2 && !Number.isNaN(name[0])) ? name[1] : obj.name;
+        this.name = (name.length == 2 && !Number.isNaN(name[0]) && name[0].length > 3) ? name[1] : obj.name;
         this.tournamentId = obj.tournamentId;
         this.id = obj.id;
         this.score = obj.score;
