@@ -448,7 +448,7 @@
             });
         },
         operatorChk : (f : Function, para : Array<any> = []) : void => {
-            if (Mycard.id >= 0 && (Mycard.id == tournament.this?.creator || tournament.this?.collaborators.includes(Mycard.id)))
+            if (Mycard.id >= 0 && (Mycard.id == tournament.this?.creator || tournament.this?.collaborators.includes(parseInt(Mycard.id))))
                 f(...para);
             else
                 UniApp.error('请先登陆或联系比赛主办方', '缺少权限');
