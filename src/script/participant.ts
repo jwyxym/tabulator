@@ -12,7 +12,7 @@ class  Participant {
     deck : YGOProDeck | undefined;
 
     constructor(obj: ParticipantObject) {
-        let name = obj.name.split('+')
+        const name = obj.name.split('+')
         this.name = (name.length == 2 && !Number.isNaN(name[0])) ? name[1] : obj.name;
         this.tournamentId = obj.tournamentId;
         this.id = obj.id;
