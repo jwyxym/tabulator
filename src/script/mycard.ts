@@ -29,7 +29,8 @@ class MyCard {
             // @ts-ignore
             this.user = Object.fromEntries(params);
             this.token = this.user.token;
-            this.id = this.user.id
+            // @ts-ignore
+            this.id = parseInt(this.user.id)
             this.username = this.user.username;
             this.email = this.user.email;
             this.avatar = this.user.avatar;
