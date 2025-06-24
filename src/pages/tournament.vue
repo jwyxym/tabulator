@@ -564,6 +564,7 @@
             // @ts-ignore
             if (await Tabulator.Participant.Create(Mycard.token, { name : participant.name, tournamentId : tournament.this.id}, participant.array)) {
                 participant.name = '';
+                searcher.reset();
                 await tournament.search();
             }
         },
@@ -700,6 +701,7 @@
             page.loading = true;
             participant.name = '';
             participant.copyValue = 0;
+            searcher.reset();
             if (await tournament.search()) {
                 if (match.round > match.maxRound)
                     match.round = match.maxRound;
@@ -734,6 +736,10 @@
         },
         filterParticipant : (i : Participant) : boolean => {
             return searcher.participant ? i.name.toUpperCase().includes(searcher.participant.toUpperCase()) : true;
+        },
+        reset : () : void => {
+            searcher.participant = '';
+            searcher.match = '';
         }
     });
 
