@@ -97,6 +97,9 @@
                                 </view>
                             </div>
                         </view>
+                        <view>
+                            <uni-easyinput type = 'text' placeholder = '搜索选手' v-model = 'searcher.participant'></uni-easyinput>
+                        </view>
                         <transition name = 'switch'>
                             <uni-list>
                                 <uni-list-item
@@ -105,9 +108,9 @@
                                 >
                                 </uni-list-item>
                                 <uni-list-item
-                                    v-for = '(i, v) in participant.array.slice((participant.page - 1) * 20, participant.page * 20)'
-                                    :title = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1Id == i.id || m.player2Id == i.id)) > -1 ? `胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
-                                    :note = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1Id == i.id || m.player2Id == i.id)) > -1 ? `分数：${i.score.score}\n小分：${i.score.tieBreaker}` : ''"
+                                    v-for = '(i, v) in participant.array.filter(i => searcher.filterParticipant(i)).slice((participant.page - 1) * 20, participant.page * 20)'
+                                    :title = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1.id == i.id || m.player2.id == i.id)) > -1 ? `胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
+                                    :note = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1.id == i.id || m.player2.id == i.id)) > -1 ? `分数：${i.score.score}\n小分：${i.score.tieBreaker}` : ''"
                                     :clickable = true
                                 >
                                     <template v-slot:header>
@@ -191,7 +194,7 @@
                             :current = 'participant.page'
                             v-model = 'participant.page'
                             pageSize = 20
-                            :total = 'participant.total'
+                            :total = 'searcher.participant ? participant.array.filter(i => searcher.filterParticipant(i)).length : participant.total'
                         >
                         </uni-pagination>
                     </uni-card>
@@ -219,6 +222,9 @@
                                 <view class = 'button' @click = 'tournament.operatorChk(tournament.copy)'>复制对战表</view>
                             </div>
                         </view>
+                        <view>
+                            <uni-easyinput type = 'text' placeholder = '搜索比赛' v-model = 'searcher.match'></uni-easyinput>
+                        </view>
                         <transition name = 'switch'>
                             <uni-list>
                                 <uni-list-item
@@ -227,7 +233,7 @@
                                 >
                                 </uni-list-item>
                                 <view
-                                    v-for = 'i in (match.round == 0) ? match.array.slice((match.page - 1) * 20, match.page * 20) : match.array.filter(m => m.round == match.round).slice((match.page - 1) * 20, match.page * 20)'
+                                    v-for = 'i in match.array.filter(i => searcher.filterMatch(i)).slice((match.page - 1) * 20, match.page * 20)'
                                 >
                                     <view
                                         class = 'match'
@@ -237,7 +243,7 @@
                                             <uni-easyinput
                                                 :clearable = 'false'
                                                 type = 'number'
-                                                :placeholder = 'participant.array.find(p => p.id == i.player1Id)?.name'
+                                                :placeholder = 'i.player1.name'
                                                 v-model = 'match.submit.chk[match.array.findIndex(m => m === i)][0]'
                                                 :disabled = "i.status != 'Running'"
                                             ></uni-easyinput>
@@ -247,7 +253,7 @@
                                             <uni-easyinput
                                                 :clearable = 'false'
                                                 type = 'number'
-                                                :placeholder = 'participant.array.find(p => p.id == i.player2Id)?.name'
+                                                :placeholder = 'i.player2.name'
                                                 v-model = 'match.submit.chk[match.array.findIndex(m => m === i)][1]'
                                                 :disabled = "i.status != 'Running'"
                                             ></uni-easyinput>
@@ -263,22 +269,18 @@
                                             <view id = 'body'>
                                                 <view id = 'left'>
                                                     <span
-                                                        :class = "{ 'winner': i.winnerId == i.player1Id }"
-                                                    >{{ participant.array.find(p => p.id == i.player1Id)?.name }}</span>
+                                                        :class = "{ 'winner': i.winnerId == i.player1.id }"
+                                                    >{{ i.player1.name }}</span>
                                                     <br>
-                                                    <span 
-                                                        v-if = '
-                                                            // @ts-ignore
-                                                            participant.array.find(p => p.id == i.player1Id) && participant.array.find(p => p.id == i.player1Id).score
-                                                        '>
+                                                    <span v-if = 'participant.array.find(p => p.id == i.player1.id)?.score'>
                                                         {{
                                                             `${
                                                                 // @ts-ignore
-                                                                participant.array.find(p => p.id == i.player1Id)?.score.win + participant.array.find(p => p.id == i.player1Id)?.score.bye
+                                                                participant.array.find(p => p.id == i.player1.id)?.score.win + participant.array.find(p => p.id == i.player1.id)?.score.bye
                                                             }-${
-                                                                participant.array.find(p => p.id == i.player1Id)?.score.draw
+                                                                participant.array.find(p => p.id == i.player1.id)?.score.draw
                                                             }-${
-                                                                participant.array.find(p => p.id == i.player1Id)?.score.lose
+                                                                participant.array.find(p => p.id == i.player1.id)?.score.lose
                                                             }`
                                                         }}
                                                     </span>
@@ -291,21 +293,18 @@
                                                 </view>
                                                 <view  id = 'right'>
                                                     <span
-                                                        :class = "{ 'winner': i.winnerId == i.player2Id }"
-                                                    >{{ participant.array.find(p => p.id == i.player2Id)?.name }}</span>
+                                                        :class = "{ 'winner': i.winnerId == i.player2.id }"
+                                                    >{{ i.player2.name }}</span>
                                                     <br>
-                                                    <span v-if = '
-                                                        // @ts-ignore
-                                                        participant.array.find(p => p.id == i.player2Id) && participant.array.find(p => p.id == i.player2Id).score
-                                                    '>
+                                                    <span v-if = 'participant.array.find(p => p.id == i.player2.id)?.score'>
                                                         {{
                                                             `${
                                                                 // @ts-ignore
-                                                                participant.array.find(p => p.id == i.player2Id)?.score.win + participant.array.find(p => p.id == i.player2Id)?.score.bye
+                                                                participant.array.find(p => p.id == i.player2.id)?.score.win + participant.array.find(p => p.id == i.player2.id)?.score.bye
                                                             }-${
-                                                                participant.array.find(p => p.id == i.player2Id)?.score.draw
+                                                                participant.array.find(p => p.id == i.player2.id)?.score.draw
                                                             }-${
-                                                                participant.array.find(p => p.id == i.player2Id)?.score.lose
+                                                                participant.array.find(p => p.id == i.player2.id)?.score.lose
                                                             }`
                                                         }}
                                                     </span>
@@ -325,7 +324,7 @@
                             :current = 'match.page'
                             v-model = 'match.page'
                             pageSize = 20
-                            :total = '(match.round == 0) ? match.total : match.array.filter(m => m.round == match.round).length'
+                            :total = 'match.array.filter(i => searcher.filterMatch(i)).length'
                         >
                         </uni-pagination>
                     </uni-card>
@@ -486,11 +485,11 @@
                 if (match.round > 0 && match.round != round) continue;
                 string += `---------------------------------------------\n第[ ${round} ]轮对决战况表\n---------------------------------------------\n`
                 match.array.filter(i => i.round == round).forEach((i, v) => {
-                    if (i.player1Id || i.player2Id) {
+                    if (i.player1.id || i.player2.id) {
                         string += `[${v + 1}]组\n`;
-                        string += `\t[选手A][${participant.array.find(p => p.id == i.player1Id)?.name ?? ''}]\n`;
-                        string += `\t[比 分][${i.status == 'Finished' ? `${i.player1Score} : ${i.player2Score}` : 'VS'}]\n`;
-                        string += `\t[选手B][${participant.array.find(p => p.id == i.player2Id)?.name ?? ''}]\n`;
+                        string += `\t[选手A][${i.player1.name ?? ''}]\n`;
+                        string += `\t[比 分][${i.status == 'Finished' ? `${i.player1.score} : ${i.player2.score}` : 'VS'}]\n`;
+                        string += `\t[选手B][${i.player2.name ?? ''}]\n`;
                     }
                 });
             }
@@ -524,7 +523,7 @@
             show : (i : Match) : void => {
                 match.submit.page = match.submit.page === i ? undefined : i;
                 if (!match.submit.page)
-                    match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
+                    match.submit.chk = match.array.map(i => [i.player1.score ?? 0, i.player2.score ?? 0]);
             },
             on : async (i : Match) : Promise<void> => {
                 const v = match.array.findIndex(m => m === i);
@@ -532,7 +531,7 @@
                     case 'Running':
                         const player1 : number = match.submit.chk[v][0] ?? 0;
                         const player2 : number = match.submit.chk[v][1] ?? 0;
-                        const id : null | number = player1 > player2 ? i.player1Id : player1 == player2 ? null : i.player2Id
+                        const id : null | number = player1 > player2 ? i.player1.id : player1 == player2 ? null : i.player2.id;
                         // @ts-ignore
                         if (await Tabulator.Match.Update(Mycard.token, i.id, {
                             player1Score : player1,
@@ -718,10 +717,23 @@
                 element = element.parentElement;
             }
             match.submit.page = undefined;
-            match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
+            match.submit.chk = match.array.map(i => [i.player1.score ?? 0, i.player2.score ?? 0]);
         },
         copyUrl : () => {
             UniApp.copy(`${window.location.href.split('/?')[0]}`);
+        }
+    });
+
+    let searcher = reactive({
+        participant : '',
+        match : '',
+        filterMatch : (i : Match) : boolean => {
+            if ((i.round != match.round && match.round != 0) || (i.status == 'Abandoned' && !i.player1.name || !i.player2.name))
+                return false;
+            return searcher.match ? i.player1.name.toUpperCase().includes(searcher.match.toUpperCase()) || i.player2.name.toUpperCase().includes(searcher.match.toUpperCase()) : true;
+        },
+        filterParticipant : (i : Participant) : boolean => {
+            return searcher.participant ? i.name.toUpperCase().includes(searcher.participant.toUpperCase()) : true;
         }
     });
 
@@ -755,7 +767,7 @@
     });
 
     watch(() => { return match.array; }, async () : Promise<void> => {
-        match.submit.chk = match.array.map(i => [i.player1Score ?? 0, i.player2Score ?? 0]);
+        match.submit.chk = match.array.map(i => [i.player1.score ?? 0, i.player2.score ?? 0]);
         if (match.array.length > 0)
             match.maxRound = match.array.reduce((a, b) => (a.round > b.round) ? a : b)?.round ?? 0;
         else match.maxRound = 0;

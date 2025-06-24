@@ -1,5 +1,11 @@
 import { MatchObject } from './type.ts';
-import Participant from './participant.ts'
+import Participant from './participant.ts';
+
+interface player {
+    id : number;
+    score : number;
+    name : string;
+}
 
 class Match {
     id : number;
@@ -7,10 +13,8 @@ class Match {
     round : number;
     isThirdPlaceMatch : boolean;
     status : string;
-    player1Score : number;
-    player2Score : number;
-    player1Id : number;
-    player2Id : number;
+    player1 : player;
+    player2 : player;
     winnerId : number | null;
     childMatchId : number;
 
@@ -20,10 +24,18 @@ class Match {
         this.round = obj.round;
         this.isThirdPlaceMatch = obj.isThirdPlaceMatch;
         this.status = obj.status;
-        this.player1Id = obj.player1Id;
-        this.player2Id = obj.player2Id;
-        this.player1Score = obj.player1Score;
-        this.player2Score = obj.player2Score;
+        const name1 = obj.player1?.name.split('+') ?? [];
+        this.player1 = {
+            id : obj.player1Id,
+            name : (name1.length == 2 && !Number.isNaN(name1[0]) && name1[0].length > 3) ? name1[1] : obj.player1?.name ?? '',
+            score : obj.player1Score
+        };
+        const name2 = obj.player2?.name.split('+') ?? [];
+        this.player2 = {
+            id : obj.player2Id,
+            name : (name2.length == 2 && !Number.isNaN(name2[0]) && name2[0].length > 3) ? name2[1] : obj.player2?.name ?? '',
+            score : obj.player2Score
+        };
         this.winnerId = obj.winnerId as number | null;
         this.childMatchId = obj.childMatchId;
     }

@@ -65,14 +65,14 @@
                 id : i.id,
                 next : i.childMatchId,
                 player1: {
-                    id: i.player1Id ? i.player1Id.toString() : '',
-                    name: i.player1Id ? getName(i.player1Id) : '',
-                    winner: i.winnerId ? i.player1Id == i.winnerId : undefined
+                    id: i.player1.id ? i.player1.id.toString() : '',
+                    name: i.player1.id ? getName(i.player1.id) : '',
+                    winner: i.winnerId ? i.player1.id == i.winnerId : undefined
                 },
                 player2: {
-                    id: i.player2Id ? i.player2Id.toString() : '',
-                    name: i.player2Id ? getName(i.player2Id) : '',
-                    winner: i.winnerId ? i.player2Id == i.winnerId : undefined
+                    id: i.player2.id ? i.player2.id.toString() : '',
+                    name: i.player2.id ? getName(i.player2.id) : '',
+                    winner: i.winnerId ? i.player2.id == i.winnerId : undefined
                 }
             });
         });
