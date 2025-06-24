@@ -424,8 +424,6 @@
                 }
                 page.tournament = false;
                 page.menu = true;
-                search.mine();
-                search.info.creator = search.creator == '' ? 0 : parseInt(search.creator);
                 await search.on();
                 emitter.emit(Const.show, false);
             }
