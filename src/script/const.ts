@@ -12,6 +12,12 @@ class ConstData {
     showTournament = 'showTournament';
     updateRounds = 'updateRounds';
     newTournament = 'newTournament';
+    ot = {
+      Basic : 0,
+      CustomJpg : 1,
+      CustomPng : 2,
+      None : 3
+    }
     pic = {
         hajimi : `
 <pre>                                   :==+++=-.                                                        

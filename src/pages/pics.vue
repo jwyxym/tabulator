@@ -8,13 +8,15 @@
                 spacing = '0px'
                 padding = '0px'
             >
-                <!-- <view
-                    class = 'button'
-                    v-show = 'deck.main.length > 0 || deck.side.length > 0'
-                    @click = 'deck.download()'
-                >
-                    <uni-icons type = 'download'></uni-icons>
-                </view> -->
+                <view class = 'list'>
+                    <view
+                        class = 'button'
+                        v-show = 'deck.main.length > 0 || deck.side.length > 0'
+                        @click = 'deck.download()'
+                    >
+                        <uni-icons type = 'download'></uni-icons>
+                    </view>
+                </view>
                 <uni-card class = 'deck' :title = "deck.main.length > 0 ? '主卡组' : '暂无主卡组'">
                     <cover-image class = 'deck_cards' v-for = '(i, v) in deck.main' :src = 'getImg(i)' @error = 'changeImg.main(v)'></cover-image>
                 </uni-card>
@@ -32,24 +34,42 @@
     import Participant from '../script/participant.ts';
     import Download from '../script/download.js';
 
-    const getImg = (i : number) => {
-        return i == 0 || Math.floor(Math.log10(Math.abs(i))) < 8 ? `https://cdn.233.momobako.com/ygopro/pics/${i}.jpg!half` : `https://cdn02.moecube.com:444/ygopro-super-pre/data/pics/${i}.jpg`
+    interface CardPic {
+        code : number,
+        ot : number
+    }
+
+    let url = reactive({
+        diy222 : 'https://cdn02.moecube.com:444/ygopro-222DIY/contents/expansions/pics',
+    });
+
+    const getImg = (i : CardPic) : string => {
+        switch (i.ot) {
+            case (Const.ot.Basic) :
+                return Math.floor(Math.log10(Math.abs(i.code))) < 8 ? `https://cdn.233.momobako.com/ygopro/pics/${i.code}.jpg!half` : `https://cdn02.moecube.com:444/ygopro-super-pre/data/pics/${i.code}.jpg`;
+            case (Const.ot.CustomJpg) :
+                return `${url.diy222}/${i.code}.jpg`;
+            case (Const.ot.CustomPng) :
+                return `${url.diy222}/${i.code}.png`;
+            default :
+                return 'https://cdn.233.momobako.com/ygopro/pics/0.jpg!half';
+        }
     };
 
     const changeImg = {
         main : (v : number) : void => {
-            deck.main[v] = 0;
+            deck.main[v].ot += 1;
         },
         side : (v : number) : void => {
-            deck.side[v] = 0;
+            deck.side[v].ot += 1;
         }
     };
 
     let deck = reactive({
         participant : undefined as Participant | undefined,
         chk : false,
-        main : [] as Array<number>,
-        side : [] as Array<number>,
+        main : [] as Array<CardPic>,
+        side : [] as Array<CardPic>,
         blob : undefined as Blob | undefined,
         init : async (i : {
             participant : Participant,
@@ -67,8 +87,8 @@
                 deck.participant = undefined;
                 await (new Promise(resolve => setTimeout(resolve, 500)));
             }
-            deck.main = i.main;
-            deck.side = i.side;
+            deck.main.push(...i.main.map(code => ({ code, ot: Const.ot.Basic })));
+            deck.side.push(...i.side.map(code => ({ code, ot: Const.ot.Basic })));
             deck.blob = i.blob;
             deck.participant = participant;
         },
@@ -118,5 +138,9 @@
             cursor: pointer;
             background-color: #e6e6e6;
         }
+    }
+    .list {
+        display: grid;
+        justify-items: center;
     }
 </style>
