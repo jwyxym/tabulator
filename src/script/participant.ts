@@ -5,6 +5,7 @@ import { Base64 } from 'js-base64';
 class  Participant {
     id : number;
     name : string;
+    fullName : string;
     quit : boolean;
     tournamentId : number;
     score : Score;
@@ -12,7 +13,8 @@ class  Participant {
     deck : YGOProDeck | undefined;
 
     constructor(obj: ParticipantObject) {
-        const name = obj.name.split('+');
+        this.fullName = obj.name;
+        const name = obj.name.split(/[\+\uFF0B]/);
         this.name = (name.length == 2 && !Number.isNaN(name[0]) && name[0].length > 3) ? name[1] : obj.name;
         this.tournamentId = obj.tournamentId;
         this.id = obj.id;
