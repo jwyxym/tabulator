@@ -487,9 +487,9 @@
                 match.array.filter(i => i.round == round).forEach((i, v) => {
                     if (i.player1.id || i.player2.id) {
                         string += `[${v + 1}]组\n`;
-                        string += `\t[选手A][${i.player1.fullName ?? ''}]\n`;
+                        string += `\t[选手A][${i.player1.name ?? ''}]${i.player1.qq ? `[${i.player1.qq}]` : ''}\n`;
                         string += `\t[比 分][${i.status == 'Finished' ? `${i.player1.score} : ${i.player2.score}` : 'VS'}]\n`;
-                        string += `\t[选手B][${i.player2.fullName ?? ''}]\n`;
+                        string += `\t[选手B][${i.player2.name ?? ''}]${i.player2.qq ? `[${i.player2.qq}]` : ''}\n`;
                     }
                 });
             }
@@ -666,7 +666,7 @@
             ]);
             for (let i = 0; i < copyValue; i++) {
                 let p = participant.array[i];
-                string += `[${map.get(i) ?? `第${i + 1}名`}]${p.fullName}\n`
+                string += `[${map.get(i) ?? `第${i + 1}名`}][${p.name}]${p.qq ? `[${p.qq}]` : ''}\n`
             }
             UniApp.copy(string);
         },
