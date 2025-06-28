@@ -289,7 +289,7 @@
                                                     <span>{{ `第${i.round}轮` }}</span>
                                                     <br v-show = 'i.round == match.maxRound'>
                                                     <span class = 'small' v-show = 'i.isThirdPlaceMatch'>季军赛</span>
-                                                    <span class = 'small' v-show = '!i.isThirdPlaceMatch && i.round == match.maxRound'>决赛</span>
+                                                    <span class = 'small' v-show = "!i.isThirdPlaceMatch && i.round == match.maxRound && tournament.this.rule == 'SingleElimination'">决赛</span>
                                                 </view>
                                                 <view  id = 'right'>
                                                     <span
