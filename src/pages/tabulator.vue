@@ -26,6 +26,9 @@
                 </uni-list-chat>
             </uni-list>
         </view>
+        <transition name = 'switch'>
+            <uni-icons id = 'progress' type = 'spinner-cycle' v-if = 'Loading' size = '80'></uni-icons>
+        </transition>
         <view class = 'click head'><uni-list><uni-list-chat></uni-list-chat></uni-list></view>
         <Pics
             :style = "{
@@ -147,7 +150,7 @@
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
     import { TournamentFindObject, TournamentCreateObject, ruleSettings, UserObject } from '../script/type.ts';
     import UniApp from '../script/uniapp.ts';
-    import { Tabulator, User} from '../script/post.ts';
+    import { Tabulator, User, Loading } from '../script/post.ts';
     import Tournament from '../script/tournament.ts';
     import Mycard from '../script/mycard.ts';
     import emitter from '../script/emitter.ts'

@@ -1,3 +1,4 @@
+import { ref, Ref } from 'vue';
 import axios, { AxiosInstance } from 'axios';
 import Tournament from '../script/tournament.ts';
 import Participant from '../script/participant.ts';
@@ -26,6 +27,8 @@ import {
 } from './type.ts'
 import UniApp from './uniapp.ts';
 
+let Loading = ref(false);
+
 class TabulatorAPI {
     url : AxiosInstance;
 
@@ -43,6 +46,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/tournament`, TournamentData, {
                     headers: { 
                         'x-user-token' : token
@@ -55,6 +59,9 @@ class TabulatorAPI {
                 console.error(error);
                 return -1;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Delete : async (token : string, id : number) : Promise<Boolean> => {
             let response : {
@@ -63,6 +70,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.delete(`/api/tournament/${id}`, {
                     headers: {
                         'x-user-token' : token
@@ -74,6 +82,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Find : async (token : string, id : number) : Promise<TournamentGet> => {
             let response : {
@@ -82,6 +93,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.get(`/api/tournament/${id}`, {
                     headers: { 
                         'x-user-token' : token
@@ -95,7 +107,6 @@ class TabulatorAPI {
                 response.data.data.matches.forEach((i : MatchObject) => {
                     matches.push(new Match(i));
                 });
-                console.log(response)
                 return {
                     tournament : new Tournament(response.data.data),
                     participant : {
@@ -122,6 +133,9 @@ class TabulatorAPI {
                     }
                 };
             }
+            finally {
+                Loading.value = false;
+            }
         },
         FindALL : async (token : string, obj : TournamentFindObject = {}) : Promise<AllTournament> => {
             const filter = (i : any) : any => {
@@ -135,6 +149,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.get(`/api/tournament`, {
                     params : {
                         recordsPerPage : 20,
@@ -168,6 +183,9 @@ class TabulatorAPI {
                     tournaments : []
                 };
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Update : async (token : string, id : number, Data : TournamentCreateObject) : Promise<boolean> => {
             let response :  {
@@ -176,6 +194,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.patch(`/api/tournament/${id}`, Data, {
                     headers : {
                         'x-user-token' : token
@@ -187,6 +206,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Start : async (token : string, id : number) : Promise<boolean> => {
             let response :  {
@@ -195,6 +217,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/tournament/${id}/start`, {}, {
                     headers : {
                         'x-user-token' : token
@@ -206,6 +229,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Reset : async (token : string, id : number) : Promise<boolean> => {
             let response :  {
@@ -214,6 +240,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/tournament/${id}/reset`, {}, {
                     headers : {
                         'x-user-token' : token
@@ -225,6 +252,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Finish : async (token : string, id : number) : Promise<boolean> => {
             let response :  {
@@ -233,6 +263,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/tournament/${id}/finish`, {}, {
                     headers : {
                         'x-user-token' : token
@@ -244,6 +275,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         UpdateYdk : async (token : string, id : number, res : UniApp.ChooseFileSuccessCallbackResult) : Promise<Boolean> => {
             let response : {
@@ -252,6 +286,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 let formData = new FormData();
                 for (let i = 0; i < res.tempFilePaths.length; i++) {
                     let f = await fetch(res.tempFilePaths[i]);
@@ -269,6 +304,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Empty : async (token : string, id : number) : Promise<Boolean> => {
             let response : {
@@ -277,6 +315,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/tournament/${id}/clear-participants`, {
                     headers: {
                         'x-user-token' : token
@@ -288,6 +327,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Shuffle : async (token : string, id : number) : Promise<Boolean> => {
             let response : {
@@ -296,6 +338,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/tournament/${id}/shuffle-participants`, {}, {
                     headers: {
                         'x-user-token' : token
@@ -307,6 +350,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Drag : async (token : string, id : number, from : number, to : number) : Promise<Boolean> => {
             let response : {
@@ -315,6 +361,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/tournament/${id}/drag-participant`, {
                     draggingParticipantId : from,
                     placeAfterParticipantId : to
@@ -329,6 +376,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Import : async (token : string, id : number, fromId : number, count : number) : Promise<boolean> => {
             let response :  {
@@ -337,6 +387,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/tournament/${id}/import-participants-from`, {
                     tournamentId : fromId,
                     swissMaxPlayers : count
@@ -351,6 +402,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         }
     }
     Participant = {
@@ -361,6 +415,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 if (Data.name.length == 0)
                     throw new Error('请填写名称');
                 if (Array.findIndex(i => Data.name == i.name) > -1)
@@ -376,6 +431,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         CreateGroup : async (token : string, Data : Array<ParticipantCreateObject>) : Promise<boolean> => {
             let response :  {
@@ -384,6 +442,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/participant/import`, {
                     data : Data
                 }, {
@@ -397,6 +456,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Find : async (token : string, id : number) : Promise<Participant | undefined> => {
             let response :  {
@@ -405,6 +467,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.get(`/api/participant/${id}`, {
                     headers : {
                         'x-user-token' : token
@@ -416,6 +479,9 @@ class TabulatorAPI {
                 console.error(error);
                 return undefined;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         FindALL : async (token : string, obj : ParticipantFindObject = {}) : Promise<AllParticipant> => {
             let response :  {
@@ -425,6 +491,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.get(`/api/participant`, {
                     params : {
                         recordsPerPage : 20,
@@ -454,6 +521,9 @@ class TabulatorAPI {
                     participants : []
                 };
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Update : async (token : string, id : number, Data : ParticipantUpdateObject) : Promise<boolean> => {
             let response :  {
@@ -462,6 +532,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.patch(`/api/participant/${id}`, Data, {
                     headers : {
                         'x-user-token' : token
@@ -473,6 +544,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Delete : async (token : string, id : number) : Promise<Boolean> => {
             let response : {
@@ -481,6 +555,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.delete(`/api/participant/${id}`, {
                     headers: {
                         'x-user-token' : token
@@ -492,6 +567,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         }
     }
     Match = {
@@ -502,6 +580,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.get(`/api/match/${id}`, {
                     headers : {
                         'x-user-token' : token
@@ -513,6 +592,9 @@ class TabulatorAPI {
                 console.error(error);
                 return undefined;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         FindALL : async (token : string, obj : MatchFindObject = {}) : Promise<AllMatch> => {
             let response :  {
@@ -522,6 +604,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.get(`/api/match`, {
                     params : {
                         recordsPerPage : 20,
@@ -559,6 +642,9 @@ class TabulatorAPI {
                     matches : []
                 };
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Update : async (token : string, id : number, Data : MatchUpdateObject) : Promise<boolean> => {
             let response :  {
@@ -567,6 +653,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.patch(`/api/match/${id}`, Data, {
                     headers : {
                         'x-user-token' : token
@@ -578,6 +665,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         }
     }
     ApiKey = {
@@ -588,6 +678,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.post(`/api/api-key`, {
                 name : Data.name,
                 description : Data.description?.length ?? 0 > 0 ? Data.description : undefined,
@@ -604,6 +695,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Find : async (token : string, id : number) : Promise<ApiKey | undefined> => {
             let response :  {
@@ -612,6 +706,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.get(`/api/api-key/${id}`, {
                     headers : {
                         'x-user-token' : token
@@ -623,6 +718,9 @@ class TabulatorAPI {
                 console.error(error);
                 return undefined;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         FindALL : async (token : string, obj : ApiKeyFindObject = {}) : Promise<AllAPI> => {
             let response :  {
@@ -632,6 +730,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 if (!obj.userId || obj.userId < 0)
                     throw new Error('未登录');
                 response = await this.url.get(`/api/api-key`, {
@@ -662,6 +761,9 @@ class TabulatorAPI {
                     api : []
                 };
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Update : async (token : string, id : number, Data : ApiKeyCreateObject) : Promise<boolean> => {
             let response :  {
@@ -670,6 +772,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.patch(`/api/api-key/${id}`, {
                 name : Data.name,
                 description : Data.description?.length ?? 0 > 0 ? Data.description : '',
@@ -685,6 +788,9 @@ class TabulatorAPI {
                 console.error(error);
                 return false;
             }
+            finally {
+                Loading.value = false;
+            }
         },
         Delete : async (token : string, id : number) : Promise<Boolean> => {
             let response : {
@@ -693,6 +799,7 @@ class TabulatorAPI {
                 }
             };
             try {
+                Loading.value = true;
                 response = await this.url.delete(`/api/api-key/${id}`, {
                     headers: {
                         'x-user-token' : token
@@ -703,6 +810,9 @@ class TabulatorAPI {
             catch(error) {
                 console.error(error);
                 return false;
+            }
+            finally {
+                Loading.value = false;
             }
         }
     }
@@ -756,5 +866,6 @@ const Tabulator = new TabulatorAPI('https://api-tabulator-dev.moecube.com');
 
 export {
     Tabulator,
-    User
+    User,
+    Loading
 };
