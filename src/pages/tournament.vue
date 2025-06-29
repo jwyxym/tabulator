@@ -38,9 +38,6 @@
                             <span>关闭</span>
                             <uni-icons type = 'close'></uni-icons>
                         </view>
-                    </view>
-                    <br>
-                    <view class = 'button_list' >
                         <view class = 'button click' @click = 'tournament.operatorChk(tournament.on)'>
                             <span>{{ tournament.status.text.get(tournament.this.status) }}</span>
                             <uni-icons type = 'circle-filled' :color = 'tournament.status.color.get(tournament.this.status)'></uni-icons>
@@ -56,6 +53,10 @@
                         <view class = 'button click'  @click = 'tournament.operatorChk(tournament.upload)'>
                             <span>上传</span>
                             <uni-icons type = 'cloud-upload'></uni-icons>
+                        </view>
+                        <view class = 'button click' @click = 'tournament.operatorChk(tournament.empty)'>
+                            <span>清空</span>
+                            <uni-icons type = 'spinner-cycle' color = 'red'></uni-icons>
                         </view>
                         <view class = 'button click' @click = 'tournament.operatorChk(tournament.del)'>
                             <span>删除</span>
@@ -439,6 +440,17 @@
                     // @ts-ignore
                     if (await Tabulator.Tournament.Delete(Mycard.token, tournament.this.id))
                         page.clear();
+                }
+            });
+        },
+        empty : () : void => {
+            uni.showModal({
+                title : '确认要清空比赛选手吗？',
+                success : async (res : UniApp.ShowModalRes) : Promise<void> => {
+                    if (!res.confirm) return;
+                    // @ts-ignore
+                    if (await Tabulator.Tournament.Empty(Mycard.token, tournament.this.id))
+                        page.reload();
                 }
             });
         },

@@ -95,6 +95,7 @@ class TabulatorAPI {
                 response.data.data.matches.forEach((i : MatchObject) => {
                     matches.push(new Match(i));
                 });
+                console.log(response)
                 return {
                     tournament : new Tournament(response.data.data),
                     participant : {
@@ -259,6 +260,25 @@ class TabulatorAPI {
                 }
                 response = await this.url.post(`/api/tournament/${id}/upload-ydk`,formData, {
                     headers : {
+                        'x-user-token' : token
+                    }
+                });
+                return response.data.success;
+            }
+            catch(error) {
+                console.error(error);
+                return false;
+            }
+        },
+        Empty : async (token : string, id : number) : Promise<Boolean> => {
+            let response : {
+                data : {
+                    success : boolean;
+                }
+            };
+            try {
+                response = await this.url.post(`/api/tournament/${id}/clear-participants`, {
+                    headers: {
                         'x-user-token' : token
                     }
                 });
