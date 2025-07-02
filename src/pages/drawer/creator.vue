@@ -87,6 +87,8 @@
             </uni-list>
         </uni-card>
         <br>
+            <uni-easyinput type = 'text' placeholder = '卡图图床（例：https://example.com/api/）' v-model = 'create.pics'/>
+        <br>
         <view class = 'button' @click = 'create.clear()'>
             <view>
                 <span>清空</span>
@@ -114,6 +116,7 @@
     let create = reactive({
         name : '',
         description : '',
+        pics : '',
         visibility : {
             select : '',
             range : [
@@ -181,7 +184,7 @@
                 const collaborators = create.collaborators.map(user => user.id);
                 const id = await Tabulator.Tournament.Create(Mycard.token, {
                     name: create.name,
-                    description: create.description,
+                    description: `${create.description}${create.pics ? `\n卡图地址：${create.pics}` : ''}`,
                     rule: create.rule.select,
                     ruleSettings: create.rule.settings,
                     visibility: create.visibility.select,

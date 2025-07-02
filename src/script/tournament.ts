@@ -5,6 +5,7 @@ class Tournament {
     id : number;
     name : string;
     description : string;
+    pics : string;
     rule : string;
     ruleSettings : {
         rounds : number;
@@ -22,7 +23,9 @@ class Tournament {
 
     constructor(obj : TournamentObject) {
         this.name = obj.name;
-        this.description = obj.description;
+        const description = obj.description.split('\n卡图地址：');
+        this.description = description[0];
+        this.pics = description[1] ?? '';
         this.visibility = obj.visibility;
         this.collaborators = obj.collaborators;
         this.rule = obj.rule;

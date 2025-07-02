@@ -73,6 +73,8 @@
             </uni-list>
         </uni-card>
         <br>
+            <uni-easyinput type = 'text' placeholder = '卡图图床（例：https://example.com/api/）' v-model = 'tournament.pics'/>
+        <br>
         <view class = 'button' @click = 'tournament.update()'>
             <view>
                 <span>设置</span>

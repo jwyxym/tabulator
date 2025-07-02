@@ -298,6 +298,7 @@
         this : undefined as undefined | Tournament,
         name : '',
         description : '',
+        pics : '',
         visibility : {
             select : '',
             range : [
@@ -327,6 +328,7 @@
             tournament.this = t;
             tournament.name = t.name;
             tournament.description = t.description;
+            tournament.pics = t.pics;
             tournament.visibility.select = t.visibility;
             tournament.rule.select = t.rule;
             tournament.rule.settings = Object.assign({}, t.ruleSettings);
@@ -344,6 +346,7 @@
             tournament.this = undefined;
             tournament.name = '';
             tournament.description = '';
+            tournament.pics = '';
             tournament.visibility.select = '';
             tournament.rule.select = '';
             tournament.rule.settings = {} as ruleSettings;
@@ -357,7 +360,7 @@
             const collaborators = tournament.collaborators.map(user => user.id);
             emitter.emit(Const.updateTournament, {
                 name: tournament.name,
-                description: tournament.description,
+                description: `${tournament.description}${tournament.pics ? `\n卡图地址：${tournament.pics}` : ''}`,
                 visibility: tournament.visibility.select,
                 collaborators : collaborators,
                 rule : tournament.this?.status == 'Ready' ? tournament.rule.select : undefined,

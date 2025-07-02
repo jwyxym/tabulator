@@ -40,7 +40,8 @@
     }
 
     let url = reactive({
-        diy222 : 'https://cdn02.moecube.com:444/ygopro-222DIY/contents/expansions/pics',
+        diy222 : 'https://cdn02.moecube.com:444/ygopro-222DIY/contents/expansions/pics/',
+        custom : ''
     });
 
     const getImg = (i : CardPic) : string => {
@@ -48,9 +49,9 @@
             case (Const.ot.Basic) :
                 return Math.floor(Math.log10(Math.abs(i.code))) < 8 ? `https://cdn.233.momobako.com/ygopro/pics/${i.code}.jpg!half` : `https://cdn02.moecube.com:444/ygopro-super-pre/data/pics/${i.code}.jpg`;
             case (Const.ot.CustomJpg) :
-                return `${url.diy222}/${i.code}.jpg`;
+                return `${url.custom.length > 0 ? `${url.custom}${url.custom.endsWith('/') ? '' : '/'}` : url.diy222}${i.code}.jpg`;
             case (Const.ot.CustomPng) :
-                return `${url.diy222}/${i.code}.png`;
+                return `${url.custom.length > 0 ? `${url.custom}${url.custom.endsWith('/') ? '' : '/'}` : url.diy222}${i.code}.png`;
             default :
                 return 'https://cdn.233.momobako.com/ygopro/pics/0.jpg!half';
         }
@@ -76,6 +77,7 @@
             main : Array<number>,
             side : Array<number>,
             blob : Blob,
+            url : string
         }) : Promise<void> => {
             if (deck.chk) return;
             const participant = i.participant ?? undefined;
@@ -91,6 +93,7 @@
             deck.side.push(...i.side.map(code => ({ code, ot: Const.ot.Basic })));
             deck.blob = i.blob;
             deck.participant = participant;
+            url.custom = i.url;
         },
         off : async () : Promise<void> => {
             deck.chk = true;
@@ -100,6 +103,7 @@
             deck.side = [];
             deck.chk = false;
             deck.blob = undefined;
+            url.custom = '';
         },
         clickClear : (e) : void => {
             let element = e.target;

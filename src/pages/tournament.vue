@@ -626,7 +626,8 @@
                     participant : i,
                     main : i.getDeck().main,
                     side : i.getDeck().side,
-                    blob : i.Blob()
+                    blob : i.Blob(),
+                    url : tournament.this?.pics ?? ''
                 })
             }
         },
