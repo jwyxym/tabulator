@@ -466,11 +466,14 @@
                 }
             });
         },
-        operatorChk : (f : Function, para : Array<any> = []) : void => {
-            if (Mycard.id >= 0 && (Mycard.id == tournament.this?.creator || tournament.this?.collaborators.includes(Mycard.id)))
+        operatorChk : (f : Function = () => {}, para : Array<any> = []) : boolean => {
+            if (Mycard.id >= 0 && (Mycard.id == tournament.this?.creator || tournament.this?.collaborators.includes(Mycard.id))) {
                 f(...para);
+                return true
+            }
             else
                 UniApp.error('请先登陆或联系比赛主办方', '缺少权限');
+            return false;
         },
         upload : async () : Promise<void> => {
             const f = async (res : UniApp.ChooseFileSuccessCallbackResult) : Promise<void> => {
