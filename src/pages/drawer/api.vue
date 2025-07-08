@@ -161,13 +161,11 @@
 
     watch(() => { return api.list; }, () => {
         api.changing = -1;
-        api.list.forEach(i => {
-            api.changeInfo.push({
-                date : i.expireAt,
-                name : i.name,
-                description : i.description,
-            });
-        });
+        api.changeInfo.push(...api.list.map(i => ({
+            date: i.expireAt,
+            name: i.name,
+            description: i.description
+        })));
     }, { deep : true });
 
     onBeforeMount(() : void => {
