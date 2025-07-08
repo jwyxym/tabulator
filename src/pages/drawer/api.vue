@@ -45,9 +45,9 @@
                     </template>
                 </uni-list-item>
                 <uni-forms v-show = 'api.changing == v'>
-                    <uni-datetime-picker type = 'datetime' v-model = 'api.changeInfo.date'/>
-                    <uni-easyinput type = 'text' placeholder = '名称' v-model = 'api.changeInfo.name'/>
-                    <uni-easyinput type = 'text' placeholder = '描述' v-model = 'api.changeInfo.description'/>
+                    <uni-datetime-picker type = 'datetime' v-model = 'api.changeInfo[v].date'/>
+                    <uni-easyinput type = 'text' placeholder = '名称' v-model = 'api.changeInfo[v].name'/>
+                    <uni-easyinput type = 'text' placeholder = '描述' v-model = 'api.changeInfo[v].description'/>
                     <view
                         class = 'button'
                         @click = 'api.update(i.id, v)'
@@ -90,8 +90,6 @@
 </template>
 <script setup lang = 'ts'>
     import { ref, reactive, onMounted, onUnmounted, onBeforeMount, watch} from 'vue';
-    import emitter from '../../script/emitter.ts';
-    import Const from '../../script/const.ts'
     import Mycard from '../../script/mycard.ts';
     import ApiKey from '../../script/apikey.ts';
     import UniApp from '../../script/uniapp.ts';
@@ -133,30 +131,13 @@
             UniApp.copy(i.key);
         },
         change : (v : number) : void => {
-            if (api.changing == v) {
-                api.changing = -1;
-                api.changeInfo = {
-                    date : '',
-                    name : '',
-                    description : '',
-                    expireAt : undefined as undefined | Date
-                };
-            } else {
-                const i = api.list[v];
-                api.changeInfo = {
-                    date : i.expireAt,
-                    name : i.name,
-                    description : i.description,
-                    expireAt : new Date(i.expireAt)
-                };
-                api.changing = v;
-            }
+            api.changing = api.changing == v ? -1 : v;
         },
         update : async (id : number, v : number) : Promise<void> => {
             if (await Tabulator.ApiKey.Update(Mycard.token, id, {
-                name : api.changeInfo.name,
-                description : api.changeInfo.description,
-                expireAt : api.changeInfo.expireAt
+                name : api.changeInfo[v].name,
+                description : api.changeInfo[v].description,
+                expireAt : api.changeInfo[v].date?.length ?? 0 > 0 ? new Date(api.changeInfo[v].date) : undefined
             } as ApiKeyCreateObject))
                 api.search();
         },
@@ -167,43 +148,27 @@
         } as ApiKeyCreateObject,
         date : '',
         changing : -1,
-        changeInfo : {
-            date : '',
-            name : '',
-            description : '',
-            expireAt : undefined as undefined | Date
-        }
+        changeInfo : [] as Array<{
+            date : string;
+            name : string;
+            description : string;
+        }>
     });
 
     watch(() => { return api.date; }, () => {
-        const toDate = () => {
-            api.info.expireAt = new Date(api.date);
-        };
-        const toUndefined = () => {
-            api.info.expireAt = undefined;
-        };
-        api.date.length > 0 ? toDate() : toUndefined();
+        api.info.expireAt = api.date.length > 0 ? new Date(api.date) : undefined;
     });
 
     watch(() => { return api.list; }, () => {
         api.changing = -1;
-        api.changeInfo = {
-            date : '',
-            name : '',
-            description : '',
-            expireAt : undefined as undefined | Date
-        };
+        api.list.forEach(i => {
+            api.changeInfo.push({
+                date : i.expireAt,
+                name : i.name,
+                description : i.description,
+            });
+        });
     }, { deep : true });
-
-    watch(() => { return api.changeInfo.date; }, () => {
-        const toDate = () => {
-            api.changeInfo.expireAt = new Date(api.changeInfo.date);
-        };
-        const toUndefined = () => {
-            api.changeInfo.expireAt = undefined;
-        };
-        api.changeInfo.date?.length ?? 0 > 0 ? toDate() : toUndefined();
-    });
 
     onBeforeMount(() : void => {
         api.search();
