@@ -374,7 +374,9 @@
             try {
                 if (tournament.collaborators.findIndex(i => i.username == tournament.collaborator) >= 0)
                     throw new Error('协作者已存在');
-                const i = await User.Find.Name(tournament.collaborator);
+                let i = await User.Find.Name(tournament.collaborator);
+                if (!i && !isNaN(parseInt(tournament.collaborator)))
+                    i = await User.Find.Id(parseInt(tournament.collaborator));
                 if (!i)
                     throw new Error('未搜索到此用户');
                 if (tournament.this?.creator == i.id)
