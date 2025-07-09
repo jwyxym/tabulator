@@ -90,8 +90,8 @@
             }
             url.custom = i.url;
             deck.blob = i.blob;
-            deck.main.push(...i.main.map(code => ({ code, ot: url.custom ? Const.ot.CustomJpg : Const.ot.Basic })));
-            deck.side.push(...i.side.map(code => ({ code, ot: url.custom ? Const.ot.CustomJpg : Const.ot.Basic })));
+            deck.main = i.main.map(code => ({ code, ot: url.custom ? Const.ot.CustomJpg : Const.ot.Basic }));
+            deck.side = i.side.map(code => ({ code, ot: url.custom ? Const.ot.CustomJpg : Const.ot.Basic }));
             deck.participant = participant;
         },
         off : async () : Promise<void> => {
