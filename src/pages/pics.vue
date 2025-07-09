@@ -21,7 +21,7 @@
                     <cover-image class = 'deck_cards' v-for = '(i, v) in deck.main' :src = 'getImg(i)' @error = 'changeImg.main(v)'></cover-image>
                 </uni-card>
                 <uni-card class = 'deck' :title = "deck.side.length > 0 ? '副卡组' : '暂无副卡组'">
-                    <cover-image class = 'deck_cards' v-for = '(i, v) in deck.side' :src = 'getImg(i)' @error = 'changeImg.main(v)'></cover-image>
+                    <cover-image class = 'deck_cards' v-for = '(i, v) in deck.side' :src = 'getImg(i)' @error = 'changeImg.side(v)'></cover-image>
                 </uni-card>
             </uni-card>
         </transition>
@@ -40,18 +40,17 @@
     }
 
     let url = reactive({
-        diy222 : 'https://cdn02.moecube.com:444/ygopro-222DIY/contents/expansions/pics/',
         custom : ''
     });
 
     const getImg = (i : CardPic) : string => {
         switch (i.ot) {
+            case (Const.ot.CustomJpg) :
+                return `${url.custom}${url.custom.endsWith('/') ? '' : '/'}${i.code}.jpg`;
+            case (Const.ot.CustomPng) :
+                return `${url.custom}${url.custom.endsWith('/') ? '' : '/'}${i.code}.png`;
             case (Const.ot.Basic) :
                 return Math.floor(Math.log10(Math.abs(i.code))) < 8 ? `https://cdn.233.momobako.com/ygopro/pics/${i.code}.jpg!half` : `https://cdn02.moecube.com:444/ygopro-super-pre/data/pics/${i.code}.jpg`;
-            case (Const.ot.CustomJpg) :
-                return `${url.custom.length > 0 ? `${url.custom}${url.custom.endsWith('/') ? '' : '/'}` : url.diy222}${i.code}.jpg`;
-            case (Const.ot.CustomPng) :
-                return `${url.custom.length > 0 ? `${url.custom}${url.custom.endsWith('/') ? '' : '/'}` : url.diy222}${i.code}.png`;
             default :
                 return 'https://cdn.233.momobako.com/ygopro/pics/0.jpg!half';
         }
@@ -89,11 +88,11 @@
                 deck.participant = undefined;
                 await (new Promise(resolve => setTimeout(resolve, 500)));
             }
-            deck.main.push(...i.main.map(code => ({ code, ot: Const.ot.Basic })));
-            deck.side.push(...i.side.map(code => ({ code, ot: Const.ot.Basic })));
-            deck.blob = i.blob;
-            deck.participant = participant;
             url.custom = i.url;
+            deck.blob = i.blob;
+            deck.main.push(...i.main.map(code => ({ code, ot: url.custom ? Const.ot.CustomJpg : Const.ot.Basic })));
+            deck.side.push(...i.side.map(code => ({ code, ot: url.custom ? Const.ot.CustomJpg : Const.ot.Basic })));
+            deck.participant = participant;
         },
         off : async () : Promise<void> => {
             deck.chk = true;

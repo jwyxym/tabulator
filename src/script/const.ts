@@ -13,9 +13,9 @@ class ConstData {
     updateRounds = 'updateRounds';
     newTournament = 'newTournament';
     ot = {
-      Basic : 0,
-      CustomJpg : 1,
-      CustomPng : 2,
+      CustomJpg : 0,
+      CustomPng : 1,
+      Basic : 2,
       None : 3
     }
     pic = {
