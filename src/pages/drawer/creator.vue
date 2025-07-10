@@ -128,9 +128,6 @@
         rule : {
             select : '',
             settings : {
-                winScore : 3,
-                drawScore : 1,
-                byeScore : 3,
                 hasThirdPlaceMatch : true
             } as ruleSettings,
             range : [
@@ -180,6 +177,14 @@
                     const n = Math.log2(create.import.count);
                     if (n > 0 && !Number.isInteger(n) || n <= 0)
                         throw new Error('出轮的人数必须是2的幂');
+                }
+                if (create.visibility.select = 'Swiss') {
+                    if (!create.rule.settings.winScore && create.rule.settings.winScore == undefined)
+                        throw new Error('请填写胜利分');
+                    if (!create.rule.settings.drawScore && create.rule.settings.drawScore == undefined)
+                        throw new Error('请填写平局分');
+                    if (!create.rule.settings.byeScore && create.rule.settings.byeScore == undefined)
+                        throw new Error('请填写轮空分');
                 }
                 const collaborators = create.collaborators.map(user => user.id);
                 const id = await Tabulator.Tournament.Create(Mycard.token, {

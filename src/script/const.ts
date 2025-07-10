@@ -12,6 +12,12 @@ class ConstData {
     showTournament = 'showTournament';
     updateRounds = 'updateRounds';
     newTournament = 'newTournament';
+    tournamentOn = 'tournamentOn';
+    tournamentReset = 'tournamentReset';
+    tournamentShuffle = 'tournamentShuffle';
+    tournamentUpload = 'tournamentUpload';
+    tournamentEmpty = 'tournamentEmpty';
+    tournamentDel = 'tournamentDel';
     ot = {
       CustomJpg : 0,
       CustomPng : 1,

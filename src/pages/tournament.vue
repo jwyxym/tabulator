@@ -23,7 +23,7 @@
                 <uni-forms>
                     <view class = 'button_list' >
                         <view class = 'button click' @click = '() => { emitter.emit(Const.tournamentInfo); }'>
-                            <span>设置</span>
+                            <span>{{ tournament.operatorChk() ? '设置' : '信息' }}</span>
                             <uni-icons type = 'info'></uni-icons>
                         </view>
                         <view class = 'button' @click = 'page.reload()'>
@@ -38,33 +38,15 @@
                             <span>关闭</span>
                             <uni-icons type = 'close'></uni-icons>
                         </view>
-                        <view class = 'button click' @click = 'tournament.operatorChk(tournament.on)'>
-                            <span>{{ tournament.status.text.get(tournament.this.status) }}</span>
-                            <uni-icons type = 'circle-filled' :color = 'tournament.status.color.get(tournament.this.status)'></uni-icons>
-                        </view>
-                        <view class = 'button click' @click = 'tournament.operatorChk(tournament.reset)'>
-                            <span>重置</span>
-                            <uni-icons type = 'loop'></uni-icons>
-                        </view>
-                        <view class = 'button click'  @click = 'tournament.operatorChk(tournament.shuffle)'>
-                            <span>打乱</span>
-                            <uni-icons type = 'auth'></uni-icons>
-                        </view>
-                        <view class = 'button click'  @click = 'tournament.operatorChk(tournament.upload)'>
-                            <span>上传</span>
-                            <uni-icons type = 'cloud-upload'></uni-icons>
-                        </view>
-                        <view class = 'button click' @click = 'tournament.operatorChk(tournament.empty)'>
-                            <span>清空</span>
-                            <uni-icons type = 'spinner-cycle' color = 'red'></uni-icons>
-                        </view>
-                        <view class = 'button click' @click = 'tournament.operatorChk(tournament.del)'>
-                            <span>删除</span>
-                            <uni-icons type = 'trash' color = 'red'></uni-icons>
-                        </view>
                     </view>
                 </uni-forms>
                 <br>
+                <transition name = 'switch'>
+                    <view v-show = '!page.loading'>
+                        <uni-icons type = 'circle-filled' :color = 'tournament.status.color.get(tournament.this.status)'></uni-icons>
+                        <span id = 'status'>{{ tournament.status.text.get(tournament.this.status) }}</span>
+                    </view>
+                </transition>
                 <transition name = 'switch'>
                     <uni-card
                         v-show = '!page.loading'
@@ -84,15 +66,15 @@
                             <div>
                                 <view
                                     class = 'button'
-                                    @click = 'tournament.operatorChk(participant.copy)'
-                                    
+                                    @click = 'participant.copy()'
                                 >
                                     复制排名
                                 </view>
                                 <view
                                     class = 'button'
                                     id = 'newTournament'
-                                    @click = 'tournament.operatorChk(tournament.new)'
+                                    @click = 'tournament.new'
+                                    v-show = 'tournament.operatorChk()'
                                 >
                                     新建单淘赛
                                 </view>
@@ -122,13 +104,13 @@
                                         </view>
                                     </template>
                                     <template v-slot:footer>
-                                        <view  id = 'footer'>
+                                        <view id = 'footer' v-show = 'tournament.operatorChk()'>
                                             <view
                                                 class = 'button'
                                                 id = 'deckbutton'
                                                 :style = "{ '--color' : participant.move.this === i ? '#409eff' : 'gray', 'background-color' : participant.move.this === i ? '#e6e6e6' : 'white'}"
                                                 v-show = "!i.quit && tournament.this.status == 'Ready'"
-                                                @click = 'tournament.operatorChk(participant.move.start, [i, $event])'
+                                                @click = 'participant.move.start(i)'
                                             >
                                                 <uni-icons :type = "participant.move.this && participant.move.this !== i ? 'pulldown' : 'list'"></uni-icons>
                                             </view>
@@ -139,20 +121,20 @@
                                                 v-show = '!i.quit'
                                                 @click = 'participant.pics.on(i)'
                                             >
-                                                <svgCards/>
+                                                <svgDeck/>
                                             </view>
                                             <view
                                                 class = 'button'
                                                 :style = "{ '--color' : 'gray' }"
                                                 v-show = '!i.quit'
-                                                @click = 'tournament.operatorChk(participant.upload, [i])'
+                                                @click = 'participant.upload(i)'
                                             >
-                                                <svgDeck/>
+                                                <uni-icons type = 'cloud-upload'></uni-icons>
                                             </view>
                                             <view
                                                 class = 'button'
                                                 :style = "{ '--color' : 'red' }"
-                                                @click = 'tournament.operatorChk(participant.del, [i])'
+                                                @click = 'participant.del(i)'
                                                 v-show = '!i.quit'
                                             >
                                                 <uni-icons type = 'trash' color = 'red'></uni-icons>
@@ -161,12 +143,13 @@
                                             <view
                                                 class = 'button'
                                                 :style = "{ '--color' : 'gray' }"
-                                                @click = 'tournament.operatorChk(participant.undo, [i])'
+                                                @click = 'participant.undo(i)'
                                                 v-show = 'i.quit'
                                             >
                                                 <uni-icons type = 'undo'></uni-icons>
                                             </view>
                                         </view>
+                                        <span v-show = '!tournament.operatorChk()' class = 'small'>{{ i.quit ? '已退赛' : '参与中'}}</span>
                                     </template>
                                 </uni-list-item>
                                 <uni-list-item>
@@ -182,7 +165,7 @@
                                             <view
                                                 class = 'button'
                                                 :style = "{ '--color' : '#409eff' }"
-                                                @click = 'tournament.operatorChk(participant.add)'
+                                                @click = 'participant.add()'
                                             >
                                                 <uni-icons type = 'personadd'></uni-icons>
                                             </view>
@@ -220,7 +203,7 @@
                             </div>
                             <div>
                                 <view class = 'button' @click = '() => { match.round = 0; }'>全部轮次</view>
-                                <view class = 'button' @click = 'tournament.operatorChk(tournament.copy)'>复制对战表</view>
+                                <view class = 'button' @click = 'tournament.copy()'>复制对战表</view>
                             </div>
                         </view>
                         <view>
@@ -361,14 +344,14 @@
         this : undefined as undefined | Tournament,
         status : {
             text : new Map([
-                ['Ready', '开始'],
-                ['Running', '结束'],
+                ['Ready', '准备中'],
+                ['Running', '进行中'],
                 ['Finished', '已结束']
             ]) as Map<string, string>,
             color : new Map([
-                ['Ready', 'rgb(84, 200, 17)'],
-                ['Running', 'red'],
-                ['Finished', 'darkgray']
+                ['Ready', 'darkgray'],
+                ['Running', 'rgb(84, 200, 17)'],
+                ['Finished', 'red']
             ]) as Map<string, string>,
         },
         search : async () : Promise<boolean> => {
@@ -391,6 +374,7 @@
             return false;
         },
         on : () : void => {
+            if (!tournament.operatorChk()) return;
             switch(tournament.this?.status) {
                 case 'Ready':
                     uni.showModal({
@@ -466,14 +450,8 @@
                 }
             });
         },
-        operatorChk : (f : Function = () => {}, para : Array<any> = []) : boolean => {
-            if (Mycard.id >= 0 && (Mycard.id == tournament.this?.creator || tournament.this?.collaborators.includes(Mycard.id))) {
-                f(...para);
-                return true
-            }
-            else
-                UniApp.error('请先登陆或联系比赛主办方', '缺少权限');
-            return false;
+        operatorChk : () : boolean => {
+            return Mycard.id >= 0 && (Mycard.id == tournament.this?.creator || (tournament.this?.collaborators.includes(Mycard.id) ?? false));
         },
         upload : async () : Promise<void> => {
             const f = async (res : UniApp.ChooseFileSuccessCallbackResult) : Promise<void> => {
@@ -636,7 +614,7 @@
         },
         move : {
             this : undefined as Participant | undefined,
-            start : (i : Participant, e : TouchEvent) : void => {
+            start : (i : Participant) : void => {
                 const on = () : void => {
                     participant.move.this = i;
                 };
@@ -775,6 +753,12 @@
         // @ts-ignore
         emitter.on(Const.updateTournament, participant.update);
         emitter.on(Const.showTournament, loading);
+        emitter.on(Const.tournamentOn, tournament.on);
+        emitter.on(Const.tournamentReset, tournament.reset);
+        emitter.on(Const.tournamentShuffle, tournament.shuffle);
+        emitter.on(Const.tournamentUpload, tournament.upload);
+        emitter.on(Const.tournamentEmpty, tournament.empty);
+        emitter.on(Const.tournamentDel, tournament.del);
     });
 
     onUnmounted(() => {
@@ -782,6 +766,12 @@
         // @ts-ignore
         emitter.off(Const.updateTournament, participant.update);
         emitter.off(Const.showTournament, loading);
+        emitter.off(Const.tournamentOn, tournament.on);
+        emitter.off(Const.tournamentReset, tournament.reset);
+        emitter.off(Const.tournamentShuffle, tournament.shuffle);
+        emitter.off(Const.tournamentUpload, tournament.upload);
+        emitter.off(Const.tournamentEmpty, tournament.empty);
+        emitter.off(Const.tournamentDel, tournament.del);
     });
 
     watch(() => { return match.round; }, () : void => {
