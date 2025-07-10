@@ -156,9 +156,6 @@
             create.visibility.select = '';
             create.rule.select = '';
             create.rule.settings = {
-                winScore : 3,
-                drawScore : 1,
-                byeScore : 3,
                 hasThirdPlaceMatch : true
             } as ruleSettings;
             create.collaborators = [];
