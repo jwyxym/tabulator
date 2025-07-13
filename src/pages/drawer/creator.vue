@@ -233,7 +233,6 @@
                     create.collaborators.push(i);
             });
             create.rule.select = 'SingleElimination'
-            create.visibility.select = 'SingleElimination';
             create.visibility.select = t.visibility;
             create.import.chk = true;
             create.import.id = t.id;
