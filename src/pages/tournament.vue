@@ -458,7 +458,7 @@
                 let del_list : Array<Participant> = [];
                 // @ts-ignore
                 res.tempFiles.forEach(i => {
-                    const p = participant.array.filter(p => p.name == i.name.replace(/\.[^/.]+$/, ""));
+                    const p = participant.array.filter(p => p.name == i.baseName.replace(/\.[^/.]+$/, ""));
                     del_list.push(...p);
                 });
 
@@ -469,7 +469,7 @@
                     await tournament.search();
                 }
             };
-            await UniApp.selectFile(['.ydk'], f);
+            await UniApp.selectFile(['.ydk', '.txt'], f);
         },
         copy : () : void => {
             if (!tournament.this) return;
