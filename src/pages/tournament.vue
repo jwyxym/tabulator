@@ -469,7 +469,7 @@
                     await tournament.search();
                 }
             };
-            await UniApp.selectFile(['.ydk', '.txt'], f);
+            await UniApp.selectFile(['.ydk'], f);
         },
         copy : () : void => {
             if (!tournament.this) return;
