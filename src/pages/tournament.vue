@@ -458,7 +458,8 @@
                 let del_list : Array<Participant> = [];
                 // @ts-ignore
                 res.tempFiles.forEach(i => {
-                    const p = participant.array.filter(p => p.name == i.baseName.replace(/\.[^/.]+$/, ""));
+                    const name = i.name.replace(/\.[^/.]+$/, "");
+                    const p = participant.array.filter(p => p.baseName == name || p.name == name);
                     del_list.push(...p);
                 });
 
