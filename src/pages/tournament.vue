@@ -458,15 +458,16 @@
                 let del_list : Array<Participant> = [];
                 // @ts-ignore
                 res.tempFiles.forEach(i => {
-                    const name = i.name.replace(/\.[^/.]+$/, "");
-                    const p = participant.array.filter(p => p.baseName == name || p.name == name);
+                    const fileName = i.name.replace(/\.[^/.]+$/, "");
+                    const name = fileName.split(/[\+\uFF0B]/);
+                    const p = participant.array.filter(p => p.name == ((name.length == 2 && !Number.isNaN(name[0]) && name[0].length > 3) ? name[1] : fileName));
                     del_list.push(...p);
                 });
 
                 // @ts-ignore
                 if (await Tabulator.Tournament.UpdateYdk(Mycard.token, tournament.this.id, res)) {
                     for (const i of del_list)
-                        await participant.del(i);
+                        await Tabulator.Participant.Delete(Mycard.token, i.id);
                     await tournament.search();
                 }
             };

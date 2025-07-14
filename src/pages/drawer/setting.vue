@@ -29,27 +29,27 @@
         </view>
         <br>
         <view v-show = 'operatorChk()'>
-            <view class = 'button click' @click = 'emit.on()'>
+            <view class = 'button' @click = 'emit.on()'>
                 <span>{{ `切换状态：${status.text.get(tournament.this.status)}` }}</span>
                 <uni-icons type = 'circle-filled' :color = 'status.color.get(tournament.this.status)'></uni-icons>
             </view>
-            <view class = 'button click' @click = 'emit.reset()'>
+            <view class = 'button' @click = 'emit.reset()'>
                 <span>重置比赛</span>
                 <uni-icons type = 'loop'></uni-icons>
             </view>
-            <view class = 'button click'  @click = 'emit.shuffle()'>
+            <view class = 'button'  @click = 'emit.shuffle()'>
                 <span>打乱选手</span>
                 <uni-icons type = 'auth'></uni-icons>
             </view>
-            <view class = 'button click'  @click = 'emit.upload()'>
+            <view class = 'button'  @click = 'emit.upload()'>
                 <span>上传选手</span>
                 <uni-icons type = 'cloud-upload'></uni-icons>
             </view>
-            <view class = 'button click' @click = 'emit.empty()'>
+            <view class = 'button' @click = 'emit.empty()'>
                 <span>清空选手</span>
                 <uni-icons type = 'spinner-cycle' color = 'red'></uni-icons>
             </view>
-            <view class = 'button click' @click = 'emit.del()'>
+            <view class = 'button' @click = 'emit.del()'>
                 <span>删除比赛</span>
                 <uni-icons type = 'trash' color = 'red'></uni-icons>
             </view>
@@ -85,7 +85,7 @@
                         </uni-forms>
                     </template>
                     <template v-slot:footer>
-                        <view  id = 'footer'>
+                        <view id = 'footer'>
                             <view
                                 class = 'button'
                                 :style = "{ '--color' : '#409eff' }"
