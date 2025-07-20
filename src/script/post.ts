@@ -291,7 +291,7 @@ class TabulatorAPI {
                 for (let i = 0; i < res.tempFilePaths.length; i++) {
                     let f = await fetch(res.tempFilePaths[i]);
                     let blob = await f.blob();
-                    formData.append('files', blob, res.tempFiles[i].name.replace('.ydk', ''));
+                    formData.append('files', blob, res.tempFiles[i].name.replace(/\.[^/.]+$/, ""));
                 }
                 response = await this.url.post(`/api/tournament/${id}/upload-ydk`,formData, {
                     headers : {

@@ -92,7 +92,7 @@
                                 </uni-list-item>
                                 <uni-list-item
                                     v-for = '(i, v) in participant.array.filter(i => searcher.filterParticipant(i)).slice((participant.page - 1) * 20, participant.page * 20)'
-                                    :title = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1.id == i.id || m.player2.id == i.id)) > -1 ? `胜平负：${i.score.win + i.score.bye}-${i.score.draw}-${i.score.lose}` : ''"
+                                    :title = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1.id == i.id || m.player2.id == i.id)) > -1 ? `胜平负：${i.score.win + (i.quit ? 0 : i.score.bye)}-${i.score.draw}-${i.score.lose}` : ''"
                                     :note = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1.id == i.id || m.player2.id == i.id)) > -1 ? `分数：${i.score.score}\n小分：${i.score.tieBreaker}` : ''"
                                     :clickable = true
                                 >
@@ -555,6 +555,7 @@
         array : [] as Array<Participant>,
         total : 0,
         page : 1,
+        copyValue : 0,
         add : async() : Promise<void> => {
             // @ts-ignore
             if (await Tabulator.Participant.Create(Mycard.token, { name : participant.name, tournamentId : tournament.this.id}, participant.array)) {
@@ -665,8 +666,7 @@
                 string += `[${map.get(i) ?? `第${i + 1}名`}][${p.name}]${p.qq ? `[${p.qq}]` : ''}\n`
             }
             UniApp.copy(string);
-        },
-        copyValue : 0
+        }
     });
 
     let page = reactive({
