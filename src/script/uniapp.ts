@@ -1,5 +1,5 @@
 class UniappFuncs {
-    selectFile (type : Array<string>, f : Function, count : number = 100) : any {
+    selectFile (type : Array<string>, f : Function, count : number = 500) : any {
         let result;
         try {
             // @ts-ignore
