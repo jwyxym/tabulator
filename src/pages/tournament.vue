@@ -242,7 +242,7 @@
                                                 :disabled = "i.status != 'Running'"
                                             ></uni-easyinput>
                                         </view>
-                                        <view class = 'button' @click = 'match.submit.on(i)'>{{ i.status == 'Running' ? '提交比分' : i.status == 'Finished' ? '重赛' : '' }}</view>
+                                        <view class = 'button' @click = 'match.submit.on(i)' v-show = 'tournament.operatorChk()'>{{ i.status == 'Running' ? '提交比分' : i.status == 'Finished' ? '重赛' : '' }}</view>
                                     </view>
                                     <uni-list-item
                                         :clickable = true
