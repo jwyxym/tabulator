@@ -338,6 +338,8 @@
                 if (i) collaborators.push(i);
             }
             tournament.collaborators = collaborators;
+            emitter.emit(Const.settingInit, tournament);
+            emitter.emit(Const.searcherInit, search);
         },
         updateRounds : (round : number) : void => {
             tournament.rule.settings.rounds = round;
@@ -454,11 +456,6 @@
         // @ts-ignore
         emitter.on(Const.createOff, creator.off);
         window.addEventListener('hashchange', loading);
-    });
-
-    onMounted(() => {
-        emitter.emit(Const.settingInit, tournament);
-        emitter.emit(Const.searcherInit, search);
     });
 
     onUnmounted(() => {
