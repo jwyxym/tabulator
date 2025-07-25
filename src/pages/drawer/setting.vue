@@ -101,7 +101,7 @@
         <br>
             <uni-easyinput v-show = 'operatorChk()' type = 'text' placeholder = '卡图图床（例：https://example.com/api/）' v-model = 'tournament.pics'/>
         <br>
-        <view class = 'button' @click = 'tournament.update()'>
+        <view class = 'button' @click = 'tournament.update()' v-show = 'operatorChk()'>
             <view>
                 <span>设置</span>
                 <uni-icons type = 'calendar'></uni-icons>

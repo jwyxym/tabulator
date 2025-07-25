@@ -316,7 +316,7 @@ class TabulatorAPI {
             };
             try {
                 Loading.value = true;
-                response = await this.url.post(`/api/tournament/${id}/clear-participants`, {
+                response = await this.url.post(`/api/tournament/${id}/clear-participants`, {}, {
                     headers: {
                         'x-user-token' : token
                     }
