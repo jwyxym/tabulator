@@ -68,10 +68,9 @@
                     :avatar = 'i.avatar'
                     :title = 'i.username'
                     :note = "i.id >= 0 ? i.id.toString() : ''"
-                    @click = 'tournament.remove(v)'
                 >
                     <view>
-                        <view class = 'button'>
+                        <view class = 'button' @click = 'tournament.remove(v)'>
                             <uni-icons type = 'trash'></uni-icons>
                         </view>
                     </view>

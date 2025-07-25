@@ -56,10 +56,9 @@
                     :avatar = 'i.avatar'
                     :title = 'i.username'
                     :note = "i.id >= 0 ? i.id.toString() : ''"
-                    @click = 'create.remove(v)'
                 >
                     <view>
-                        <view class = 'button'>
+                        <view class = 'button' @click = 'create.remove(v)'>
                             <uni-icons type = 'trash'></uni-icons>
                         </view>
                     </view>
