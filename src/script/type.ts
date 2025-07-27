@@ -80,13 +80,12 @@ interface TournamentFindObject {
 }
 
 interface Score {
-    rank : number;
     score : number;
     win : number;
     draw : number;
     lose : number;
     bye : number;
-    tieBreaker : number;
+    tieBreaker ?: number;
 }
 
 interface ParticipantFindObject {

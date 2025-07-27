@@ -99,16 +99,28 @@ class TabulatorAPI {
                         'x-user-token' : token
                     }
                 });
+                const tournament = new Tournament(response.data.data);
                 let participants : Array<Participant> = [];
                 let matches : Array<Match> = [];
                 response.data.data.participants.forEach((i : ParticipantObject) => {
                     participants.push(new Participant(i));
                 });
                 response.data.data.matches.forEach((i : MatchObject) => {
-                    matches.push(new Match(i));
+                    matches.push(new Match(i, participants));
                 });
+                participants.forEach(i => {
+                    i.getScore(matches, tournament);
+                });
+                participants.forEach(i => {
+                    i.getTieBreaker(participants, matches);
+                });
+                if (tournament.status != 'Ready') {
+                    participants.sort((a, b) => {
+                        return b.score.score - a.score.score
+                    });
+                }
                 return {
-                    tournament : new Tournament(response.data.data),
+                    tournament : tournament,
                     participant : {
                         participants : participants,
                         total : participants.length

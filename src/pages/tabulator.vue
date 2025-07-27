@@ -122,7 +122,7 @@
                             v-for = '(i, v) in search.result.tournaments'
                             :title = 'i.name'
                             :note = 'search.rule.note.get(i.rule)'
-                            :rightText = '`${i.createdAt.toLocaleDateString()}\n${i.count}`'
+                            :rightText = '`${i.createdAt.toLocaleDateString()}`'
                             :clickable = true
                             @click = 'page.show.tournament(i.id)'
                         ></uni-list-item>

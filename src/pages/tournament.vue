@@ -62,6 +62,17 @@
                                     :max = 'participant.array.length'
                                 ></uni-number-box>
                                 名
+                                <uni-fav :checked = "searcher.p.chk"
+                                    :content-text = "{
+                                        contentDefault: '全部',
+                                        contentFav: '参与中'
+                                    }"
+                                    @click = 'searcher.p.btn()'
+                                    :star = 'false'
+                                    bgColor = 'white'
+                                    bgColorChecked = '#e6e6e6'
+                                    fgColorChecked = 'black'
+                                />
                             </div>
                             <div>
                                 <view
@@ -100,7 +111,7 @@
                                         <view id = 'header'>
                                             <span>{{ i.name }}</span>
                                             <br>
-                                            <span class = 'small'>{{ tournament.this.status == 'Ready' ? `${v + 1}` : (i.score ? i.score.rank : '') }}</span>
+                                            <span class = 'small'>{{ v + 1 }}</span>
                                         </view>
                                     </template>
                                     <template v-slot:footer>
@@ -178,7 +189,7 @@
                             :current = 'participant.page'
                             v-model = 'participant.page'
                             pageSize = 20
-                            :total = 'searcher.participant ? participant.array.filter(i => searcher.filterParticipant(i)).length : participant.total'
+                            :total = 'participant.array.filter(i => searcher.filterParticipant(i)).length'
                         >
                         </uni-pagination>
                     </uni-card>
@@ -200,6 +211,17 @@
                                     :disabled = "tournament.this.status == 'Ready'"
                                 ></uni-number-box>
                                 <span>轮</span>
+                                <uni-fav :checked = "searcher.m.chk"
+                                    :content-text = "{
+                                        contentDefault: '全部',
+                                        contentFav: '进行中'
+                                    }"
+                                    @click = 'searcher.m.btn()'
+                                    :star = 'false'
+                                    bgColor = 'white'
+                                    bgColorChecked = '#e6e6e6'
+                                    fgColorChecked = 'black'
+                                />
                             </div>
                             <div>
                                 <view class = 'button' @click = '() => { match.round = 0; }'>全部轮次</view>
@@ -475,7 +497,7 @@
         },
         copy : () : void => {
             if (!tournament.this) return;
-            let string = `<--- ${tournament.this.name} - [${tournament.this.rule == 'SingleElimination' ? '淘汰赛' : '瑞士轮'}]${tournament.this.ruleSettings.rounds ? `[${tournament.this.ruleSettings.rounds}轮]` : ''}[${tournament.this.count ?? 0}人] --->\n`
+            let string = `<--- ${tournament.this.name} - [${tournament.this.rule == 'SingleElimination' ? '淘汰赛' : '瑞士轮'}]${tournament.this.ruleSettings.rounds ? `[${tournament.this.ruleSettings.rounds}轮]` : ''}[${participant.array.length}人] --->\n`
             for (let round = 1; round <= match.maxRound; round ++) {
                 if (match.round > 0 && match.round != round) continue;
                 string += `---------------------------------------------\n第[ ${round} ]轮对决战况表\n---------------------------------------------\n`
@@ -652,7 +674,7 @@
         },
         copy : () : void => {
             if (!tournament.this) return;
-            let string = `<--- ${tournament.this.name} - [${tournament.this.rule == 'SingleElimination' ? '淘汰赛' : '瑞士轮'}]${tournament.this.ruleSettings.rounds ? `[${tournament.this.ruleSettings.rounds}轮]` : ''}[${tournament.this.count ?? 0}人] --->\n`;
+            let string = `<--- ${tournament.this.name} - [${tournament.this.rule == 'SingleElimination' ? '淘汰赛' : '瑞士轮'}]${tournament.this.ruleSettings.rounds ? `[${tournament.this.ruleSettings.rounds}轮]` : ''}[${participant.array.length ?? 0}人] --->\n`;
             let copyValue = participant.copyValue;
             if (copyValue == 0) copyValue = participant.array.length;
             const map : Map<number, string> = new Map([
@@ -728,14 +750,30 @@
         filterMatch : (i : Match) : boolean => {
             if ((i.round != match.round && match.round != 0) || (i.status == 'Abandoned' && !i.player1.name || !i.player2.name))
                 return false;
+            if (searcher.m.chk && i.status != 'Running')
+                return false;
             return searcher.match ? i.player1.name.toUpperCase().includes(searcher.match.toUpperCase()) || i.player2.name.toUpperCase().includes(searcher.match.toUpperCase()) : true;
         },
         filterParticipant : (i : Participant) : boolean => {
+            if (searcher.p.chk && i.quit)
+                return false;
             return searcher.participant ? i.name.toUpperCase().includes(searcher.participant.toUpperCase()) : true;
         },
         reset : () : void => {
             searcher.participant = '';
             searcher.match = '';
+        },
+        p : {
+            chk : false,
+            btn : () : void => {
+                searcher.p.chk =! searcher.p.chk;
+            }
+        },
+        m : {
+            chk : false,
+            btn : () : void => {
+                searcher.m.chk =! searcher.m.chk;
+            }
         }
     });
 

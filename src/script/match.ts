@@ -19,23 +19,25 @@ class Match {
     winnerId : number | null;
     childMatchId : number;
 
-    constructor(obj : MatchObject) {
+    constructor(obj : MatchObject, p : Array<Participant>) {
         this.id = obj.id;
         this.tournamentId = obj.tournamentId;
         this.round = obj.round;
         this.isThirdPlaceMatch = obj.isThirdPlaceMatch;
         this.status = obj.status;
-        const name1 = obj.player1?.name.split(/[\+\uFF0B]/) ?? [];
+        const name1_str = p.find(i => i.id == obj.player1Id)?.name ?? '';
+        const name1 = name1_str.split(/[\+\uFF0B]/) ?? [];
         this.player1 = {
             id : obj.player1Id,
-            name : (name1.length == 2 && !Number.isNaN(name1[0]) && name1[0].length > 3) ? name1[1] : obj.player1?.name ?? '',
+            name : (name1.length == 2 && !Number.isNaN(name1[0]) && name1[0].length > 3) ? name1[1] : name1_str,
             qq : (name1.length == 2 && !Number.isNaN(name1[0]) && name1[0].length > 3) ? name1[0] : undefined,
             score : obj.player1Score
         };
-        const name2 = obj.player2?.name.split(/[\+\uFF0B]/) ?? [];
+        const name2_str = p.find(i => i.id == obj.player2Id)?.name ?? '';
+        const name2 = name2_str?.split(/[\+\uFF0B]/) ?? [];
         this.player2 = {
             id : obj.player2Id,
-            name : (name2.length == 2 && !Number.isNaN(name2[0]) && name2[0].length > 3) ? name2[1] : obj.player2?.name ?? '',
+            name : (name2.length == 2 && !Number.isNaN(name2[0]) && name2[0].length > 3) ? name2[1] : name2_str,
             qq : (name2.length == 2 && !Number.isNaN(name2[0]) && name2[0].length > 3) ? name2[0] : undefined,
             score : obj.player2Score
         };
