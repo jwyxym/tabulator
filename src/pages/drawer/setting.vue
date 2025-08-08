@@ -69,7 +69,7 @@
                     :title = 'i.username'
                     :note = "i.id >= 0 ? i.id.toString() : ''"
                 >
-                    <view>
+                    <view v-show = 'operatorChk()'>
                         <view class = 'button' @click = 'tournament.remove(v)'>
                             <uni-icons type = 'trash'></uni-icons>
                         </view>
