@@ -46,11 +46,13 @@ class  Participant {
     }
 
     getScore = (matches : Array<Match>, t : Tournament) : void => {
+        const max = Math.max(...matches.filter(i => i.status == 'Finished' || i.status == 'Running').map(i => i.round));
+        const joins = matches.filter(i => this.id == i.player1.id || this.id == i.player2.id);
         const m = {
-            win : matches.filter(i => this.id == i.winnerId).length,
-            draw : matches.filter(i => (this.id == i.player1.id || this.id == i.player2.id) && Number.isNaN(i.winnerId)).length,
-            lose : matches.filter(i => (this.id == i.player1.id || this.id == i.player2.id) && !Number.isNaN(i.winnerId) && i.winnerId != this.id).length,
-            bye : Math.max(...matches.filter(i => i.status == 'Finished' || i.status == 'Running').map(i => i.round)) - matches.filter(i => this.id == i.player1.id || this.id == i.player2.id).length
+            win : joins.filter(i => this.id == i.winnerId && i.status == "Finished").length,
+            draw : joins.filter(i => i.winnerId === null && i.status == "Finished").length,
+            lose : joins.filter(i => i.winnerId !== null && i.winnerId != this.id && i.status == "Finished").length,
+            bye :  max - joins.length
         };
         this.score = {
             score : m.win * t.ruleSettings.winScore + m.draw * t.ruleSettings.drawScore + m.bye * t.ruleSettings.byeScore,

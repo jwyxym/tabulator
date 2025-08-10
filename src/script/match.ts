@@ -20,6 +20,8 @@ class Match {
     childMatchId : number;
 
     constructor(obj : MatchObject, p : Array<Participant>) {
+        console.log(obj.player1Score)
+        console.log(obj.player2Score)
         this.id = obj.id;
         this.tournamentId = obj.tournamentId;
         this.round = obj.round;
