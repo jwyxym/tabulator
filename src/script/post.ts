@@ -108,12 +108,6 @@ class TabulatorAPI {
                 response.data.data.matches.forEach((i : MatchObject) => {
                     matches.push(new Match(i, participants));
                 });
-                participants.forEach(i => {
-                    i.getScore(matches, tournament);
-                });
-                participants.forEach(i => {
-                    i.getTieBreaker(participants, matches);
-                });
                 if (tournament.status != 'Ready') {
                     participants.sort((a, b) => {
                         return b.score.score - a.score.score

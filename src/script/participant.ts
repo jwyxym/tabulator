@@ -22,6 +22,7 @@ class  Participant {
         this.id = obj.id;
         this.deckbuf = obj.deckbuf ?? '';
         this.quit = obj.quit ?? false;
+        this.score = obj.score;
         if (obj.deckbuf)
             this.deck = YGOProDeck.fromUpdateDeckPayload(Base64.toUint8Array(this.deckbuf));
     }
@@ -43,34 +44,6 @@ class  Participant {
     Blob = () : Blob => {
         const data = this.deck?.toYdkString() ?? '';
         return new Blob([data], { type: 'text/plain' });
-    }
-
-    getScore = (matches : Array<Match>, t : Tournament) : void => {
-        const max = Math.max(...matches.filter(i => i.status == 'Finished' || i.status == 'Running').map(i => i.round));
-        const joins = matches.filter(i => this.id == i.player1.id || this.id == i.player2.id);
-        const m = {
-            win : joins.filter(i => this.id == i.winnerId && i.status == "Finished").length,
-            draw : joins.filter(i => i.winnerId === null && i.status == "Finished").length,
-            lose : joins.filter(i => i.winnerId !== null && i.winnerId != this.id && i.status == "Finished").length,
-            bye :  max - joins.length
-        };
-        this.score = {
-            score : m.win * t.ruleSettings.winScore + m.draw * t.ruleSettings.drawScore + m.bye * t.ruleSettings.byeScore,
-            win : m.win,
-            draw : m.draw,
-            bye : m.bye,
-            lose : m.lose
-        }
-    }
-
-    getTieBreaker = (participants : Array<Participant>, matches : Array<Match>) : void => {
-        let tieBreaker = 0;
-        matches.filter(i => this.id == i.player1.id || this.id == i.player2.id).forEach(i => {
-            const id = this.id == i.player1.id ? i.player2.id : i.player1.id;
-            const p = participants.find(p => p.id == id )?.score.score ?? 0;
-            tieBreaker += p;
-        });
-        this.score.tieBreaker = tieBreaker;
     }
 }
 
