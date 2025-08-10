@@ -104,7 +104,7 @@
                                 <uni-list-item
                                     v-for = '(i, v) in participant.array.filter(i => searcher.filterParticipant(i)).slice((participant.page - 1) * 20, participant.page * 20)'
                                     :title = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1.id == i.id || m.player2.id == i.id)) > -1 ? `胜平负：${i.score.win + (i.quit ? 0 : i.score.bye)}-${i.score.draw}-${i.score.lose}` : ''"
-                                    :note = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1.id == i.id || m.player2.id == i.id)) > -1 ? `分数：${i.score.score}\n小分：${i.score.tieBreaker}` : ''"
+                                    :note = "i.score && match.array.findIndex(m => (m.status == 'Finished' || m.status == 'Abandoned') && (m.player1.id == i.id || m.player2.id == i.id)) > -1 ? `${!Number.isNaN(i.score.score) ? `分数：${i.score.score}\n` : ''}${!Number.isNaN(i.score.tieBreaker) ? `小分：${i.score.tieBreaker}` : ''}` : ''"
                                     :clickable = true
                                 >
                                     <template v-slot:header>
